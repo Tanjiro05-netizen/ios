@@ -343,7 +343,6 @@ export default function AudioPlayer({ audiobook, compact = false, onClose }: Aud
 
           <TouchableOpacity style={styles.transportBtn} onPress={() => skipBy(-30)} disabled={!isLoaded}>
             <Ionicons name="play-back" size={20} color="rgba(255,255,255,0.5)" />
-            <Text style={styles.skipNum}>30</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.transportBtn} onPress={() => previousChapter && jumpToChapter(currentChapterIndex - 1)} disabled={!previousChapter}>
@@ -368,7 +367,6 @@ export default function AudioPlayer({ audiobook, compact = false, onClose }: Aud
 
           <TouchableOpacity style={styles.transportBtn} onPress={() => skipBy(30)} disabled={!isLoaded}>
             <Ionicons name="play-forward" size={20} color="rgba(255,255,255,0.5)" />
-            <Text style={styles.skipNum}>30</Text>
           </TouchableOpacity>
 
         </View>
@@ -652,14 +650,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  skipNum: {
-    position: 'absolute',
-    fontSize: 7,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.5)',
-    fontFamily: 'Courier',
-    top: 15, // Adjusted to sit inside the icon visually
   },
   playBtn: {
     width: 56,

@@ -14,7 +14,6 @@ export default function ForumScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.titleBar}>
         <Text style={styles.screenTitle}>Forum</Text>
-        <Text style={styles.screenSubtitle}>Vol. I / Status: Pending</Text>
       </View>
 
       <View style={styles.content}>
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 24,
-    backgroundColor: 'rgba(200, 30, 30, 0.08)',
+    backgroundColor: '#1a0f0f',
     borderWidth: 1,
     borderColor: 'rgba(200, 30, 30, 0.2)',
     alignItems: 'center',

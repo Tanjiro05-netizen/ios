@@ -364,7 +364,7 @@ export default function ProfileScreen() {
               profile.bio ? (
                 <Text style={styles.bio}>{profile.bio}</Text>
               ) : (
-                <Text style={styles.bioPhoeholder}>No bio yet. Tap Edit Profile to add one.</Text>
+                <Text style={styles.bioPlaceholder}>No bio yet. Tap Edit Profile to add one.</Text>
               )
             )}
           </View>
@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     lineHeight: 22,
   },
-  bioPhoeholder: {
+  bioPlaceholder: {
     fontFamily: FONTS.family.body,
     fontSize: 14,
     color: COLORS.textTertiary,

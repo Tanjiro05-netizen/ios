@@ -8,49 +8,49 @@ import { Platform } from 'react-native';
 
 // Light impact - for button presses, toggles
 export const lightImpact = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 };
 
 // Medium impact - for significant actions like like, bookmark
 export const mediumImpact = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   }
 };
 
 // Heavy impact - for major actions like post, delete
 export const heavyImpact = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   }
 };
 
 // Selection feedback - for picker/tab changes
 export const selectionFeedback = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.selectionAsync();
   }
 };
 
 // Success notification - for completed actions
 export const successNotification = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
 };
 
 // Warning notification - for warnings
 export const warningNotification = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   }
 };
 
 // Error notification - for errors
 export const errorNotification = () => {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS !== 'web') {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
   }
 };

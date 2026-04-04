@@ -10,14 +10,17 @@ import {
   ActivityIndicator,
   RefreshControl,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { COLORS, FONTS } from '../constants';
+import { COLORS, FONTS, SPACING } from '../constants';
 import { api } from '../lib/api';
 import { Book, RootStackParamList } from '../types';
+import { downloadsStorage, downloadBookPdf, DownloadedBook } from '../lib/downloads';
+import toast from '../lib/toast';
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -41,6 +44,72 @@ export default function LibraryScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Download states
+  const [downloadedIds, setDownloadedIds] = useState<Set<string>>(new Set());
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+
+  // Refresh downloaded list when screen focuses
+  useFocusEffect(
+    useCallback(() => {
+      refreshDownloadedIds();
+    }, [])
+  );
+
+  const refreshDownloadedIds = async () => {
+    const all = await downloadsStorage.getAll();
+    setDownloadedIds(new Set(all.map((d) => d.bookId)));
+  };
+
+  const handleDownload = async (book: Book) => {
+    if (!book.pdf_filename) {
+      Alert.alert('Not Available', 'This book does not have a downloadable PDF.');
+      return;
+    }
+    if (downloadedIds.has(book.id)) {
+      Alert.alert(
+        'Already Downloaded',
+        `"${book.title}" is saved for offline reading.`,
+        [
+          { text: 'Read Now', onPress: () => handleBookPress(book) },
+          {
+            text: 'Remove Download',
+            style: 'destructive',
+            onPress: async () => {
+              await downloadsStorage.remove(book.id);
+              await refreshDownloadedIds();
+              toast.info('Download removed', `"${book.title}" removed from offline storage.`);
+            },
+          },
+          { text: 'Cancel', style: 'cancel' },
+        ],
+      );
+      return;
+    }
+
+    try {
+      setDownloadingId(book.id);
+      setDownloadProgress(0);
+      const remoteUrl = api.getBookPdfUrl(book.pdf_filename);
+      await downloadBookPdf(
+        book.id,
+        book.title,
+        book.author ?? undefined,
+        book.pdf_filename,
+        remoteUrl,
+        (progress) => setDownloadProgress(progress),
+      );
+      await refreshDownloadedIds();
+      toast.success('Downloaded!', `"${book.title}" saved for offline reading.`);
+    } catch (err) {
+      console.error('Download error:', err);
+      toast.error('Download failed', 'Please check your connection and try again.');
+    } finally {
+      setDownloadingId(null);
+      setDownloadProgress(0);
+    }
+  };
 
   const loadBooks = useCallback(async (reset = false) => {
     if (reset) {
@@ -114,53 +183,76 @@ export default function LibraryScreen() {
     navigation.navigate('BookReader', { bookId: book.id });
   };
 
-  const renderBookCard = ({ item }: { item: Book }) => (
-    <TouchableOpacity
-      style={styles.bookCard}
-      onPress={() => handleBookPress(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.coverContainer}>
-        {item.cover_image_url ? (
-          <Image
-            source={{ uri: item.cover_image_url }}
-            style={styles.coverImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.placeholderCover}>
-            <Ionicons name="book" size={40} color={COLORS.textTertiary} />
-          </View>
-        )}
-        {activeTab === 'official' && (
-          <View style={styles.officialBadge}>
-            <Text style={styles.officialBadgeText}>REF: DE_1867</Text>
-          </View>
-        )}
-      </View>
-      <View style={styles.bookInfo}>
-        <Text style={styles.bookTitle} numberOfLines={2}>
-          {item.title}
-        </Text>
-        <Text style={styles.bookAuthor} numberOfLines={1}>
-          {item.author || 'Unknown Author'}
-        </Text>
-        {item.year && (
-          <Text style={styles.bookYear}>{item.year}</Text>
-        )}
-        <View style={styles.bookMeta}>
-          <View style={styles.metaItem}>
-            <Ionicons name="document-text-outline" size={12} color={COLORS.textSecondary} />
-            <Text style={styles.metaText}>{item.pages || '?'} pages</Text>
-          </View>
-          <View style={styles.metaItem}>
-            <Ionicons name="download-outline" size={12} color={COLORS.textSecondary} />
-            <Text style={styles.metaText}>{item.downloads || 0}</Text>
+  const renderBookCard = ({ item }: { item: Book }) => {
+    const isDownloaded = downloadedIds.has(item.id);
+    const isDownloading = downloadingId === item.id;
+
+    return (
+      <TouchableOpacity
+        style={styles.bookCard}
+        onPress={() => handleBookPress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.coverContainer}>
+          {item.cover_image_url ? (
+            <Image
+              source={{ uri: item.cover_image_url }}
+              style={styles.coverImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.placeholderCover}>
+              <Ionicons name="book" size={40} color={COLORS.textTertiary} />
+            </View>
+          )}
+          {isDownloaded && (
+            <View style={styles.downloadedBadge}>
+              <Ionicons name="checkmark-circle" size={14} color="#00BA7C" />
+            </View>
+          )}
+        </View>
+        <View style={styles.bookInfo}>
+          <Text style={styles.bookTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+          <Text style={styles.bookAuthor} numberOfLines={1}>
+            {item.author || 'Unknown Author'}
+          </Text>
+          {item.year && (
+            <Text style={styles.bookYear}>{item.year}</Text>
+          )}
+          <View style={styles.bookMeta}>
+            <View style={styles.metaItem}>
+              <Ionicons name="document-text-outline" size={12} color={COLORS.textSecondary} />
+              <Text style={styles.metaText}>{item.pages || '?'} pages</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.downloadBtn}
+              onPress={(e) => {
+                e.stopPropagation?.();
+                handleDownload(item);
+              }}
+              disabled={isDownloading}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              {isDownloading ? (
+                <View style={styles.downloadingRow}>
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                  <Text style={styles.downloadProgressText}>{downloadProgress}%</Text>
+                </View>
+              ) : (
+                <Ionicons
+                  name={isDownloaded ? 'cloud-done' : 'cloud-download-outline'}
+                  size={18}
+                  color={isDownloaded ? '#00BA7C' : COLORS.primary}
+                />
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -269,7 +361,6 @@ export default function LibraryScreen() {
       <View style={styles.titleBar}>
         <View style={{ flex: 1 }}>
           <Text style={styles.screenTitle}>Digital Collection</Text>
-          <Text style={styles.screenSubtitle}>Vol. IV / Access: Root</Text>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
           <Ionicons name="settings-outline" size={24} color={COLORS.textSecondary} />
@@ -458,23 +549,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  officialBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  officialBadgeText: {
-    fontFamily: FONTS.family.mono,
-    fontSize: 8,
-    color: COLORS.primaryLight,
-    letterSpacing: 1,
-  },
   bookInfo: {
     padding: 16,
   },
@@ -518,6 +592,31 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: COLORS.textSecondary,
     textTransform: 'uppercase',
+  },
+  downloadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 4,
+  },
+  downloadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  downloadProgressText: {
+    fontFamily: FONTS.family.mono,
+    fontSize: 8,
+    color: COLORS.primary,
+    letterSpacing: 1,
+  },
+  downloadedBadge: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: 12,
+    padding: 4,
   },
   loadingContainer: {
     flex: 1,

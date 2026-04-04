@@ -234,7 +234,9 @@ export default function AudiobooksScreen() {
           
           {selectedBook && (
             <View style={styles.playerPanel}>
-              <AudioPlayer audiobook={selectedBook} onClose={() => setSelectedId(null)} />
+              <ScrollView contentContainerStyle={styles.playerScrollContent} bounces={false}>
+                <AudioPlayer audiobook={selectedBook} onClose={() => setSelectedId(null)} />
+              </ScrollView>
             </View>
           )}
         </View>
@@ -466,13 +468,16 @@ const styles = StyleSheet.create({
   },
   playerPanel: {
     position: 'absolute',
-    bottom: SPACING.md,
-    left: SPACING.md,
-    right: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 10,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#090909',
+  },
+  playerScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.lg,
   },
 });

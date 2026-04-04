@@ -15,6 +15,15 @@
         },
         "production": {
             "distribution": "store"
+        },
+        "production-apk": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            },
+            "env": {
+                "APP_VARIANT": "production"
+            }
         }
     },
     "submit": {

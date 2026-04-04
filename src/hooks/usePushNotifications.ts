@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { User } from '@supabase/supabase-js';
 import { api } from '../lib/api';
 
@@ -66,7 +67,10 @@ async function registerForPushNotifications(userId: string) {
       return;
     }
 
-    const tokenData = await Notifications.getExpoPushTokenAsync();
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId: projectId ?? undefined,
+    });
     await api.savePushToken(userId, tokenData.data);
   } catch (err) {
     // Firebase/FCM may not be configured — silently skip push registration

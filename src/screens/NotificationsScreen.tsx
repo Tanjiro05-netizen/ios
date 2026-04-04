@@ -94,7 +94,6 @@ export default function NotificationsScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.titleBar}>
           <Text style={styles.screenTitle}>Notifications</Text>
-          <Text style={styles.screenSubtitle}>Activity Feed</Text>
         </View>
         <View style={styles.emptyContainer}>
           <Ionicons name="notifications-off-outline" size={64} color={COLORS.textTertiary} />

@@ -123,9 +123,9 @@ export const formatTimeAgo = (dateString: string): string => {
 
 // Content limits
 export const LIMITS = {
-  TITLE_MIN: 1, // Lowered for testing
+  TITLE_MIN: 3,
   TITLE_MAX: 200,
-  CONTENT_MIN: 1, // Lowered for testing
+  CONTENT_MIN: 10,
   CONTENT_MAX: 50000,
   BIO_MAX: 160,
   USERNAME_MIN: 3,

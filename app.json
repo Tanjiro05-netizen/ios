@@ -31,6 +31,13 @@
           "sounds": []
         }
       ]
-    ]
+    ],
+    "extra": {
+      "supabaseUrl": "https://yghsprwrzgfegvfbjmkq.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnaHNwcndyemdmZWd2ZmJqbWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNzc0MTMsImV4cCI6MjA2Njg1MzQxM30.a_jILFYVfP-Z7DVkskrOM9O4Z44qJ20d5tYXwQH09jc",
+      "eas": {
+        "projectId": "b280c2b3-9654-420f-a776-82de1d78da36"
+      }
+    }
   }
 }

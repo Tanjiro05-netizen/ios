@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
+import Constants from 'expo-constants';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import { COLORS, SPACING, FONTS } from '../constants';
@@ -212,12 +213,12 @@ export default function SettingsScreen() {
         <SettingRow
           icon="document-text-outline"
           label="Terms of Service"
-          onPress={() => toast.info('Coming soon')}
+          onPress={() => toast.info('Terms of Service', 'By using Marxist Library you agree to our community guidelines. Full terms available at marxistlibrary.app/terms')}
         />
         <SettingRow
           icon="shield-checkmark-outline"
           label="Privacy Policy"
-          onPress={() => toast.info('Coming soon')}
+          onPress={() => toast.info('Privacy Policy', 'We collect minimal data to provide the service. Full policy at marxistlibrary.app/privacy')}
         />
       </View>
 
@@ -232,7 +233,9 @@ export default function SettingsScreen() {
       </View>
 
       {/* Version */}
-      <Text style={styles.version}>Version 1.0.0 (1)</Text>
+      <Text style={styles.version}>
+        Version {Constants.expoConfig?.version ?? '1.0.0'} ({Constants.expoConfig?.android?.versionCode ?? 1})
+      </Text>
     </ScrollView>
   );
 }

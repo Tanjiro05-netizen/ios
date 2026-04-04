@@ -106,13 +106,15 @@ class ForumApiService {
 
       if (error) throw error;
 
-      // Increment view count
-      await supabase
+      // Increment view count (fire-and-forget, don't block the read)
+      supabase
         .from('forum_threads')
         .update({ view_count: (data.view_count || 0) + 1 })
-        .eq('id', threadId);
+        .eq('id', threadId)
+        .then(({ error: updateError }) => {
+          if (updateError) console.warn('Failed to increment view count:', updateError);
+        });
 
-      if (error) throw error;
       return data;
     } catch (err) {
       console.error('Error fetching thread:', err);

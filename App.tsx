@@ -14,6 +14,7 @@ import { RootStackParamList, MainTabParamList } from './src/types';
 import { toastConfig } from './src/components/ToastConfig';
 import { haptics } from './src/lib/haptics';
 import { api } from './src/lib/api';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
@@ -217,12 +218,14 @@ function AppNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <AppNavigator />
-        <Toast config={toastConfig} />
-      </NavigationContainer>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <AppNavigator />
+          <Toast config={toastConfig} />
+        </NavigationContainer>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

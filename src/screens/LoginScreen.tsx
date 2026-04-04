@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 import { RootStackParamList } from '../types';
 import { COLORS, SPACING, FONTS } from '../constants';
 
@@ -29,6 +30,51 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleForgotPassword = async () => {
+    Alert.prompt
+      ? Alert.prompt(
+          'Reset Password',
+          'Enter your email address and we\'ll send you a reset link.',
+          async (resetEmail: string) => {
+            if (!resetEmail || !resetEmail.includes('@')) {
+              Alert.alert('Error', 'Please enter a valid email address.');
+              return;
+            }
+            const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim());
+            if (error) {
+              Alert.alert('Error', error.message);
+            } else {
+              Alert.alert('Check Your Email', 'If an account exists with that email, you\'ll receive a password reset link.');
+            }
+          },
+          'plain-text',
+          email,
+        )
+      : // Android fallback — Alert.prompt is iOS-only
+        Alert.alert(
+          'Reset Password',
+          'Enter your email in the field above, then tap here again.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Send Reset Link',
+              onPress: async () => {
+                if (!email || !email.includes('@')) {
+                  Alert.alert('Error', 'Please enter your email address in the email field first.');
+                  return;
+                }
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+                if (error) {
+                  Alert.alert('Error', error.message);
+                } else {
+                  Alert.alert('Check Your Email', 'If an account exists with that email, you\'ll receive a password reset link.');
+                }
+              },
+            },
+          ],
+        );
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -107,7 +153,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.forgotPassword}>
+            <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPassword}>
               <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
 
@@ -129,12 +175,6 @@ export default function LoginScreen() {
               <Text style={styles.dividerText}>or</Text>
               <View style={styles.dividerLine} />
             </View>
-
-            {/* Apple Sign In */}
-            <TouchableOpacity style={styles.appleButton}>
-              <Text style={styles.appleIcon}></Text>
-              <Text style={styles.appleButtonText}>Continue with Apple</Text>
-            </TouchableOpacity>
 
             {/* Guest Browse */}
             <TouchableOpacity
@@ -261,23 +301,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: FONTS.sizes.sm,
     marginHorizontal: SPACING.md,
-  },
-  appleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.text,
-    borderRadius: 12,
-    paddingVertical: SPACING.lg,
-  },
-  appleIcon: {
-    fontSize: 18,
-    marginRight: SPACING.sm,
-  },
-  appleButtonText: {
-    color: COLORS.background,
-    fontSize: FONTS.sizes.md,
-    fontWeight: '600',
   },
   guestButton: {
     flexDirection: 'row',

@@ -15,6 +15,8 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { COLORS } from '../constants';
 import { api } from '../lib/api';
 import { Book, RootStackParamList } from '../types';
+import { downloadsStorage, downloadBookPdf } from '../lib/downloads';
+import toast from '../lib/toast';
 
 type BookReaderRouteProp = RouteProp<RootStackParamList, 'BookReader'>;
 
@@ -33,6 +35,8 @@ export default function BookReaderScreen() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [showHeader, setShowHeader] = useState(true);
+    const [isOfflineSaved, setIsOfflineSaved] = useState(false);
+    const [savingOffline, setSavingOffline] = useState(false);
 
     useEffect(() => {
         loadBook();
@@ -44,6 +48,28 @@ export default function BookReaderScreen() {
             setError(null);
             setDownloadProgress(0);
 
+            // Check persistent offline download FIRST (works without network)
+            const offlineEntry = await downloadsStorage.get(bookId);
+            if (offlineEntry) {
+                const offlineInfo = await FileSystem.getInfoAsync(offlineEntry.localPath);
+                if (offlineInfo.exists) {
+                    // Use offline metadata so the reader works without network
+                    setBook({
+                        id: offlineEntry.bookId,
+                        title: offlineEntry.title,
+                        author: offlineEntry.author ?? null,
+                        pdf_filename: offlineEntry.pdfFilename,
+                    } as Book);
+                    setLocalPdfPath(offlineEntry.localPath);
+                    setIsOfflineSaved(true);
+                    setLoading(false);
+                    // Try to increment count but don't block on it
+                    api.incrementDownloadCount(bookId).catch(() => {});
+                    return;
+                }
+            }
+
+            // No local download — fetch book data from network
             const bookData = await api.getBook(bookId);
             if (!bookData) {
                 setError('Book not found');
@@ -53,24 +79,18 @@ export default function BookReaderScreen() {
 
             setBook(bookData);
 
-            // Get remote PDF URL
-            const remoteUrl = api.getBookPdfUrl(bookData.pdf_filename);
-            console.log('📚 Downloading PDF from:', remoteUrl);
-
-            // Create local file path
+            // Check if already in cache
             const localPath = `${FileSystem.cacheDirectory}${bookData.pdf_filename}`;
-
-            // Check if already cached
             const fileInfo = await FileSystem.getInfoAsync(localPath);
             if (fileInfo.exists) {
-                console.log('📚 Using cached PDF:', localPath);
                 setLocalPdfPath(localPath);
                 setLoading(false);
-                await api.incrementDownloadCount(bookId);
+                api.incrementDownloadCount(bookId);
                 return;
             }
 
             // Download PDF to local cache
+            const remoteUrl = api.getBookPdfUrl(bookData.pdf_filename);
             const downloadResumable = FileSystem.createDownloadResumable(
                 remoteUrl,
                 localPath,
@@ -78,16 +98,14 @@ export default function BookReaderScreen() {
                 (downloadProgress) => {
                     const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
                     setDownloadProgress(Math.round(progress * 100));
-                    console.log(`📚 Download progress: ${Math.round(progress * 100)}%`);
                 }
             );
 
             const result = await downloadResumable.downloadAsync();
 
             if (result && result.uri) {
-                console.log('📚 PDF downloaded to:', result.uri);
                 setLocalPdfPath(result.uri);
-                await api.incrementDownloadCount(bookId);
+                api.incrementDownloadCount(bookId);
             } else {
                 throw new Error('Download failed - no file result');
             }
@@ -96,6 +114,28 @@ export default function BookReaderScreen() {
             setError(err?.message || 'Failed to load book');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSaveOffline = async () => {
+        if (!book || !book.pdf_filename || isOfflineSaved) return;
+        try {
+            setSavingOffline(true);
+            const remoteUrl = api.getBookPdfUrl(book.pdf_filename);
+            await downloadBookPdf(
+                book.id,
+                book.title,
+                book.author ?? undefined,
+                book.pdf_filename,
+                remoteUrl,
+            );
+            setIsOfflineSaved(true);
+            toast.success('Saved offline!', `"${book.title}" is now available without internet.`);
+        } catch (err) {
+            console.error('Error saving offline:', err);
+            toast.error('Save failed', 'Could not save for offline reading.');
+        } finally {
+            setSavingOffline(false);
         }
     };
 
@@ -167,6 +207,21 @@ export default function BookReaderScreen() {
                                 </Text>
                             )}
                         </View>
+                        <TouchableOpacity
+                            style={styles.offlineBtn}
+                            onPress={handleSaveOffline}
+                            disabled={isOfflineSaved || savingOffline}
+                        >
+                            {savingOffline ? (
+                                <ActivityIndicator size="small" color={COLORS.primary} />
+                            ) : (
+                                <Ionicons
+                                    name={isOfflineSaved ? 'cloud-done' : 'cloud-download-outline'}
+                                    size={20}
+                                    color={isOfflineSaved ? '#00BA7C' : COLORS.text}
+                                />
+                            )}
+                        </TouchableOpacity>
                         <View style={styles.pageIndicator}>
                             <Text style={styles.pageText}>
                                 {currentPage}/{totalPages || '?'}
@@ -268,6 +323,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: COLORS.textSecondary,
         marginTop: 2,
+    },
+    offlineBtn: {
+        padding: 8,
+        marginRight: 8,
     },
     pageIndicator: {
         backgroundColor: COLORS.backgroundSecondary,
