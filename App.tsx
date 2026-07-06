@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -26,9 +26,16 @@ import ForumScreen from './src/screens/ForumScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import UserProfileScreen from './src/screens/UserProfileScreen';
+import ThreadDetailScreen from './src/screens/ThreadDetailScreen';
+import CreateThreadScreen from './src/screens/CreateThreadScreen';
+import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import EmailPreferencesScreen from './src/screens/EmailPreferencesScreen';
+import LegalScreen from './src/screens/LegalScreen';
+
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function NotificationBadge({ count }: { count: number }) {
   if (count <= 0) return null;
@@ -197,6 +204,35 @@ function AppNavigator() {
             component={UserProfileScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="ThreadDetail"
+            component={ThreadDetailScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CreateThread"
+            component={CreateThreadScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ChangePassword"
+            component={ChangePasswordScreen}
+            options={{ title: 'Change Password' }}
+          />
+          <Stack.Screen
+            name="EmailPreferences"
+            component={EmailPreferencesScreen}
+            options={{ title: 'Email Preferences' }}
+          />
+          <Stack.Screen
+            name="Legal"
+            component={LegalScreen}
+            options={({ route }) => ({
+              title: route.params.type === 'terms' ? 'Terms of Service'
+                : route.params.type === 'privacy' ? 'Privacy Policy'
+                : 'Community Guidelines',
+            })}
+          />
         </>
       ) : (
         <>
@@ -210,6 +246,15 @@ function AppNavigator() {
             component={SignUpScreen}
             options={{ title: 'Create Account' }}
           />
+          <Stack.Screen
+            name="Legal"
+            component={LegalScreen}
+            options={({ route }) => ({
+              title: route.params.type === 'terms' ? 'Terms of Service'
+                : route.params.type === 'privacy' ? 'Privacy Policy'
+                : 'Community Guidelines',
+            })}
+          />
         </>
       )}
     </Stack.Navigator>
@@ -220,12 +265,12 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <NavigationContainer>
-          <StatusBar style="light" />
-          <AppNavigator />
-          <Toast config={toastConfig} />
-        </NavigationContainer>
-      </AuthProvider>
+          <NavigationContainer ref={navigationRef}>
+            <StatusBar style="light" />
+            <AppNavigator />
+            <Toast config={toastConfig} />
+          </NavigationContainer>
+        </AuthProvider>
     </ErrorBoundary>
   );
 }

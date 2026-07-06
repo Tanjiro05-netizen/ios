@@ -11,13 +11,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { api } from '../lib/api';
 import { COLORS, FONTS, SPACING, getIdeologyColor, getIdeologyAbbrev } from '../constants';
 import { RootStackParamList, Profile, UserStats } from '../types';
 
-type NavigationProp = StackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type RouteType = RouteProp<RootStackParamList, 'UserProfile'>;
 
 export default function UserProfileScreen() {

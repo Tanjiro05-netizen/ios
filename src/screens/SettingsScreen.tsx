@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import Constants from 'expo-constants';
 import { useAuth } from '../hooks/useAuth';
@@ -21,7 +21,7 @@ import { haptics } from '../lib/haptics';
 import toast from '../lib/toast';
 import { RootStackParamList } from '../types';
 
-type StackNav = StackNavigationProp<RootStackParamList>;
+type StackNav = NativeStackNavigationProp<RootStackParamList>;
 
 interface SettingRowProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -143,12 +143,12 @@ export default function SettingsScreen() {
         <SettingRow
           icon="lock-closed-outline"
           label="Change Password"
-          onPress={() => toast.info('Coming soon')}
+          onPress={() => navigation.navigate('ChangePassword')}
         />
         <SettingRow
           icon="mail-outline"
           label="Email Preferences"
-          onPress={() => toast.info('Coming soon')}
+          onPress={() => navigation.navigate('EmailPreferences')}
         />
       </View>
 
@@ -168,6 +168,13 @@ export default function SettingsScreen() {
           hasToggle
           toggleValue={settings.autoPlayVideos}
           onToggle={(value) => updateSetting('autoPlayVideos', value)}
+        />
+        <SettingRow
+          icon="flag-outline"
+          label="Show Ideology Badges"
+          hasToggle
+          toggleValue={settings.showIdeologyBadges}
+          onToggle={(value) => updateSetting('showIdeologyBadges', value)}
         />
       </View>
 
@@ -213,12 +220,17 @@ export default function SettingsScreen() {
         <SettingRow
           icon="document-text-outline"
           label="Terms of Service"
-          onPress={() => toast.info('Terms of Service', 'By using Marxist Library you agree to our community guidelines. Full terms available at marxistlibrary.app/terms')}
+          onPress={() => navigation.navigate('Legal', { type: 'terms' })}
         />
         <SettingRow
           icon="shield-checkmark-outline"
           label="Privacy Policy"
-          onPress={() => toast.info('Privacy Policy', 'We collect minimal data to provide the service. Full policy at marxistlibrary.app/privacy')}
+          onPress={() => navigation.navigate('Legal', { type: 'privacy' })}
+        />
+        <SettingRow
+          icon="people-outline"
+          label="Community Guidelines"
+          onPress={() => navigation.navigate('Legal', { type: 'guidelines' })}
         />
       </View>
 

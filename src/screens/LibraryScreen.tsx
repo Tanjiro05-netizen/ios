@@ -15,14 +15,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS, FONTS, SPACING } from '../constants';
 import { api } from '../lib/api';
 import { Book, RootStackParamList } from '../types';
-import { downloadsStorage, downloadBookPdf, DownloadedBook } from '../lib/downloads';
+import { epubCacheStorage, cacheBookEpub } from '../lib/downloads';
 import toast from '../lib/toast';
 
-type NavigationProp = StackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2; // 2 columns with padding
@@ -58,18 +58,18 @@ export default function LibraryScreen() {
   );
 
   const refreshDownloadedIds = async () => {
-    const all = await downloadsStorage.getAll();
+    const all = await epubCacheStorage.getAll();
     setDownloadedIds(new Set(all.map((d) => d.bookId)));
   };
 
   const handleDownload = async (book: Book) => {
-    if (!book.pdf_filename) {
-      Alert.alert('Not Available', 'This book does not have a downloadable PDF.');
+    if (!book.epub_filename) {
+      Alert.alert('Not Available', 'This book does not have a downloadable EPUB.');
       return;
     }
     if (downloadedIds.has(book.id)) {
       Alert.alert(
-        'Already Downloaded',
+        'Already Saved',
         `"${book.title}" is saved for offline reading.`,
         [
           { text: 'Read Now', onPress: () => handleBookPress(book) },
@@ -77,7 +77,7 @@ export default function LibraryScreen() {
             text: 'Remove Download',
             style: 'destructive',
             onPress: async () => {
-              await downloadsStorage.remove(book.id);
+              await epubCacheStorage.remove(book.id);
               await refreshDownloadedIds();
               toast.info('Download removed', `"${book.title}" removed from offline storage.`);
             },
@@ -91,17 +91,17 @@ export default function LibraryScreen() {
     try {
       setDownloadingId(book.id);
       setDownloadProgress(0);
-      const remoteUrl = api.getBookPdfUrl(book.pdf_filename);
-      await downloadBookPdf(
+      const remoteUrl = api.getBookEpubUrl(book.epub_filename);
+      await cacheBookEpub(
         book.id,
         book.title,
         book.author ?? undefined,
-        book.pdf_filename,
+        book.epub_filename,
         remoteUrl,
         (progress) => setDownloadProgress(progress),
       );
       await refreshDownloadedIds();
-      toast.success('Downloaded!', `"${book.title}" saved for offline reading.`);
+      toast.success('Saved offline!', `"${book.title}" saved for offline reading.`);
     } catch (err) {
       console.error('Download error:', err);
       toast.error('Download failed', 'Please check your connection and try again.');
@@ -314,7 +314,7 @@ export default function LibraryScreen() {
             onPress={() => setSelectedCategory(null)}
           >
             <Text style={[styles.filterPillText, !selectedCategory && styles.activeFilterPillText]}>
-              All Eras
+              All Categories
             </Text>
           </TouchableOpacity>
           {categories.map(category => (

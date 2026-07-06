@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { User } from '@supabase/supabase-js';
 import { api } from '../lib/api';
+import { navigationRef } from '../../App';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -29,8 +30,11 @@ export function usePushNotifications(user: User | null) {
       // the in-app screen will refresh on focus
     });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(() => {
-      // User tapped the push notification — navigation is handled at the app level
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      if (data?.thread_id && navigationRef.isReady()) {
+        navigationRef.navigate('ThreadDetail', { threadId: data.thread_id as string });
+      }
     });
 
     return () => {

@@ -79,15 +79,16 @@ export const BOARDS: Board[] = [
 
 // Ideology options with colors
 export const IDEOLOGIES = [
-  { value: 'Marxist-Leninist', label: 'Marxist-Leninist', abbrev: 'ML', color: '#D42727' },
-  { value: 'Marxism-Leninism-Maoism', label: 'MLM', abbrev: 'MLM', color: '#E85D04' },
-  { value: 'Left Communist', label: 'Left Communist', abbrev: 'LeftCom', color: '#FFBA08' },
-  { value: 'Trotskyist', label: 'Trotskyist', abbrev: 'Trot', color: '#F48C06' },
-  { value: 'Anarcho-Communist', label: 'Anarcho-Communist', abbrev: 'AnCom', color: '#9D0208' },
-  { value: 'Orthodox Marxist', label: 'Orthodox Marxist', abbrev: 'Orthodox', color: '#DC2F02' },
-  { value: 'Council Communist', label: 'Council Communist', abbrev: 'Council', color: '#E63946' },
-  { value: 'Democratic Socialist', label: 'Democratic Socialist', abbrev: 'DemSoc', color: '#EF476F' },
-  { value: 'Unaffiliated', label: 'Unaffiliated', abbrev: '', color: '#71767B' },
+  { value: 'Marxist-Leninist', label: 'Marxist-Leninist', abbrev: 'ML', color: '#e53935' },
+  { value: 'Maoist', label: 'Maoist', abbrev: 'MLM', color: '#d32f2f' },
+  { value: 'Trotskyist', label: 'Trotskyist', abbrev: 'Trot', color: '#fb8c00' },
+  { value: 'Council Communist', label: 'Council Communist', abbrev: 'Council', color: '#bf360c' },
+  { value: 'Bordigist', label: 'Bordigist', abbrev: 'Bord', color: '#b71c1c' },
+  { value: 'Anarcho-Communist', label: 'Anarcho-Communist', abbrev: 'AnCom', color: '#9d0208' },
+  { value: 'Libertarian Socialist', label: 'Libertarian Socialist', abbrev: 'LibSoc', color: '#43a047' },
+  { value: 'Democratic Socialist', label: 'Democratic Socialist', abbrev: 'DemSoc', color: '#1e88e5' },
+  { value: 'Orthodox Marxist', label: 'Orthodox Marxist', abbrev: 'Orthodox', color: '#c62828' },
+  { value: 'Unaffiliated', label: 'Unaffiliated', abbrev: '', color: '#757575' },
 ];
 
 export const getIdeologyColor = (ideology: string | null): string => {

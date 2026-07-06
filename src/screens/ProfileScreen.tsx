@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
@@ -25,7 +25,7 @@ import { COLORS, FONTS, SPACING, IDEOLOGIES, LIMITS, getIdeologyColor, getIdeolo
 import { RootStackParamList, Profile } from '../types';
 import toast from '../lib/toast';
 
-type NavigationProp = StackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();

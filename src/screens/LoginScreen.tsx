@@ -9,17 +9,18 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { RootStackParamList } from '../types';
 import { COLORS, SPACING, FONTS } from '../constants';
 
-type NavigationProp = StackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function LoginScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -30,50 +31,55 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
 
-  const handleForgotPassword = async () => {
-    Alert.prompt
-      ? Alert.prompt(
-          'Reset Password',
-          'Enter your email address and we\'ll send you a reset link.',
-          async (resetEmail: string) => {
-            if (!resetEmail || !resetEmail.includes('@')) {
-              Alert.alert('Error', 'Please enter a valid email address.');
-              return;
-            }
-            const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim());
-            if (error) {
-              Alert.alert('Error', error.message);
-            } else {
-              Alert.alert('Check Your Email', 'If an account exists with that email, you\'ll receive a password reset link.');
-            }
-          },
-          'plain-text',
-          email,
-        )
-      : // Android fallback — Alert.prompt is iOS-only
-        Alert.alert(
-          'Reset Password',
-          'Enter your email in the field above, then tap here again.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Send Reset Link',
-              onPress: async () => {
-                if (!email || !email.includes('@')) {
-                  Alert.alert('Error', 'Please enter your email address in the email field first.');
-                  return;
-                }
-                const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
-                if (error) {
-                  Alert.alert('Error', error.message);
-                } else {
-                  Alert.alert('Check Your Email', 'If an account exists with that email, you\'ll receive a password reset link.');
-                }
-              },
-            },
-          ],
-        );
+  const handleForgotPassword = () => {
+    if (Alert.prompt) {
+      Alert.prompt(
+        'Reset Password',
+        'Enter your email address and we\'ll send you a reset link.',
+        async (promptEmail: string) => {
+          if (!promptEmail || !promptEmail.includes('@')) {
+            Alert.alert('Error', 'Please enter a valid email address.');
+            return;
+          }
+          const { error } = await supabase.auth.resetPasswordForEmail(promptEmail.trim());
+          if (error) {
+            Alert.alert('Error', error.message);
+          } else {
+            Alert.alert('Check Your Email', 'If an account exists with that email, you\'ll receive a password reset link.');
+          }
+        },
+        'plain-text',
+        email,
+      );
+    } else {
+      setResetEmail(email);
+      setShowResetModal(true);
+    }
+  };
+
+  const handleSendResetLink = async () => {
+    if (!resetEmail || !resetEmail.includes('@')) {
+      Alert.alert('Error', 'Please enter a valid email address.');
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim());
+      if (error) {
+        Alert.alert('Error', error.message);
+      } else {
+        setShowResetModal(false);
+        Alert.alert('Check Your Email', 'If an account exists with that email, you\'ll receive a password reset link.');
+      }
+    } catch {
+      Alert.alert('Error', 'An unexpected error occurred.');
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   const handleLogin = async () => {
@@ -202,6 +208,52 @@ export default function LoginScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Android Reset Password Modal */}
+      <Modal
+        visible={showResetModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowResetModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Reset Password</Text>
+            <Text style={styles.modalDescription}>
+              Enter your email address and we'll send you a reset link.
+            </Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Email address"
+              placeholderTextColor={COLORS.textTertiary}
+              value={resetEmail}
+              onChangeText={setResetEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setShowResetModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalSubmitButton, resetLoading && { opacity: 0.7 }]}
+                onPress={handleSendResetLink}
+                disabled={resetLoading}
+              >
+                {resetLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.modalSubmitText}>Send Link</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -340,5 +392,64 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sizes.md,
     fontWeight: '500',
     marginLeft: SPACING.xs,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.xl,
+  },
+  modalContent: {
+    backgroundColor: COLORS.backgroundSecondary,
+    borderRadius: 16,
+    padding: SPACING.xl,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  modalTitle: {
+    color: COLORS.text,
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '600',
+    marginBottom: SPACING.sm,
+  },
+  modalDescription: {
+    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.sm,
+    lineHeight: 20,
+    marginBottom: SPACING.lg,
+  },
+  modalInput: {
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    color: COLORS.text,
+    fontSize: FONTS.sizes.md,
+    marginBottom: SPACING.lg,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: SPACING.sm,
+  },
+  modalCancelButton: {
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: 8,
+  },
+  modalCancelText: {
+    color: COLORS.textSecondary,
+    fontSize: FONTS.sizes.md,
+  },
+  modalSubmitButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: 8,
+  },
+  modalSubmitText: {
+    color: '#fff',
+    fontSize: FONTS.sizes.md,
+    fontWeight: '600',
   },
 });

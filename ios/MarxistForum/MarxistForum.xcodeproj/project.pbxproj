@@ -1,0 +1,673 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		002C47316C336783E468C790 /* EPUBReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC82109FAB2612E93CF32B3 /* EPUBReader.swift */; };
+		08EEFF71E0733225F012B31C /* ReadiumZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = ED0A684C01033433E8F0B62A /* ReadiumZIPFoundation */; };
+		0C22BAC73D197CBB93AA0A27 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D514F31E5F3F7E8DCB487FB /* Models.swift */; };
+		1FA37F6C2B5210869C0E73B7 /* AppIntentsIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A02B9FD97CF68FA18A4C40 /* AppIntentsIntegration.swift */; };
+		2BC7ACE90C12536F086A2CB2 /* MarxistForumApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF06395641E487346113B5B5 /* MarxistForumApp.swift */; };
+		4780277F3C12A1415DFBCAFD /* substack-archive.json in Resources */ = {isa = PBXBuildFile; fileRef = 0C06F164057FD5833AE63FEA /* substack-archive.json */; };
+		5797D1567BBED6BE9F415864 /* StoreKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */; };
+		68029C308CE02DEDB6A6EC04 /* Stores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A54756CB4E39D18CDE72493 /* Stores.swift */; };
+		78F99DE1AB455E93E9FC7915 /* SystemIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */; };
+		7E776FFD5BDA391B192D0C1C /* SystemIntegrationShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */; };
+		8074D70F5E5E069194D493F4 /* Screens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDBA440E92118BC6DA76589 /* Screens.swift */; };
+		9402B603F006739D4F737E65 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0EEBB5981708C7187C13A9B4 /* Supabase */; };
+		A1B5DA2FABBFBD32ACD49FF4 /* MarxistForumWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8D394898CFD98875515CF2 /* MarxistForumWidgets.swift */; };
+		A2455D22B6C7A43AC7B4EA75 /* AppleSignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */; };
+		A44F0758C28F6060DC2A57AB /* MarxistForumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */; };
+		A5CCBC91E1FA3A185AE8BFE1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69A4C8482BF1675E054CDD0F /* Assets.xcassets */; };
+		C3838B3ADE0D32620E760F53 /* SystemIntegrationShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */; };
+		D1573E325C0D436C7834E435 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866C3F4FE30B1216D52089EC /* API.swift */; };
+		F47B375DB10898BF804CC342 /* MarxistForumWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F4C89A9A16FBEA0185A3CA20 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66A91C45E409AE86C282264 /* Components.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7A4AF230938CF3BC7BDA9708 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E075139F1F5A134E9B14D551 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 71EFB8D14F23B8E6339B1DB8;
+			remoteInfo = MarxistForumWidgets;
+		};
+		808D00E1F4189ECD914A730D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E075139F1F5A134E9B14D551 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 284A6E6EBD7318E8E6730390;
+			remoteInfo = MarxistForum;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		87E07DF8BC41FFFEB0F1584D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F47B375DB10898BF804CC342 /* MarxistForumWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0A54756CB4E39D18CDE72493 /* Stores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores.swift; sourceTree = "<group>"; };
+		0C06F164057FD5833AE63FEA /* substack-archive.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "substack-archive.json"; sourceTree = "<group>"; };
+		0D514F31E5F3F7E8DCB487FB /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		0FDBA440E92118BC6DA76589 /* Screens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screens.swift; sourceTree = "<group>"; };
+		252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrationShared.swift; sourceTree = "<group>"; };
+		622D92D8C2418BCAFF4C8F32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignIn.swift; sourceTree = "<group>"; };
+		69A4C8482BF1675E054CDD0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitSupport.swift; sourceTree = "<group>"; };
+		7006AA59E51D15F32A3DB486 /* MarxistForumTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MarxistForumTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		81A02B9FD97CF68FA18A4C40 /* AppIntentsIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsIntegration.swift; sourceTree = "<group>"; };
+		866C3F4FE30B1216D52089EC /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumTests.swift; sourceTree = "<group>"; };
+		AF8D394898CFD98875515CF2 /* MarxistForumWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumWidgets.swift; sourceTree = "<group>"; };
+		D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MarxistForumWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9830FDE5093B0803DEC5D08 /* MarxistForum.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MarxistForum.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF06395641E487346113B5B5 /* MarxistForumApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumApp.swift; sourceTree = "<group>"; };
+		F66A91C45E409AE86C282264 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrations.swift; sourceTree = "<group>"; };
+		FFC82109FAB2612E93CF32B3 /* EPUBReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPUBReader.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2EA1927C673A38A380D81D54 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9402B603F006739D4F737E65 /* Supabase in Frameworks */,
+				08EEFF71E0733225F012B31C /* ReadiumZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4D43358C6E1922CA1F6AAF44 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				866C3F4FE30B1216D52089EC /* API.swift */,
+				81A02B9FD97CF68FA18A4C40 /* AppIntentsIntegration.swift */,
+				6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */,
+				F66A91C45E409AE86C282264 /* Components.swift */,
+				FFC82109FAB2612E93CF32B3 /* EPUBReader.swift */,
+				EF06395641E487346113B5B5 /* MarxistForumApp.swift */,
+				0D514F31E5F3F7E8DCB487FB /* Models.swift */,
+				0FDBA440E92118BC6DA76589 /* Screens.swift */,
+				6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */,
+				0A54756CB4E39D18CDE72493 /* Stores.swift */,
+				FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */,
+				753C83E55461AFEF6DE0362D /* Shared */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		5CF6E462CDC7F5C83D4F3583 /* WidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				622D92D8C2418BCAFF4C8F32 /* Info.plist */,
+				AF8D394898CFD98875515CF2 /* MarxistForumWidgets.swift */,
+			);
+			path = WidgetExtension;
+			sourceTree = "<group>";
+		};
+		6BBC2239FC03A4411850765D = {
+			isa = PBXGroup;
+			children = (
+				F1DD069191DFA5E4672F87B5 /* Resources */,
+				4D43358C6E1922CA1F6AAF44 /* Sources */,
+				DA17FE89E0D039B210DED045 /* Tests */,
+				5CF6E462CDC7F5C83D4F3583 /* WidgetExtension */,
+				FC41C1097BD24285D81FF493 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		753C83E55461AFEF6DE0362D /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		DA17FE89E0D039B210DED045 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		F1DD069191DFA5E4672F87B5 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				69A4C8482BF1675E054CDD0F /* Assets.xcassets */,
+				0C06F164057FD5833AE63FEA /* substack-archive.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		FC41C1097BD24285D81FF493 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E9830FDE5093B0803DEC5D08 /* MarxistForum.app */,
+				7006AA59E51D15F32A3DB486 /* MarxistForumTests.xctest */,
+				D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0CA48094654AB95505651E1C /* MarxistForumTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 56C8FCC5F07DF5CA6CA29AD8 /* Build configuration list for PBXNativeTarget "MarxistForumTests" */;
+			buildPhases = (
+				F707F98974FDF57B5795880C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				949FF4D07501C917320932EB /* PBXTargetDependency */,
+			);
+			name = MarxistForumTests;
+			packageProductDependencies = (
+			);
+			productName = MarxistForumTests;
+			productReference = 7006AA59E51D15F32A3DB486 /* MarxistForumTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		284A6E6EBD7318E8E6730390 /* MarxistForum */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD35F1AD43D39F53CBDC8B83 /* Build configuration list for PBXNativeTarget "MarxistForum" */;
+			buildPhases = (
+				CF33D3534334E1787EC8ACB1 /* Sources */,
+				C5C34A0EC75809E8FA5DF13A /* Resources */,
+				2EA1927C673A38A380D81D54 /* Frameworks */,
+				87E07DF8BC41FFFEB0F1584D /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				50E9526979699EEA208F5212 /* PBXTargetDependency */,
+			);
+			name = MarxistForum;
+			packageProductDependencies = (
+				0EEBB5981708C7187C13A9B4 /* Supabase */,
+				ED0A684C01033433E8F0B62A /* ReadiumZIPFoundation */,
+			);
+			productName = MarxistForum;
+			productReference = E9830FDE5093B0803DEC5D08 /* MarxistForum.app */;
+			productType = "com.apple.product-type.application";
+		};
+		71EFB8D14F23B8E6339B1DB8 /* MarxistForumWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B81C7247CEC623EAD4FB9C2F /* Build configuration list for PBXNativeTarget "MarxistForumWidgets" */;
+			buildPhases = (
+				98B674C38E6F75755CF891DA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MarxistForumWidgets;
+			packageProductDependencies = (
+			);
+			productName = MarxistForumWidgets;
+			productReference = D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E075139F1F5A134E9B14D551 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					284A6E6EBD7318E8E6730390 = {
+						ProvisioningStyle = Automatic;
+					};
+					71EFB8D14F23B8E6339B1DB8 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 404AE9D0D35118BD075E83E6 /* Build configuration list for PBXProject "MarxistForum" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 6BBC2239FC03A4411850765D;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E45B269C977030AB88F47799 /* XCRemoteSwiftPackageReference "swift-toolkit" */,
+				AD84ED1657C53987297E4183 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				4A582ACCF79B8A94086FECFA /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = FC41C1097BD24285D81FF493 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				284A6E6EBD7318E8E6730390 /* MarxistForum */,
+				0CA48094654AB95505651E1C /* MarxistForumTests */,
+				71EFB8D14F23B8E6339B1DB8 /* MarxistForumWidgets */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C5C34A0EC75809E8FA5DF13A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5CCBC91E1FA3A185AE8BFE1 /* Assets.xcassets in Resources */,
+				4780277F3C12A1415DFBCAFD /* substack-archive.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		98B674C38E6F75755CF891DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B5DA2FABBFBD32ACD49FF4 /* MarxistForumWidgets.swift in Sources */,
+				7E776FFD5BDA391B192D0C1C /* SystemIntegrationShared.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF33D3534334E1787EC8ACB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D1573E325C0D436C7834E435 /* API.swift in Sources */,
+				1FA37F6C2B5210869C0E73B7 /* AppIntentsIntegration.swift in Sources */,
+				A2455D22B6C7A43AC7B4EA75 /* AppleSignIn.swift in Sources */,
+				F4C89A9A16FBEA0185A3CA20 /* Components.swift in Sources */,
+				002C47316C336783E468C790 /* EPUBReader.swift in Sources */,
+				2BC7ACE90C12536F086A2CB2 /* MarxistForumApp.swift in Sources */,
+				0C22BAC73D197CBB93AA0A27 /* Models.swift in Sources */,
+				8074D70F5E5E069194D493F4 /* Screens.swift in Sources */,
+				5797D1567BBED6BE9F415864 /* StoreKitSupport.swift in Sources */,
+				68029C308CE02DEDB6A6EC04 /* Stores.swift in Sources */,
+				C3838B3ADE0D32620E760F53 /* SystemIntegrationShared.swift in Sources */,
+				78F99DE1AB455E93E9FC7915 /* SystemIntegrations.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F707F98974FDF57B5795880C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A44F0758C28F6060DC2A57AB /* MarxistForumTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		50E9526979699EEA208F5212 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 71EFB8D14F23B8E6339B1DB8 /* MarxistForumWidgets */;
+			targetProxy = 7A4AF230938CF3BC7BDA9708 /* PBXContainerItemProxy */;
+		};
+		949FF4D07501C917320932EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 284A6E6EBD7318E8E6730390 /* MarxistForum */;
+			targetProxy = 808D00E1F4189ECD914A730D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3BCA93F4B7F00E36A645ACD5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MarxistForum.app/MarxistForum";
+			};
+			name = Debug;
+		};
+		4C84C0A3A004804B7C7E1CF5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForumWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = WidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum.widgets;
+				PRODUCT_NAME = MarxistForumWidgets;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4E98C990545B75B017009F6A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForum.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum;
+				PRODUCT_NAME = MarxistForum;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		640CDC935772973C687DE012 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForum.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum;
+				PRODUCT_NAME = MarxistForum;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8A24CBD76AE39601C2D22A32 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		9BA01C0D0A9BB6EFF452896D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MarxistForum.app/MarxistForum";
+			};
+			name = Release;
+		};
+		E25BE2FF514EDA7499C0A2D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForumWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = WidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum.widgets;
+				PRODUCT_NAME = MarxistForumWidgets;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F88713B468B7FA2256F779F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		404AE9D0D35118BD075E83E6 /* Build configuration list for PBXProject "MarxistForum" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A24CBD76AE39601C2D22A32 /* Debug */,
+				F88713B468B7FA2256F779F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		56C8FCC5F07DF5CA6CA29AD8 /* Build configuration list for PBXNativeTarget "MarxistForumTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3BCA93F4B7F00E36A645ACD5 /* Debug */,
+				9BA01C0D0A9BB6EFF452896D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B81C7247CEC623EAD4FB9C2F /* Build configuration list for PBXNativeTarget "MarxistForumWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4C84C0A3A004804B7C7E1CF5 /* Debug */,
+				E25BE2FF514EDA7499C0A2D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CD35F1AD43D39F53CBDC8B83 /* Build configuration list for PBXNativeTarget "MarxistForum" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				640CDC935772973C687DE012 /* Debug */,
+				4E98C990545B75B017009F6A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4A582ACCF79B8A94086FECFA /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		AD84ED1657C53987297E4183 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/readium/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.1;
+			};
+		};
+		E45B269C977030AB88F47799 /* XCRemoteSwiftPackageReference "swift-toolkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/readium/swift-toolkit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0EEBB5981708C7187C13A9B4 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4A582ACCF79B8A94086FECFA /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		ED0A684C01033433E8F0B62A /* ReadiumZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD84ED1657C53987297E4183 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ReadiumZIPFoundation;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E075139F1F5A134E9B14D551 /* Project object */;
+}

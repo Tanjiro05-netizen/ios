@@ -131,6 +131,11 @@ export type RootStackParamList = {
   Settings: undefined;
   BookReader: { bookId: string };
   UserProfile: { userId: string };
+  ThreadDetail: { threadId: string };
+  CreateThread: { boardSlug?: string };
+  ChangePassword: undefined;
+  EmailPreferences: undefined;
+  Legal: { type: 'terms' | 'privacy' | 'guidelines' };
 };
 
 export type MainTabParamList = {
@@ -177,7 +182,8 @@ export interface Book {
   year: number | null;
   description: string | null;
   cover_image_url: string | null;
-  pdf_filename: string;
+  pdf_filename: string | null;
+  epub_filename: string | null;
   pages: number | null;
   downloads: number;
   created_at: string;

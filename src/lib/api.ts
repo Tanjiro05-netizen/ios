@@ -791,9 +791,6 @@ class ForumApiService {
         .from('digital_library_books')
         .select('*', { count: 'exact' });
 
-      // Note: The is_official column doesn't exist in the database schema
-      // For now, we'll skip this filter and return all books regardless of filter type
-      // TODO: Add is_official column to digital_library_books table or handle differently
       if (filter === 'official') {
         query = query.eq('is_official', true);
       } else if (filter === 'community') {
@@ -935,6 +932,12 @@ class ForumApiService {
   // Get book PDF URL from storage
   getBookPdfUrl(pdfFilename: string): string {
     const { data } = supabase.storage.from('library').getPublicUrl(pdfFilename);
+    return data.publicUrl;
+  }
+
+  // Get book EPUB URL from storage
+  getBookEpubUrl(epubFilename: string): string {
+    const { data } = supabase.storage.from('library').getPublicUrl(epubFilename);
     return data.publicUrl;
   }
 

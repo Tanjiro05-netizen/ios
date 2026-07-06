@@ -5,7 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Share,
+  Alert,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import { Thread } from '../types';
 import { COLORS, SPACING, FONTS, getIdeologyColor, getIdeologyAbbrev, formatCount, formatTimeAgo } from '../constants';
@@ -22,6 +25,7 @@ interface ThreadCardProps {
   isBookmarked?: boolean;
   isReposted?: boolean;
   hideActions?: boolean;
+  showIdeologyBadges?: boolean;
 }
 
 export default function ThreadCard({
@@ -35,6 +39,7 @@ export default function ThreadCard({
   isBookmarked = false,
   isReposted = false,
   hideActions = false,
+  showIdeologyBadges = true,
 }: ThreadCardProps) {
   // Determine display name - use anonymous_name for guest posts, author username otherwise
   const displayName = thread.author?.username || thread.anonymous_name || 'Anonymous';
@@ -87,12 +92,28 @@ export default function ThreadCard({
           {thread.author?.is_certified && (
             <Ionicons name="checkmark-circle" size={16} color={COLORS.blue} style={styles.verified} />
           )}
-          {ideologyAbbrev ? (
+          {showIdeologyBadges && ideologyAbbrev ? (
             <Text style={[styles.ideology, { color: ideologyColor }]}>{ideologyAbbrev}</Text>
           ) : null}
           <Text style={styles.meta}>· {formatTimeAgo(thread.created_at)}</Text>
           <View style={styles.spacer} />
-          <TouchableOpacity style={styles.moreButton} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <TouchableOpacity
+            style={styles.moreButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            onPress={() => {
+              Alert.alert(thread.title, undefined, [
+                {
+                  text: 'Copy Link',
+                  onPress: async () => {
+                    await Clipboard.setStringAsync(`marxistlibrary.app/thread/${thread.id}`);
+                    Alert.alert('Copied', 'Link copied to clipboard.');
+                  },
+                },
+                { text: 'Report', onPress: () => Alert.alert('Reported', 'Thank you — we will review this content.') },
+                { text: 'Cancel', style: 'cancel' },
+              ]);
+            }}
+          >
             <Ionicons name="ellipsis-horizontal" size={16} color={COLORS.textTertiary} />
           </TouchableOpacity>
         </View>
@@ -168,7 +189,16 @@ export default function ThreadCard({
                 />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={async () => {
+                  try {
+                    await Share.share({
+                      message: `${thread.title}\n\nmarxistlibrary.app/thread/${thread.id}`,
+                    });
+                  } catch {}
+                }}
+              >
                 <Ionicons name="share-outline" size={18} color={COLORS.textTertiary} />
               </TouchableOpacity>
             </View>

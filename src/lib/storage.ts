@@ -17,6 +17,10 @@ export interface AppSettings {
   autoPlayVideos: boolean;
   dataSaver: boolean;
   showIdeologyBadges: boolean;
+  emailMarketingEnabled: boolean;
+  emailCommentReplies: boolean;
+  emailThreadActivity: boolean;
+  emailWeeklyDigest: boolean;
 }
 
 // Default settings
@@ -27,6 +31,10 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoPlayVideos: true,
   dataSaver: false,
   showIdeologyBadges: true,
+  emailMarketingEnabled: false,
+  emailCommentReplies: true,
+  emailThreadActivity: true,
+  emailWeeklyDigest: false,
 };
 
 // Settings storage

@@ -8,3 +8,20 @@ dist/
 *.log
 npm-debug.*
 tsconfig.tsbuildinfo
+*.hprof
+
+# Xcode / Swift
+DerivedData/
+build/
+.build/
+.swiftpm/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/

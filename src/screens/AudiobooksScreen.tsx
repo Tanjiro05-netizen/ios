@@ -14,18 +14,26 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { supabase } from '../lib/supabase';
 import { Audiobook, RootStackParamList } from '../types';
 import { COLORS, FONTS, SPACING } from '../constants';
 import AudioPlayer from '../components/AudioPlayer';
 
-type NavigationProp = StackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const formatDuration = (seconds: number | null) => {
+  if (!seconds || isNaN(seconds)) return null;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+};
 
 export default function AudiobooksScreen() {
   const navigation = useNavigation<NavigationProp>();
-  
+
   const [audiobooks, setAudiobooks] = useState<Audiobook[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,13 +47,13 @@ export default function AudiobooksScreen() {
         .from('audiobooks')
         .select('*')
         .order('sort_order');
-        
+
       if (error) {
         console.error('Supabase error fetching audiobooks:', error);
         return;
       }
-      
-      setAudiobooks(data as Audiobook[] || []);
+
+      setAudiobooks((data as Audiobook[]) || []);
     } catch (err) {
       console.error('Error fetching audiobooks:', err);
     } finally {
@@ -81,7 +89,7 @@ export default function AudiobooksScreen() {
         (a) =>
           `${a.title} ${a.author || ''} ${a.narrator || ''} ${a.category || ''} ${a.description || ''}`
             .toLowerCase()
-            .includes(q)
+            .includes(q),
       );
     }
     return list;
@@ -111,7 +119,12 @@ export default function AudiobooksScreen() {
 
       <View style={styles.searchSection}>
         <View style={styles.searchInputWrapper}>
-          <Ionicons name="search" size={20} color={COLORS.textSecondary} style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={20}
+            color={COLORS.textSecondary}
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Search audiobooks..."
@@ -126,30 +139,24 @@ export default function AudiobooksScreen() {
           )}
         </View>
 
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.categoriesScroll}
           contentContainerStyle={styles.categoriesContainer}
         >
           {categories.map((cat) => (
-             <TouchableOpacity
-               key={cat}
-               style={[
-                 styles.categoryPill,
-                 activeCategory === cat && styles.categoryPillActive
-               ]}
-               onPress={() => setActiveCategory(cat)}
-             >
-               <Text 
-                 style={[
-                   styles.categoryText,
-                   activeCategory === cat && styles.categoryTextActive
-                 ]}
-               >
-                 {cat}
-               </Text>
-             </TouchableOpacity>
+            <TouchableOpacity
+              key={cat}
+              style={[styles.categoryPill, activeCategory === cat && styles.categoryPillActive]}
+              onPress={() => setActiveCategory(cat)}
+            >
+              <Text
+                style={[styles.categoryText, activeCategory === cat && styles.categoryTextActive]}
+              >
+                {cat}
+              </Text>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
@@ -158,22 +165,44 @@ export default function AudiobooksScreen() {
 
   const renderBookItem = ({ item }: { item: Audiobook }) => {
     const isActive = selectedId === item.id;
+    const dur = formatDuration(item.duration_seconds);
+
     return (
       <TouchableOpacity
         style={[styles.bookCard, isActive && styles.bookCardActive]}
-        onPress={() => setSelectedId(isActive ? null : item.id)}
+        onPress={() => setSelectedId(item.id)}
         activeOpacity={0.7}
       >
         <View style={styles.bookRow}>
-          {item.cover_url ? (
-            <Image source={{ uri: item.cover_url }} style={styles.bookCover} />
-          ) : (
-             <View style={styles.bookPlaceholder}>
-               <Ionicons name="headset" size={24} color="#c81e1e" />
-             </View>
-          )}
+          {/* Cover */}
+          <View style={styles.coverContainer}>
+            {item.cover_url ? (
+              <Image source={{ uri: item.cover_url }} style={styles.bookCover} />
+            ) : (
+              <View style={styles.bookPlaceholder}>
+                <Ionicons name="headset" size={36} color="#c81e1e" />
+              </View>
+            )}
+            {/* Now-playing indicator */}
+            {isActive && (
+              <View style={styles.nowPlayingBadge}>
+                <View style={styles.nowPlayingDot} />
+              </View>
+            )}
+            {/* Duration badge */}
+            {dur && (
+              <View style={styles.durationBadge}>
+                <Text style={styles.durationText}>{dur}</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Info */}
           <View style={styles.bookInfo}>
-            <Text style={[styles.bookTitle, isActive && { color: '#ffcccc' }]} numberOfLines={1}>
+            <Text
+              style={[styles.bookTitle, isActive && { color: '#ffcccc' }]}
+              numberOfLines={2}
+            >
               {item.title}
             </Text>
             {item.author && (
@@ -183,9 +212,9 @@ export default function AudiobooksScreen() {
             )}
             <View style={styles.badgesRow}>
               {item.category && (
-                 <View style={styles.badgeCategory}>
-                   <Text style={styles.badgeCategoryText}>{item.category}</Text>
-                 </View>
+                <View style={styles.badgeCategory}>
+                  <Text style={styles.badgeCategoryText}>{item.category}</Text>
+                </View>
               )}
               {item.is_featured && (
                 <View style={styles.badgeFeatured}>
@@ -194,10 +223,28 @@ export default function AudiobooksScreen() {
               )}
             </View>
           </View>
+
+          {/* Play icon hint */}
+          <View style={styles.playHint}>
+            <Ionicons
+              name={isActive ? 'pause-circle' : 'play-circle'}
+              size={32}
+              color={isActive ? '#c81e1e' : 'rgba(255,255,255,0.15)'}
+            />
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
+
+  // ── Full-screen player ──
+  if (selectedBook) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <AudioPlayer audiobook={selectedBook} onClose={() => setSelectedId(null)} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -206,40 +253,26 @@ export default function AudiobooksScreen() {
           <ActivityIndicator size="large" color="#c81e1e" />
         </View>
       ) : (
-        <View style={styles.contentWrapper}>
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.id}
-            renderItem={renderBookItem}
-            ListHeaderComponent={renderHeader}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Ionicons name="headset-outline" size={48} color={COLORS.textSecondary} />
-                <Text style={styles.emptyText}>
-                  {audiobooks.length === 0
-                    ? "No audiobooks available yet."
-                    : "No audiobooks match your search."}
-                </Text>
-              </View>
-            }
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                tintColor="#c81e1e"
-              />
-            }
-          />
-          
-          {selectedBook && (
-            <View style={styles.playerPanel}>
-              <ScrollView contentContainerStyle={styles.playerScrollContent} bounces={false}>
-                <AudioPlayer audiobook={selectedBook} onClose={() => setSelectedId(null)} />
-              </ScrollView>
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          renderItem={renderBookItem}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="headset-outline" size={48} color={COLORS.textSecondary} />
+              <Text style={styles.emptyText}>
+                {audiobooks.length === 0
+                  ? 'No audiobooks available yet.'
+                  : 'No audiobooks match your search.'}
+              </Text>
             </View>
-          )}
-        </View>
+          }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#c81e1e" />
+          }
+        />
       )}
     </SafeAreaView>
   );
@@ -248,37 +281,20 @@ export default function AudiobooksScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090909',
+    backgroundColor: '#050505',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#090909',
-  },
-  contentWrapper: {
-    flex: 1,
   },
   listContent: {
-    paddingBottom: 160, // Space for player if open
+    paddingBottom: 40,
   },
   headerContainer: {
     paddingHorizontal: SPACING.md,
     paddingTop: SPACING.md,
     paddingBottom: SPACING.lg,
-  },
-  backLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
-    gap: 4,
-  },
-  backText: {
-    fontFamily: FONTS.family.mono,
-    color: COLORS.textSecondary,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
   heroRow: {
     flexDirection: 'row',
@@ -316,10 +332,10 @@ const styles = StyleSheet.create({
   searchInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 12,
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 14,
     paddingHorizontal: SPACING.md,
   },
   searchIcon: {
@@ -350,11 +366,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
-    backgroundColor: COLORS.card,
+    backgroundColor: 'rgba(255,255,255,0.03)',
   },
   categoryPillActive: {
-    backgroundColor: COLORS.cardHover,
-    borderColor: COLORS.primaryLight,
+    backgroundColor: 'rgba(200,30,30,0.12)',
+    borderColor: 'rgba(200,30,30,0.3)',
   },
   categoryText: {
     fontFamily: FONTS.family.mono,
@@ -364,51 +380,92 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   categoryTextActive: {
-    color: COLORS.text,
+    color: '#fff',
   },
+
+  // ── Book cards ──
   bookCard: {
-    backgroundColor: COLORS.card,
+    backgroundColor: 'rgba(255,255,255,0.02)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
     borderRadius: 16,
-    padding: SPACING.lg,
-    marginHorizontal: SPACING.lg,
-    marginBottom: SPACING.md,
+    padding: 16,
+    marginHorizontal: SPACING.md,
+    marginBottom: 12,
   },
   bookCardActive: {
-    backgroundColor: COLORS.cardHover,
-    borderColor: COLORS.primaryLight,
+    backgroundColor: 'rgba(200,30,30,0.06)',
+    borderColor: 'rgba(200,30,30,0.2)',
   },
   bookRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: SPACING.md,
+    alignItems: 'center',
+    gap: 16,
+  },
+  coverContainer: {
+    position: 'relative',
   },
   bookCover: {
-    width: 64,
-    height: 64,
-    borderRadius: 8,
+    width: 100,
+    height: 100,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   bookPlaceholder: {
-    width: 64,
-    height: 64,
-    borderRadius: 8,
-    backgroundColor: 'rgba(200,30,30,0.2)',
+    width: 100,
+    height: 100,
+    borderRadius: 14,
+    backgroundColor: 'rgba(200,30,30,0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.08)',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  nowPlayingBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nowPlayingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#c81e1e',
+  },
+  durationBadge: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  durationText: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: 'Courier',
+    letterSpacing: 0.5,
+  },
   bookInfo: {
     flex: 1,
+    justifyContent: 'center',
   },
   bookTitle: {
     fontFamily: FONTS.family.display,
     color: COLORS.text,
-    fontSize: 22,
+    fontSize: 18,
+    fontWeight: '500',
     marginBottom: 4,
+    lineHeight: 22,
   },
   bookAuthor: {
     fontFamily: FONTS.family.mono,
@@ -416,20 +473,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   badgesRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.xs,
+    gap: 6,
   },
   badgeCategory: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   badgeCategoryText: {
     fontFamily: FONTS.family.mono,
@@ -442,16 +499,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(200,30,30,0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: COLORS.primaryLight,
+    borderColor: 'rgba(200,30,30,0.3)',
   },
   badgeFeaturedText: {
     fontFamily: FONTS.family.mono,
-    color: COLORS.primaryLight,
+    color: '#ef4444',
     fontSize: 8,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  playHint: {
+    paddingLeft: 4,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -465,19 +525,5 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
     textTransform: 'uppercase',
     letterSpacing: 1,
-  },
-  playerPanel: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#090909',
-  },
-  playerScrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.lg,
   },
 });

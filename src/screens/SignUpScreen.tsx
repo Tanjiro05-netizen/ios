@@ -15,12 +15,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { COLORS, SPACING, FONTS, IDEOLOGIES } from '../constants';
+import { RootStackParamList } from '../types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function SignUpScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const { signUp, browseAsGuest } = useAuth();
 
   const [username, setUsername] = useState('');
@@ -242,9 +246,9 @@ export default function SignUpScreen() {
               </View>
               <Text style={styles.checkboxText}>
                 I agree to the{' '}
-                <Text style={styles.link}>Terms of Service</Text>
+                <Text style={styles.link} onPress={() => navigation.navigate('Legal', { type: 'terms' })}>Terms of Service</Text>
                 {' '}and{' '}
-                <Text style={styles.link}>Community Guidelines</Text>
+                <Text style={styles.link} onPress={() => navigation.navigate('Legal', { type: 'guidelines' })}>Community Guidelines</Text>
               </Text>
             </TouchableOpacity>
 

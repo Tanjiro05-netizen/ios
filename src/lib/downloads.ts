@@ -1,22 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
-const DOWNLOADS_KEY = '@marxist_library_downloads';
+// ============================================
+// EPUB OFFLINE CACHE (for in-app reading)
+// ============================================
 
-export interface DownloadedBook {
+const EPUB_CACHE_KEY = '@marxist_library_epub_cache';
+
+export interface CachedEpub {
   bookId: string;
   title: string;
   author?: string;
-  pdfFilename: string;
+  epubFilename: string;
   localPath: string;
-  downloadedAt: string;
+  cachedAt: string;
   fileSize?: number;
 }
 
-const getDownloadsDir = () => `${FileSystem.documentDirectory}downloads/`;
+const getEpubCacheDir = () => `${FileSystem.documentDirectory}epub_cache/`;
 
-async function ensureDownloadsDir() {
-  const dir = getDownloadsDir();
+async function ensureEpubCacheDir() {
+  const dir = getEpubCacheDir();
   const info = await FileSystem.getInfoAsync(dir);
   if (!info.exists) {
     await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
@@ -24,22 +29,22 @@ async function ensureDownloadsDir() {
   return dir;
 }
 
-export const downloadsStorage = {
-  async getAll(): Promise<DownloadedBook[]> {
+export const epubCacheStorage = {
+  async getAll(): Promise<CachedEpub[]> {
     try {
-      const json = await AsyncStorage.getItem(DOWNLOADS_KEY);
+      const json = await AsyncStorage.getItem(EPUB_CACHE_KEY);
       return json ? JSON.parse(json) : [];
     } catch {
       return [];
     }
   },
 
-  async get(bookId: string): Promise<DownloadedBook | null> {
+  async get(bookId: string): Promise<CachedEpub | null> {
     const all = await this.getAll();
     return all.find((d) => d.bookId === bookId) ?? null;
   },
 
-  async isDownloaded(bookId: string): Promise<boolean> {
+  async isCached(bookId: string): Promise<boolean> {
     const entry = await this.get(bookId);
     if (!entry) return false;
     const info = await FileSystem.getInfoAsync(entry.localPath);
@@ -50,11 +55,11 @@ export const downloadsStorage = {
     return true;
   },
 
-  async save(book: DownloadedBook): Promise<void> {
+  async save(entry: CachedEpub): Promise<void> {
     const all = await this.getAll();
-    const filtered = all.filter((d) => d.bookId !== book.bookId);
-    filtered.push(book);
-    await AsyncStorage.setItem(DOWNLOADS_KEY, JSON.stringify(filtered));
+    const filtered = all.filter((d) => d.bookId !== entry.bookId);
+    filtered.push(entry);
+    await AsyncStorage.setItem(EPUB_CACHE_KEY, JSON.stringify(filtered));
   },
 
   async remove(bookId: string): Promise<void> {
@@ -68,7 +73,7 @@ export const downloadsStorage = {
       }
     }
     const filtered = all.filter((d) => d.bookId !== bookId);
-    await AsyncStorage.setItem(DOWNLOADS_KEY, JSON.stringify(filtered));
+    await AsyncStorage.setItem(EPUB_CACHE_KEY, JSON.stringify(filtered));
   },
 
   async clearAll(): Promise<void> {
@@ -80,7 +85,7 @@ export const downloadsStorage = {
         // ignore
       }
     }
-    await AsyncStorage.removeItem(DOWNLOADS_KEY);
+    await AsyncStorage.removeItem(EPUB_CACHE_KEY);
   },
 };
 
@@ -89,19 +94,22 @@ export interface DownloadProgress {
   progress: number; // 0-100
 }
 
-export async function downloadBookPdf(
+/**
+ * Download and cache an EPUB file for offline reading.
+ */
+export async function cacheBookEpub(
   bookId: string,
   title: string,
   author: string | undefined,
-  pdfFilename: string,
+  epubFilename: string,
   remoteUrl: string,
   onProgress?: (progress: number) => void,
-): Promise<DownloadedBook> {
-  const dir = await ensureDownloadsDir();
-  const localPath = `${dir}${pdfFilename}`;
+): Promise<CachedEpub> {
+  const dir = await ensureEpubCacheDir();
+  const localPath = `${dir}${epubFilename}`;
 
-  // Check if already downloaded
-  const existing = await downloadsStorage.get(bookId);
+  // Check if already cached
+  const existing = await epubCacheStorage.get(bookId);
   if (existing) {
     const info = await FileSystem.getInfoAsync(existing.localPath);
     if (info.exists) {
@@ -130,16 +138,71 @@ export async function downloadBookPdf(
 
   const fileInfo = await FileSystem.getInfoAsync(result.uri);
 
-  const entry: DownloadedBook = {
+  const entry: CachedEpub = {
     bookId,
     title,
     author,
-    pdfFilename,
+    epubFilename,
     localPath: result.uri,
-    downloadedAt: new Date().toISOString(),
+    cachedAt: new Date().toISOString(),
     fileSize: fileInfo.exists && !('isDirectory' in fileInfo && fileInfo.isDirectory) ? (fileInfo as any).size : undefined,
   };
 
-  await downloadsStorage.save(entry);
+  await epubCacheStorage.save(entry);
   return entry;
+}
+
+// ============================================
+// PDF FILE DOWNLOAD (save to device / share)
+// ============================================
+
+const getPdfDownloadsDir = () => `${FileSystem.cacheDirectory}pdf_downloads/`;
+
+async function ensurePdfDownloadsDir() {
+  const dir = getPdfDownloadsDir();
+  const info = await FileSystem.getInfoAsync(dir);
+  if (!info.exists) {
+    await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+  }
+  return dir;
+}
+
+/**
+ * Download a PDF file and present the system share sheet so the user
+ * can save it to Files, Google Drive, etc.
+ */
+export async function downloadAndSharePdf(
+  pdfFilename: string,
+  remoteUrl: string,
+  onProgress?: (progress: number) => void,
+): Promise<void> {
+  const dir = await ensurePdfDownloadsDir();
+  const localPath = `${dir}${pdfFilename}`;
+
+  const downloadResumable = FileSystem.createDownloadResumable(
+    remoteUrl,
+    localPath,
+    {},
+    (downloadProgress) => {
+      if (downloadProgress.totalBytesExpectedToWrite > 0) {
+        const pct = Math.round(
+          (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100,
+        );
+        onProgress?.(pct);
+      }
+    },
+  );
+
+  const result = await downloadResumable.downloadAsync();
+  if (!result?.uri) {
+    throw new Error('PDF download failed — no file result');
+  }
+
+  // Open the system share sheet so the user can save / send the file
+  if (await Sharing.isAvailableAsync()) {
+    await Sharing.shareAsync(result.uri, {
+      mimeType: 'application/pdf',
+      dialogTitle: pdfFilename,
+    });
+  }
 }
