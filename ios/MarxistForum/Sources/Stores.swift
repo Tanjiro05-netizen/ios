@@ -323,6 +323,127 @@ final class DownloadStore {
     }
 }
 
+enum AudiobookOfflineCache {
+    static let defaultsKey = "ios.audiobook.downloads"
+
+    static func directory() throws -> URL {
+        let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "audio_cache", directoryHint: .isDirectory)
+        if !FileManager.default.fileExists(atPath: directory.path) {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        return directory
+    }
+
+    static func entries() -> [DownloadedAudiobook] {
+        guard let data = UserDefaults.standard.data(forKey: defaultsKey),
+              let restored = try? JSONDecoder.supabase.decode([DownloadedAudiobook].self, from: data) else {
+            return []
+        }
+        return restored
+    }
+
+    static func save(_ entries: [DownloadedAudiobook]) {
+        if let data = try? JSONEncoder.supabase.encode(entries) {
+            UserDefaults.standard.set(data, forKey: defaultsKey)
+        }
+    }
+
+    static func fileURL(for entry: DownloadedAudiobook) -> URL? {
+        guard let directory = try? directory() else { return nil }
+        let url = directory.appending(path: entry.filename)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    static func localURL(audiobookId: String) -> URL? {
+        guard let entry = entries().first(where: { $0.audiobookId == audiobookId }) else { return nil }
+        return fileURL(for: entry)
+    }
+
+    static func filename(for audiobook: Audiobook) -> String {
+        let remoteName = URL(string: audiobook.audioUrl)?.lastPathComponent ?? ""
+        if !remoteName.isEmpty, remoteName.contains(".") {
+            return "\(audiobook.id)-\(remoteName)"
+        }
+        return "\(audiobook.id).mp3"
+    }
+}
+
+@MainActor
+@Observable
+final class AudiobookDownloadStore {
+    var downloads: [DownloadedAudiobook] = []
+    var activeDownloadId: String?
+    var errorMessage: String?
+
+    func restore() {
+        downloads = AudiobookOfflineCache.entries().filter { AudiobookOfflineCache.fileURL(for: $0) != nil }
+        AudiobookOfflineCache.save(downloads)
+    }
+
+    func cached(audiobookId: String) -> DownloadedAudiobook? {
+        downloads.first { $0.audiobookId == audiobookId }
+    }
+
+    func isDownloaded(_ audiobookId: String) -> Bool {
+        guard let entry = cached(audiobookId: audiobookId) else { return false }
+        return AudiobookOfflineCache.fileURL(for: entry) != nil
+    }
+
+    func download(_ audiobook: Audiobook) async -> DownloadedAudiobook? {
+        if let existing = cached(audiobookId: audiobook.id), AudiobookOfflineCache.fileURL(for: existing) != nil {
+            return existing
+        }
+        guard let remoteURL = URL(string: audiobook.audioUrl) else {
+            errorMessage = "Invalid audio URL."
+            return nil
+        }
+
+        activeDownloadId = audiobook.id
+        defer { activeDownloadId = nil }
+
+        do {
+            let (temporaryURL, response) = try await URLSession.shared.download(from: remoteURL)
+            if let httpResponse = response as? HTTPURLResponse, !(200..<300).contains(httpResponse.statusCode) {
+                throw URLError(.badServerResponse)
+            }
+            let directory = try AudiobookOfflineCache.directory()
+            let filename = AudiobookOfflineCache.filename(for: audiobook)
+            let destination = directory.appending(path: filename)
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+            try FileManager.default.moveItem(at: temporaryURL, to: destination)
+
+            let size = (try? FileManager.default.attributesOfItem(atPath: destination.path)[.size] as? Int) ?? nil
+            let entry = DownloadedAudiobook(
+                audiobookId: audiobook.id,
+                title: audiobook.title,
+                author: audiobook.author,
+                filename: filename,
+                cachedAt: ISO8601DateFormatter().string(from: Date()),
+                fileSize: size,
+                audiobook: audiobook
+            )
+            downloads.removeAll { $0.audiobookId == audiobook.id }
+            downloads.append(entry)
+            AudiobookOfflineCache.save(downloads)
+            errorMessage = nil
+            return entry
+        } catch {
+            errorMessage = error.localizedDescription
+            return nil
+        }
+    }
+
+    func remove(_ entry: DownloadedAudiobook) {
+        if let directory = try? AudiobookOfflineCache.directory() {
+            try? FileManager.default.removeItem(at: directory.appending(path: entry.filename))
+        }
+        downloads.removeAll { $0.audiobookId == entry.audiobookId }
+        AudiobookOfflineCache.save(downloads)
+    }
+}
+
 @MainActor
 @Observable
 final class ReadingActivityStore {
@@ -755,15 +876,20 @@ final class AudioPlayerModel {
         guard current == nil else { return }
         let snapshot = SystemIntegrationStore.loadSnapshot().currentAudiobook
         guard let snapshot else { return }
+        var audiobook: Audiobook?
         do {
-            guard let audiobook = try await AudiobookClient().fetchAudiobook(id: snapshot.id) else { return }
-            speed = snapshot.speed
-            load(audiobook, autoplay: false, present: false)
-            seek(to: snapshot.currentTime)
-            expanded = false
+            audiobook = try await AudiobookClient().fetchAudiobook(id: snapshot.id)
         } catch {
             print("Audio restore failed: \(error)")
         }
+        if audiobook == nil {
+            audiobook = AudiobookOfflineCache.entries().first { $0.audiobookId == snapshot.id }?.audiobook
+        }
+        guard let audiobook else { return }
+        speed = snapshot.speed
+        load(audiobook, autoplay: false, present: false)
+        seek(to: snapshot.currentTime)
+        expanded = false
     }
 
     func load(_ audiobook: Audiobook, autoplay: Bool = true, present: Bool = true) {
@@ -773,7 +899,8 @@ final class AudioPlayerModel {
         sortedChapters = (audiobook.chapters ?? []).sorted { $0.startSeconds < $1.startSeconds }
         duration = audiobook.durationSeconds ?? 0
         currentTime = 0
-        guard let url = URL(string: audiobook.audioUrl) else { return }
+        let localURL = AudiobookOfflineCache.localURL(audiobookId: audiobook.id)
+        guard let url = localURL ?? URL(string: audiobook.audioUrl) else { return }
         let player = AVPlayer(playerItem: AVPlayerItem(url: url))
         self.player = player
         nowPlaying.configure(

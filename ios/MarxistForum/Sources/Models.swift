@@ -477,6 +477,17 @@ struct DownloadedEpub: Codable, Identifiable, Hashable {
     var fileSize: Int?
 }
 
+struct DownloadedAudiobook: Codable, Identifiable, Hashable {
+    var id: String { audiobookId }
+    var audiobookId: String
+    var title: String
+    var author: String?
+    var filename: String
+    var cachedAt: String
+    var fileSize: Int?
+    var audiobook: Audiobook?
+}
+
 struct ContinueReadingItem: Codable, Identifiable, Hashable {
     var id: String { bookId }
     var bookId: String
