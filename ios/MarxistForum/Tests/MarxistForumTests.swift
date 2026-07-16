@@ -144,6 +144,63 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertFalse(DailyQuote.all.isEmpty)
     }
 
+    func testAppAppearanceMapsToPreferredColorScheme() {
+        XCTAssertNil(AppAppearance.system.preferredColorScheme)
+        XCTAssertEqual(AppAppearance.light.preferredColorScheme, .light)
+        XCTAssertEqual(AppAppearance.dark.preferredColorScheme, .dark)
+        XCTAssertEqual(AppSettings().appearance, .system)
+    }
+
+    func testLegacyAppSettingsMigrateToSystemAppearanceWithoutDataLoss() throws {
+        let legacyJSON = """
+        {
+          "push_notifications": false,
+          "email_notifications": true,
+          "dark_mode": true,
+          "data_saver": true,
+          "show_ideology_badges": false,
+          "email_marketing_enabled": true,
+          "email_comment_replies": false,
+          "email_thread_activity": false,
+          "email_weekly_digest": true
+        }
+        """.data(using: .utf8)!
+
+        let settings = try JSONDecoder.supabase.decode(AppSettings.self, from: legacyJSON)
+
+        XCTAssertEqual(settings.appearance, .system)
+        XCTAssertFalse(settings.pushNotifications)
+        XCTAssertTrue(settings.emailNotifications)
+        XCTAssertTrue(settings.dataSaver)
+        XCTAssertFalse(settings.showIdeologyBadges)
+        XCTAssertTrue(settings.emailMarketingEnabled)
+        XCTAssertFalse(settings.emailCommentReplies)
+        XCTAssertFalse(settings.emailThreadActivity)
+        XCTAssertTrue(settings.emailWeeklyDigest)
+    }
+
+    @MainActor
+    func testSettingsStoreRestoresAppearanceBeforeFirstUse() throws {
+        let suiteName = "MarxistForumTests.Settings.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let store = SettingsStore(defaults: defaults)
+        XCTAssertEqual(store.settings.appearance, .system)
+
+        store.settings.appearance = .light
+        store.settings.dataSaver = true
+        store.save()
+
+        let restored = SettingsStore(defaults: defaults)
+        XCTAssertEqual(restored.settings.appearance, .light)
+        XCTAssertTrue(restored.settings.dataSaver)
+
+        let roundTripData = try XCTUnwrap(defaults.data(forKey: "ios.settings"))
+        let roundTrip = try JSONDecoder.supabase.decode(AppSettings.self, from: roundTripData)
+        XCTAssertEqual(roundTrip, restored.settings)
+    }
+
     func testReadingActivityModelsRoundTrip() throws {
         let progress = ContinueReadingItem(
             bookId: "capital",
@@ -169,6 +226,27 @@ final class MarxistForumTests: XCTestCase {
 
         XCTAssertEqual(try JSONDecoder.supabase.decode(ContinueReadingItem.self, from: encodedProgress), progress)
         XCTAssertEqual(try JSONDecoder.supabase.decode(QuoteNotebookItem.self, from: encodedQuote), quote)
+    }
+
+    func testReadingSyncPayloadUsesOwnershipAndSnakeCaseKeys() throws {
+        let payload = ReadingProgressRemote(
+            userId: "user-1",
+            bookId: "capital",
+            title: "Capital",
+            author: "Karl Marx",
+            chapterTitle: "Commodities",
+            chapterIndex: 2,
+            chapterCount: 8,
+            progress: 0.375,
+            updatedAt: "2026-07-06T12:00:00Z"
+        )
+
+        let data = try JSONEncoder.supabase.encode(payload)
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(object["user_id"] as? String, "user-1")
+        XCTAssertEqual(object["book_id"] as? String, "capital")
+        XCTAssertEqual(object["chapter_index"] as? Int, 2)
+        XCTAssertEqual(object["updated_at"] as? String, "2026-07-06T12:00:00Z")
     }
 
     func testAppDeepLinksRoundTrip() throws {

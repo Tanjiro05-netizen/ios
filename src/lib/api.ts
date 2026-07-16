@@ -4,6 +4,29 @@ import {
   Book
 } from '../types';
 
+export interface ReadingProgressPayload {
+  user_id: string;
+  book_id: string;
+  title: string;
+  author: string | null;
+  chapter_title: string | null;
+  chapter_index: number;
+  chapter_count: number;
+  progress: number;
+  updated_at: string;
+}
+
+export interface ReadingQuotePayload {
+  user_id: string;
+  quote_id: string;
+  text: string;
+  source_title: string;
+  source_detail: string | null;
+  route_book_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 class ForumApiService {
   // ============================================
   // PROFILES
@@ -939,6 +962,58 @@ class ForumApiService {
   getBookEpubUrl(epubFilename: string): string {
     const { data } = supabase.storage.from('library').getPublicUrl(epubFilename);
     return data.publicUrl;
+  }
+
+  // ============================================
+  // READING PROGRESS
+  // ============================================
+
+  async getReadingProgress(userId: string): Promise<ReadingProgressPayload[]> {
+    const { data, error } = await supabase
+      .from('reading_progress')
+      .select('user_id, book_id, title, author, chapter_title, chapter_index, chapter_count, progress, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []) as ReadingProgressPayload[];
+  }
+
+  async upsertReadingProgress(payload: ReadingProgressPayload): Promise<void> {
+    const { error } = await supabase
+      .from('reading_progress')
+      .upsert(payload, { onConflict: 'user_id,book_id' });
+
+    if (error) throw error;
+  }
+
+  async getReadingQuotes(userId: string): Promise<ReadingQuotePayload[]> {
+    const { data, error } = await supabase
+      .from('reading_quotes')
+      .select('user_id, quote_id, text, source_title, source_detail, route_book_id, created_at, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []) as ReadingQuotePayload[];
+  }
+
+  async upsertReadingQuote(payload: ReadingQuotePayload): Promise<void> {
+    const { error } = await supabase
+      .from('reading_quotes')
+      .upsert(payload, { onConflict: 'user_id,quote_id' });
+
+    if (error) throw error;
+  }
+
+  async deleteReadingQuote(userId: string, quoteId: string): Promise<void> {
+    const { error } = await supabase
+      .from('reading_quotes')
+      .delete()
+      .eq('user_id', userId)
+      .eq('quote_id', quoteId);
+
+    if (error) throw error;
   }
 
 

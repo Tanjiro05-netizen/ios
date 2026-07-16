@@ -17,6 +17,7 @@ import RenderHtml from 'react-native-render-html';
 
 import { COLORS } from '../constants';
 import { api } from '../lib/api';
+import { useAuth } from '../hooks/useAuth';
 import { Book, RootStackParamList } from '../types';
 import { extractAndParseEpub, readChapterHtml, ParsedEpub, TocItem } from '../lib/epubParser';
 import { cacheBookEpub } from '../lib/downloads';
@@ -86,6 +87,7 @@ export default function BookReaderScreen() {
   const route = useRoute<BookReaderRouteProp>();
   const { bookId } = route.params;
   const { width: windowWidth } = useWindowDimensions();
+  const { user } = useAuth();
 
   const [book, setBook] = useState<Book | null>(null);
   const [parsed, setParsed] = useState<ParsedEpub | null>(null);
@@ -104,6 +106,15 @@ export default function BookReaderScreen() {
 
   const scrollRef = useRef<ScrollView>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const readingSyncKeyRef = useRef<string | null>(null);
+  const readingSyncReadyRef = useRef(false);
+
+  useEffect(() => {
+    if (!user?.id) {
+      readingSyncKeyRef.current = null;
+      readingSyncReadyRef.current = false;
+    }
+  }, [user?.id]);
 
   // ── Idle timer ──
   const resetIdle = useCallback(() => {
@@ -174,6 +185,94 @@ export default function BookReaderScreen() {
     return () => { cancelled = true; };
   }, [bookId]);
 
+  // Hydrate the local chapter position from Supabase once the EPUB is ready.
+  // The local cache remains the offline fallback; the newest timestamp wins.
+  useEffect(() => {
+    if (!book || !parsed || !user?.id) return;
+
+    const syncKey = `${user.id}:${book.id}`;
+    if (readingSyncKeyRef.current === syncKey) return;
+    readingSyncKeyRef.current = syncKey;
+    readingSyncReadyRef.current = false;
+    let cancelled = false;
+
+    (async () => {
+      const chapterKey = `epub-chapter::${book.epub_filename}`;
+      const timestampKey = `epub-chapter-updated::${book.epub_filename}`;
+      try {
+        const [localChapterValue, localUpdatedAt, remoteRows] = await Promise.all([
+          AsyncStorage.getItem(chapterKey),
+          AsyncStorage.getItem(timestampKey),
+          api.getReadingProgress(user.id),
+        ]);
+        if (cancelled) return;
+
+        const localChapter = localChapterValue ? parseInt(localChapterValue, 10) : 0;
+        const remote = remoteRows.find(row => row.book_id === book.id);
+        const remoteDate = remote ? Date.parse(remote.updated_at) : 0;
+        const localDate = localUpdatedAt ? Date.parse(localUpdatedAt) : 0;
+
+        if (remote && remoteDate > localDate) {
+          const nextChapter = Math.min(Math.max(remote.chapter_index, 0), parsed.chapters.length - 1);
+          await AsyncStorage.multiSet([
+            [chapterKey, String(nextChapter)],
+            [timestampKey, remote.updated_at],
+          ]);
+          setChapterIndex(nextChapter);
+        } else {
+          const chapterCount = Math.max(parsed.chapters.length, 1);
+          await api.upsertReadingProgress({
+            user_id: user.id,
+            book_id: book.id,
+            title: book.title,
+            author: book.author,
+            chapter_title: parsed.chapters[localChapter]?.title ?? null,
+            chapter_index: Math.min(Math.max(localChapter, 0), chapterCount - 1),
+            chapter_count: chapterCount,
+            progress: (Math.min(Math.max(localChapter, 0), chapterCount - 1) + 1) / chapterCount,
+            updated_at: localUpdatedAt || new Date().toISOString(),
+          });
+          if (!localUpdatedAt) await AsyncStorage.setItem(timestampKey, new Date().toISOString());
+        }
+      } catch (error) {
+        // Reading must remain usable offline; sync retries on the next app/session visit.
+        console.warn('Reading progress sync unavailable:', error);
+      } finally {
+        if (!cancelled) readingSyncReadyRef.current = true;
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [book, parsed, user?.id]);
+
+  // Persist meaningful chapter changes locally and remotely after hydration.
+  useEffect(() => {
+    if (!book || !parsed) return;
+    const chapterCount = Math.max(parsed.chapters.length, 1);
+    const safeIndex = Math.min(Math.max(chapterIndex, 0), chapterCount - 1);
+    const chapterKey = `epub-chapter::${book.epub_filename}`;
+    const timestampKey = `epub-chapter-updated::${book.epub_filename}`;
+    const updatedAt = new Date().toISOString();
+    const canSync = !user?.id || readingSyncReadyRef.current;
+
+    AsyncStorage.setItem(chapterKey, String(safeIndex)).catch(() => {});
+    if (!canSync) return;
+    AsyncStorage.setItem(timestampKey, updatedAt).catch(() => {});
+    if (!user?.id) return;
+
+    api.upsertReadingProgress({
+      user_id: user.id,
+      book_id: book.id,
+      title: book.title,
+      author: book.author,
+      chapter_title: parsed.chapters[safeIndex]?.title ?? null,
+      chapter_index: safeIndex,
+      chapter_count: chapterCount,
+      progress: (safeIndex + 1) / chapterCount,
+      updated_at: updatedAt,
+    }).catch(error => console.warn('Could not save reading progress:', error));
+  }, [chapterIndex, book, parsed, user?.id]);
+
   // ── Load chapter content ──
   useEffect(() => {
     if (!parsed) return;
@@ -191,7 +290,6 @@ export default function BookReaderScreen() {
         if (cancelled) return;
         setChapterHtml(html);
         scrollRef.current?.scrollTo({ y: 0, animated: false });
-        AsyncStorage.setItem(`epub-chapter::${book?.epub_filename}`, String(chapterIndex));
       })
       .catch(err => {
         if (!cancelled) {

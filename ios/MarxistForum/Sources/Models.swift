@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 
 enum AppFeatureFlags {
     static let forumEnabled = false
@@ -15,12 +16,18 @@ enum AppConstants {
 }
 
 enum Brand {
-    static let red = Color(red: 0.784, green: 0.118, blue: 0.118)
-    static let redSoft = Color(red: 1.0, green: 0.706, blue: 0.671)
-    static let ink = Color(red: 0.075, green: 0.075, blue: 0.075)
-    static let paper = Color(red: 0.898, green: 0.886, blue: 0.882)
-    static let muted = Color(red: 0.674, green: 0.533, blue: 0.518)
-    static let panel = Color(red: 0.110, green: 0.106, blue: 0.106)
+    static let red = Color("AccentFill")
+    static let redSoft = Color("AccentLabel")
+    static let canvas = Color("AppCanvas")
+    static let surface = Color("AppSurface")
+    static let ink = Color(uiColor: .label)
+    static let paper = canvas
+    static let muted = Color(uiColor: .secondaryLabel)
+    static let panel = surface
+    static let separator = Color(uiColor: .separator)
+    static let subtleFill = Color(uiColor: .tertiarySystemFill)
+    static let controlFill = Color(uiColor: .secondarySystemFill)
+    static let onAccent = Color.white
 }
 
 struct Profile: Identifiable, Codable, Hashable {
@@ -388,16 +395,75 @@ struct UserStats: Codable, Hashable {
     static let empty = UserStats(threadCount: 0, commentCount: 0, likesReceived: 0, repostCount: 0)
 }
 
+enum AppAppearance: String, Codable, CaseIterable, Identifiable {
+    case system
+    case light
+    case dark
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .system: "circle.lefthalf.filled"
+        case .light: "sun.max.fill"
+        case .dark: "moon.fill"
+        }
+    }
+
+    var preferredColorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+}
+
 struct AppSettings: Codable, Hashable {
     var pushNotifications = true
     var emailNotifications = true
-    var darkMode = true
+    var appearance = AppAppearance.system
     var dataSaver = false
     var showIdeologyBadges = true
     var emailMarketingEnabled = false
     var emailCommentReplies = true
     var emailThreadActivity = true
     var emailWeeklyDigest = false
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case pushNotifications
+        case emailNotifications
+        case appearance
+        case dataSaver
+        case showIdeologyBadges
+        case emailMarketingEnabled
+        case emailCommentReplies
+        case emailThreadActivity
+        case emailWeeklyDigest
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        pushNotifications = try container.decodeIfPresent(Bool.self, forKey: .pushNotifications) ?? true
+        emailNotifications = try container.decodeIfPresent(Bool.self, forKey: .emailNotifications) ?? true
+        appearance = try container.decodeIfPresent(AppAppearance.self, forKey: .appearance) ?? .system
+        dataSaver = try container.decodeIfPresent(Bool.self, forKey: .dataSaver) ?? false
+        showIdeologyBadges = try container.decodeIfPresent(Bool.self, forKey: .showIdeologyBadges) ?? true
+        emailMarketingEnabled = try container.decodeIfPresent(Bool.self, forKey: .emailMarketingEnabled) ?? false
+        emailCommentReplies = try container.decodeIfPresent(Bool.self, forKey: .emailCommentReplies) ?? true
+        emailThreadActivity = try container.decodeIfPresent(Bool.self, forKey: .emailThreadActivity) ?? true
+        emailWeeklyDigest = try container.decodeIfPresent(Bool.self, forKey: .emailWeeklyDigest) ?? false
+    }
 }
 
 struct DailyQuote: Identifiable, Hashable {

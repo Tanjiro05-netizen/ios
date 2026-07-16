@@ -15,6 +15,7 @@
 		4780277F3C12A1415DFBCAFD /* substack-archive.json in Resources */ = {isa = PBXBuildFile; fileRef = 0C06F164057FD5833AE63FEA /* substack-archive.json */; };
 		5797D1567BBED6BE9F415864 /* StoreKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */; };
 		68029C308CE02DEDB6A6EC04 /* Stores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A54756CB4E39D18CDE72493 /* Stores.swift */; };
+		756D6370F7104F834C32E224 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */; };
 		78F99DE1AB455E93E9FC7915 /* SystemIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */; };
 		7E776FFD5BDA391B192D0C1C /* SystemIntegrationShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */; };
 		8074D70F5E5E069194D493F4 /* Screens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDBA440E92118BC6DA76589 /* Screens.swift */; };
@@ -67,6 +68,7 @@
 		0FDBA440E92118BC6DA76589 /* Screens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screens.swift; sourceTree = "<group>"; };
 		252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrationShared.swift; sourceTree = "<group>"; };
 		622D92D8C2418BCAFF4C8F32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignIn.swift; sourceTree = "<group>"; };
 		69A4C8482BF1675E054CDD0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitSupport.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				69A4C8482BF1675E054CDD0F /* Assets.xcassets */,
+				62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */,
 				0C06F164057FD5833AE63FEA /* substack-archive.json */,
 			);
 			path = Resources;
@@ -280,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5CCBC91E1FA3A185AE8BFE1 /* Assets.xcassets in Resources */,
+				756D6370F7104F834C32E224 /* PrivacyInfo.xcprivacy in Resources */,
 				4780277F3C12A1415DFBCAFD /* substack-archive.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

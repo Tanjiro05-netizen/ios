@@ -203,20 +203,16 @@ private extension View {
             .foregroundStyle(.primary)
             .padding(.horizontal, 11)
             .frame(height: 40)
-            .background(Color.black.opacity(0.32), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+            .background(Brand.controlFill, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .stroke(.white.opacity(0.07), lineWidth: 1)
+                    .stroke(Brand.separator.opacity(0.72), lineWidth: 1)
             }
     }
 
     func loginPanelChrome() -> some View {
         self
-            .background(Brand.panel.opacity(0.68), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(.white.opacity(0.08), lineWidth: 1)
-            }
+            .glassSurface(cornerRadius: 14)
     }
 }
 
@@ -226,15 +222,15 @@ private struct LoginPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(isEnabled ? .white : .white.opacity(0.42))
+            .foregroundStyle(isEnabled ? Brand.onAccent : .secondary)
             .frame(height: 40)
             .background(
-                isEnabled ? Brand.red.opacity(configuration.isPressed ? 0.78 : 0.92) : .white.opacity(0.08),
+                isEnabled ? Brand.red.opacity(configuration.isPressed ? 0.78 : 1) : Brand.controlFill,
                 in: RoundedRectangle(cornerRadius: 8, style: .continuous)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(.white.opacity(isEnabled ? 0.08 : 0.05), lineWidth: 1)
+                    .stroke(Brand.separator.opacity(0.72), lineWidth: 1)
             }
             .animation(.snappy(duration: 0.14), value: configuration.isPressed)
     }
@@ -263,6 +259,7 @@ struct LibraryScreen: View {
     @State private var selectedCategory: String?
     @State private var searchQuery = ""
     @State private var isLoading = true
+    @State private var didLoadInitial = false
     @State private var errorMessage: String?
 
     private let columns = [GridItem(.adaptive(minimum: 156), spacing: 16)]
@@ -312,7 +309,7 @@ struct LibraryScreen: View {
                         .padding(.horizontal)
                     }
                 }
-                if isLoading {
+                if isLoading && books.isEmpty {
                     ProgressView("Loading library")
                         .frame(maxWidth: .infinity, minHeight: 240)
                 } else if books.isEmpty {
@@ -345,14 +342,15 @@ struct LibraryScreen: View {
                     Image(systemName: "gearshape")
                         .toolbarIconChrome()
                 }
-                .buttonStyle(.plain)
+                .glassButtonStyle()
             }
         }
         .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search books")
         .task {
             await loadInitial()
         }
-        .task(id: searchQuery) {
+        .task(id: "\(didLoadInitial)-\(searchQuery)") {
+            guard didLoadInitial, !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
             try? await Task.sleep(for: .milliseconds(350))
             guard !Task.isCancelled else { return }
             await loadBooks()
@@ -367,31 +365,33 @@ struct LibraryScreen: View {
             selectedCategory = category
         }
         .font(.caption.weight(.semibold))
-        .foregroundStyle(selectedCategory == category ? .white : .secondary)
+        .foregroundStyle(selectedCategory == category ? Brand.onAccent : .secondary)
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
-        .background(selectedCategory == category ? Brand.red : .white.opacity(0.06), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .background(selectedCategory == category ? Brand.red : Brand.subtleFill, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
     }
 
     private func loadInitial() async {
-        do {
-            categories = try await client.fetchCategories()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
+        guard !didLoadInitial else { return }
+        async let categoriesRequest = try? client.fetchCategories()
         await loadBooks()
+        didLoadInitial = true
+        if let loadedCategories = await categoriesRequest {
+            categories = loadedCategories
+        }
     }
 
     private func loadBooks() async {
         isLoading = true
-        defer { isLoading = false }
         do {
-            books = try await client.fetchBooks(scope: scope, category: selectedCategory, search: searchQuery)
-            await SearchIndexService.shared.indexBooks(books)
+            let loadedBooks = try await client.fetchBooks(scope: scope, category: selectedCategory, search: searchQuery)
+            books = loadedBooks
             errorMessage = nil
+            isLoading = false
+            Task { await SearchIndexService.shared.indexBooks(loadedBooks) }
         } catch {
-            books = []
             errorMessage = error.localizedDescription
+            isLoading = false
         }
     }
 }
@@ -407,10 +407,10 @@ private struct LibraryScopeControl: View {
                 } label: {
                     Text(item.title)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(scope == item ? .white : .secondary)
+                        .foregroundStyle(scope == item ? Brand.onAccent : .secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 7)
-                        .background(scope == item ? Brand.red.opacity(0.72) : .white.opacity(0.045), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .background(scope == item ? Brand.red : Brand.subtleFill, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }
@@ -430,16 +430,17 @@ struct DailyQuoteCard: View {
                     .font(.caption.weight(.bold))
                     .foregroundStyle(Brand.redSoft)
                     .frame(width: 22, height: 22)
-                    .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                    .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                     .accessibilityHidden(true)
                 Spacer()
                 Button(action: onSave) {
                     Label(isSaved ? "Saved" : "Save", systemImage: isSaved ? "checkmark" : "quote.bubble")
                         .font(.caption.weight(.bold))
                         .labelStyle(.titleAndIcon)
+                        .foregroundStyle(isSaved ? .secondary : Brand.onAccent)
                         .padding(.horizontal, 9)
                         .padding(.vertical, 6)
-                        .background(isSaved ? .white.opacity(0.08) : Brand.red.opacity(0.58), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .background(isSaved ? Brand.subtleFill : Brand.red, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                 }
                 .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
                 .disabled(isSaved)
@@ -537,11 +538,7 @@ struct ContinueReadingCard: View {
         }
         .frame(width: 206, alignment: .leading)
         .padding(12)
-        .background(Brand.panel.opacity(0.74), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(.white.opacity(0.06), lineWidth: 1)
-        }
+        .glassSurface(cornerRadius: 12, interactive: true)
     }
 }
 
@@ -551,7 +548,7 @@ struct ContinueListeningCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImageCover(urlString: audiobook.coverUrl, systemImage: "headphones")
+            AsyncImageCover(urlString: audiobook.coverUrl, systemImage: "headphones", maxPixelSize: 240)
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
@@ -573,11 +570,7 @@ struct ContinueListeningCard: View {
         }
         .frame(width: 238, alignment: .leading)
         .padding(10)
-        .background(Brand.panel.opacity(0.74), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(.white.opacity(0.06), lineWidth: 1)
-        }
+        .glassSurface(cornerRadius: 12, interactive: true)
     }
 }
 
@@ -587,7 +580,7 @@ struct BookCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            AsyncImageCover(urlString: book.coverImageUrl, systemImage: "book.closed")
+            AsyncImageCover(urlString: book.coverImageUrl, systemImage: "book.closed", maxPixelSize: 480)
                 .aspectRatio(0.68, contentMode: .fit)
                 .overlay(alignment: .topTrailing) {
                     if isDownloaded {
@@ -618,7 +611,7 @@ struct BookCard: View {
             }
         }
         .padding(10)
-        .background(Brand.panel.opacity(0.74), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .glassSurface(cornerRadius: 12, interactive: true)
     }
 }
 
@@ -705,9 +698,6 @@ struct ReaderScreen: View {
         if isLoading {
             return ReaderHTML.page(title: "Loading", subtitle: "Unpacking the text...", body: "")
         }
-        if isPreparingEpub {
-            return ReaderHTML.page(title: book?.title ?? "Reader", subtitle: readerStatusMessage ?? "Preparing EPUB...", body: "")
-        }
         if let errorMessage {
             return ReaderHTML.page(title: "Reader unavailable", subtitle: errorMessage, body: book?.description?.strippedMarkdown ?? "")
         }
@@ -715,7 +705,10 @@ struct ReaderScreen: View {
             return ReaderHTML.page(title: "Book unavailable", subtitle: errorMessage ?? "The selected title could not be loaded.", body: "")
         }
         let body = (book.description ?? "This title is ready for native reading. Save the EPUB for offline use, or open the PDF when available.").strippedMarkdown
-        return ReaderHTML.page(title: book.title, subtitle: book.author ?? "Unknown Author", body: body, fontSize: fontSize)
+        let subtitle = isPreparingEpub
+            ? (readerStatusMessage ?? "Preparing EPUB…")
+            : (book.author ?? "Unknown Author")
+        return ReaderHTML.page(title: book.title, subtitle: subtitle, body: body, fontSize: fontSize)
     }
 
     private var readerTheme: ReaderTheme {
@@ -854,7 +847,9 @@ struct ReaderScreen: View {
             book = fetchedBook
             errorMessage = nil
             isLoading = false
-            await prepareEpub(fetchedBook)
+            // Show the book immediately. EPUB download/unpacking is optional
+            // enrichment and should never hold the first reader frame hostage.
+            Task { await prepareEpub(fetchedBook) }
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
@@ -1144,7 +1139,7 @@ struct ReaderProgressLine: View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(.white.opacity(0.12))
+                    .fill(Brand.controlFill)
                 Capsule()
                     .fill(Brand.redSoft.opacity(0.9))
                     .frame(width: proxy.size.width * max(0, min(progress, 1)))
@@ -1215,10 +1210,10 @@ struct ReaderSettingsSheet: View {
                                     Text(option.title)
                                         .font(.caption.weight(.semibold))
                                 }
-                                .foregroundStyle(theme == option ? .white : .secondary)
+                                .foregroundStyle(theme == option ? Brand.onAccent : .secondary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
-                                .background(theme == option ? Brand.red.opacity(0.72) : .white.opacity(0.06), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                .background(theme == option ? Brand.red : Brand.subtleFill, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                             }
                             .buttonStyle(.plain)
                         }
@@ -1235,7 +1230,7 @@ struct ReaderSettingsSheet: View {
                             .foregroundStyle(.secondary)
                     }
                     Slider(value: $fontSize, in: 14...28, step: 1)
-                        .tint(Brand.red)
+                        .tint(Brand.redSoft)
                     HStack {
                         Text("A")
                             .font(.system(size: 14, weight: .semibold))
@@ -1448,7 +1443,7 @@ struct GlobalSearchLanding: View {
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
             }
         }
@@ -1463,7 +1458,7 @@ struct GlobalSearchResultRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImageCover(urlString: result.imageURL, systemImage: result.systemImage)
+            AsyncImageCover(urlString: result.imageURL, systemImage: result.systemImage, maxPixelSize: 360)
                 .frame(width: 46, height: 46)
                 .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
@@ -1492,10 +1487,10 @@ struct GlobalSearchResultRow: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Brand.panel.opacity(0.78), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Brand.surface.opacity(0.78), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(.white.opacity(0.05), lineWidth: 1)
+                .stroke(Brand.separator.opacity(0.64), lineWidth: 1)
         }
     }
 }
@@ -1542,7 +1537,7 @@ struct SubstackScreen: View {
                         .padding(.horizontal, ScreenSpacing.horizontal)
                 }
 
-                if isLoading {
+                if isLoading && posts.isEmpty {
                     ProgressView("Loading Substack")
                         .frame(maxWidth: .infinity, minHeight: 260)
                 } else if visiblePosts.isEmpty {
@@ -1582,25 +1577,27 @@ struct SubstackScreen: View {
                     Image(systemName: "safari")
                         .toolbarIconChrome()
                 }
-                .buttonStyle(.plain)
+                .glassButtonStyle()
             }
         }
         .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search articles")
         .task { await load() }
-        .refreshable { await load() }
+        .refreshable { await load(forceRefresh: true) }
         .background(ScreenBackground())
     }
 
-    private func load() async {
+    private func load(forceRefresh: Bool = false) async {
         isLoading = true
-        defer { isLoading = false }
-        let result = await client.loadPosts()
+        let result = await client.loadPosts(forceRefresh: forceRefresh)
         source = result.source
         posts = result.posts
-        SystemSnapshotPublisher.publishLatestSubstack(result.posts)
-        await SearchIndexService.shared.indexSubstack(result.posts)
         noticeMessage = result.posts.isEmpty ? nil : result.feedError
         errorMessage = result.posts.isEmpty ? (result.feedError ?? result.archiveError) : nil
+        isLoading = false
+        Task {
+            SystemSnapshotPublisher.publishLatestSubstack(result.posts)
+            await SearchIndexService.shared.indexSubstack(result.posts)
+        }
     }
 }
 
@@ -1615,7 +1612,7 @@ struct SubstackSourceHeader: View {
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(Brand.redSoft)
                 .frame(width: 34, height: 34)
-                .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             VStack(alignment: .leading, spacing: 4) {
                 Text(source.title)
                     .font(.headline)
@@ -1636,7 +1633,7 @@ struct SubstackArticleRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            AsyncImageCover(urlString: post.imageUrl, systemImage: "newspaper")
+            AsyncImageCover(urlString: post.imageUrl, systemImage: "newspaper", maxPixelSize: 360)
                 .frame(width: 78, height: 78)
             VStack(alignment: .leading, spacing: 7) {
                 HStack(spacing: 8) {
@@ -1663,7 +1660,7 @@ struct SubstackArticleRow: View {
             Spacer(minLength: 0)
         }
         .padding(10)
-        .background(Brand.panel.opacity(0.72), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Brand.surface.opacity(0.72), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
@@ -1695,7 +1692,7 @@ struct SubstackArticleScreen: View {
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 8)
-                            .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .buttonStyle(.plain)
 
@@ -1708,10 +1705,10 @@ struct SubstackArticleScreen: View {
                     } label: {
                         Label("Substack", systemImage: "safari")
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Brand.onAccent)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 8)
-                            .background(Brand.red.opacity(0.72), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .background(Brand.red, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -1835,17 +1832,17 @@ struct AudiobooksScreen: View {
                                 }
                             }
                             .font(.caption.weight(.bold))
-                            .foregroundStyle(category == item ? .white : .secondary)
+                            .foregroundStyle(category == item ? Brand.onAccent : .secondary)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 7)
-                            .background(category == item ? Brand.red : .white.opacity(0.07), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            .background(category == item ? Brand.red : Brand.subtleFill, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                             .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
                         }
                     }
                     .padding(.horizontal, ScreenSpacing.horizontal)
                     .padding(.top, 6)
                 }
-                if isLoading {
+                if isLoading && visibleAudiobooks.isEmpty {
                     ProgressView("Loading audiobooks")
                         .frame(maxWidth: .infinity, minHeight: 260)
                 } else if visibleAudiobooks.isEmpty {
@@ -1886,16 +1883,18 @@ struct AudiobooksScreen: View {
         .animation(.snappy(duration: 0.2), value: audio.current?.id)
         .searchable(text: $searchQuery, prompt: "Search audiobooks")
         .task { await load() }
+        .refreshable { await load(forceRefresh: true) }
         .background(ScreenBackground())
     }
 
-    private func load() async {
+    private func load(forceRefresh: Bool = false) async {
         isLoading = true
-        defer { isLoading = false }
         do {
-            audiobooks = try await client.fetchAudiobooks()
-            await SearchIndexService.shared.indexAudiobooks(audiobooks)
+            let loadedAudiobooks = try await client.fetchAudiobooks(forceRefresh: forceRefresh)
+            audiobooks = loadedAudiobooks
             errorMessage = nil
+            isLoading = false
+            Task { await SearchIndexService.shared.indexAudiobooks(loadedAudiobooks) }
         } catch {
             let offline = audioDownloads.downloads.compactMap(\.audiobook)
             if !offline.isEmpty {
@@ -1904,6 +1903,7 @@ struct AudiobooksScreen: View {
             } else {
                 errorMessage = error.localizedDescription
             }
+            isLoading = false
         }
     }
 }
@@ -1926,7 +1926,7 @@ struct AudiobookRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AsyncImageCover(urlString: audiobook.coverUrl, systemImage: "headphones")
+                AsyncImageCover(urlString: audiobook.coverUrl, systemImage: "headphones", maxPixelSize: 240)
                 .frame(width: 62, height: 62)
                 .shadow(color: .black.opacity(0.20), radius: 8, y: 5)
             VStack(alignment: .leading, spacing: 6) {
@@ -1981,10 +1981,10 @@ struct AudiobookRow: View {
         .animation(.snappy(duration: 0.2), value: isCurrent)
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Brand.panel.opacity(0.82))
+                .fill(Brand.surface.opacity(0.82))
                 .overlay {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(isCurrent ? Brand.red.opacity(0.42) : .white.opacity(0.04), lineWidth: 1)
+                        .stroke(isCurrent ? Brand.red.opacity(0.42) : Brand.separator.opacity(0.58), lineWidth: 1)
                 }
         }
     }
@@ -2002,7 +2002,7 @@ struct AudioPlayerScreen: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         playerHeader
-                        AsyncImageCover(urlString: current.coverUrl, systemImage: "headphones")
+                        AsyncImageCover(urlString: current.coverUrl, systemImage: "headphones", maxPixelSize: 240)
                             .frame(maxWidth: 254, maxHeight: 254)
                             .aspectRatio(1, contentMode: .fit)
                             .scaleEffect(audio.isPlaying ? 1 : 0.985)
@@ -2090,6 +2090,7 @@ struct AudioPlayerScreen: View {
                     .padding()
             }
         }
+        .preferredColorScheme(.dark)
         .animation(.snappy(duration: 0.24), value: audio.isPlaying)
         .animation(.snappy(duration: 0.2), value: audio.currentChapterIndex)
     }
@@ -2414,7 +2415,7 @@ struct ForumScreen: View {
                     Image(systemName: "square.and.pencil")
                         .toolbarIconChrome()
                 }
-                .buttonStyle(.plain)
+                .glassButtonStyle()
             }
         }
         .background(ScreenBackground())
@@ -2427,25 +2428,34 @@ struct ForumScreen: View {
                 Text("Popular").tag("popular")
             }
             .pickerStyle(.segmented)
-            ForEach(threads) { thread in
-                ThreadRow(thread: thread)
-                    .contentShape(Rectangle())
-                    .onTapGesture { router.navigate(to: .threadDetail(id: thread.id)) }
+            if isLoading && threads.isEmpty {
+                ProgressView("Loading forum")
+                    .frame(maxWidth: .infinity, minHeight: 180)
+            } else {
+                ForEach(threads) { thread in
+                    ThreadRow(thread: thread)
+                        .contentShape(Rectangle())
+                        .onTapGesture { router.navigate(to: .threadDetail(id: thread.id)) }
+                }
             }
         }
         .task { await loadThreads() }
+        .refreshable { await loadThreads(forceRefresh: true) }
         .onChange(of: sort) { _, _ in Task { await loadThreads() } }
     }
 
-    private func loadThreads() async {
+    private func loadThreads(forceRefresh: Bool = false) async {
         isLoading = true
-        defer { isLoading = false }
         do {
-            threads = try await client.fetchThreads(board: selectedBoard, sort: sort)
-            SystemSnapshotPublisher.publishLatestThreads(threads)
-            await SearchIndexService.shared.indexThreads(threads)
+            let loadedThreads = try await client.fetchThreads(board: selectedBoard, sort: sort, forceRefresh: forceRefresh)
+            threads = loadedThreads
+            isLoading = false
+            Task {
+                SystemSnapshotPublisher.publishLatestThreads(loadedThreads)
+                await SearchIndexService.shared.indexThreads(loadedThreads)
+            }
         } catch {
-            threads = []
+            isLoading = false
         }
     }
 }
@@ -2501,8 +2511,10 @@ struct ThreadDetailScreen: View {
         }
         .navigationTitle("Thread")
         .task {
-            thread = try? await client.fetchThread(id: threadId)
-            comments = (try? await client.fetchComments(threadId: threadId)) ?? []
+            async let threadRequest = try? client.fetchThread(id: threadId)
+            async let commentsRequest = try? client.fetchComments(threadId: threadId)
+            thread = await threadRequest
+            comments = (await commentsRequest) ?? []
         }
     }
 }
@@ -2566,6 +2578,10 @@ struct NotificationsScreen: View {
             if auth.isGuest {
                 EmptyPanel(systemImage: "bell.slash", title: "Guest mode", message: "Sign in to receive notifications.")
                     .listRowBackground(Color.clear)
+            } else if isLoading && notifications.isEmpty {
+                ProgressView("Loading alerts")
+                    .frame(maxWidth: .infinity, minHeight: 180)
+                    .listRowBackground(Color.clear)
             } else if notifications.isEmpty && !isLoading {
                 EmptyPanel(systemImage: "bell", title: "No notifications", message: "Activity on your threads will appear here.")
                     .listRowBackground(Color.clear)
@@ -2593,18 +2609,18 @@ struct NotificationsScreen: View {
         }
         .navigationTitle("Notifications")
         .task { await load() }
-        .refreshable { await load() }
+        .refreshable { await load(forceRefresh: true) }
         .background(ScreenBackground())
     }
 
-    private func load() async {
+    private func load(forceRefresh: Bool = false) async {
         guard let userId = auth.userId else {
             isLoading = false
             return
         }
         isLoading = true
         defer { isLoading = false }
-        notifications = (try? await client.fetchNotifications(userId: userId, accessToken: auth.accessToken)) ?? []
+        notifications = (try? await client.fetchNotifications(userId: userId, accessToken: auth.accessToken, forceRefresh: forceRefresh)) ?? []
     }
 }
 
@@ -2612,6 +2628,9 @@ struct ProfileScreen: View {
     @Environment(AuthStore.self) private var auth
     @Environment(RouterPath.self) private var router
     @Environment(ReadingActivityStore.self) private var readingActivity
+    @State private var isDeleteConfirmationPresented = false
+    @State private var isDeletingAccount = false
+    @State private var deletionError = ""
 
     var body: some View {
         ScrollView {
@@ -2652,6 +2671,19 @@ struct ProfileScreen: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.bordered)
+                    if !auth.isGuest {
+                        Button(role: .destructive) {
+                            isDeleteConfirmationPresented = true
+                        } label: {
+                            Label(
+                                isDeletingAccount ? "Deleting Account…" : "Delete Account",
+                                systemImage: "person.crop.circle.badge.minus"
+                            )
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isDeletingAccount)
+                    }
                 }
                 .padding(12)
                 .glassSurface(cornerRadius: 14)
@@ -2661,6 +2693,35 @@ struct ProfileScreen: View {
         .navigationTitle("Profile")
         .animation(.snappy(duration: 0.22), value: readingActivity.quotes.count)
         .background(ScreenBackground())
+        .confirmationDialog(
+            "Delete your account?",
+            isPresented: $isDeleteConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Delete Account", role: .destructive) {
+                isDeletingAccount = true
+                Task {
+                    let deleted = await auth.deleteAccount()
+                    if deleted {
+                        readingActivity.clearLocalData()
+                    } else {
+                        deletionError = auth.errorMessage ?? "Account deletion failed. Please try again."
+                    }
+                    isDeletingAccount = false
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently removes your account, reading sync data, saved quotes, push tokens, and files. This cannot be undone.")
+        }
+        .alert("Account deletion failed", isPresented: Binding(
+            get: { !deletionError.isEmpty },
+            set: { if !$0 { deletionError = "" } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(deletionError)
+        }
     }
 }
 
@@ -2676,7 +2737,7 @@ struct ProfileButton: View {
         }
         .buttonStyle(PressableScaleButtonStyle(scale: 0.98))
         .padding(12)
-        .background(.white.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
+        .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -2757,7 +2818,7 @@ struct QuoteNotebookRow: View {
                             .font(.caption.weight(.bold))
                             .padding(.horizontal, 9)
                             .padding(.vertical, 6)
-                            .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                            .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                     }
                     .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
                 }
@@ -2768,17 +2829,17 @@ struct QuoteNotebookRow: View {
                     Image(systemName: "trash")
                         .font(.caption.weight(.bold))
                         .frame(width: 30, height: 30)
-                        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
                 }
                 .buttonStyle(PressableScaleButtonStyle(scale: 0.92))
                 .accessibilityLabel("Delete quote")
             }
         }
         .padding(14)
-        .background(Brand.panel.opacity(0.76), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Brand.surface.opacity(0.76), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(.white.opacity(0.06), lineWidth: 1)
+                .stroke(Brand.separator.opacity(0.64), lineWidth: 1)
         }
     }
 }
@@ -2826,6 +2887,19 @@ struct SettingsScreen: View {
     var body: some View {
         @Bindable var settingsStore = settingsStore
         Form {
+            Section("Appearance") {
+                Picker("Appearance", selection: $settingsStore.settings.appearance) {
+                    ForEach(AppAppearance.allCases) { appearance in
+                        Label(appearance.title, systemImage: appearance.systemImage)
+                            .tag(appearance)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text("System follows your iPhone or iPad appearance automatically.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
             Section("Notifications") {
                 Toggle("Push Notifications", isOn: $settingsStore.settings.pushNotifications)
                 Toggle("Email Notifications", isOn: $settingsStore.settings.emailNotifications)
@@ -2844,6 +2918,8 @@ struct SettingsScreen: View {
             }
         }
         .navigationTitle("Settings")
+        .scrollContentBackground(.hidden)
+        .background(ScreenBackground())
         .onChange(of: settingsStore.settings) { _, _ in settingsStore.save() }
     }
 }
@@ -2860,6 +2936,8 @@ struct EmailPreferencesScreen: View {
             Toggle("Weekly Digest", isOn: $settingsStore.settings.emailWeeklyDigest)
         }
         .navigationTitle("Email Preferences")
+        .scrollContentBackground(.hidden)
+        .background(ScreenBackground())
         .onChange(of: settingsStore.settings) { _, _ in settingsStore.save() }
     }
 }
@@ -2879,6 +2957,8 @@ struct ChangePasswordScreen: View {
                 .foregroundStyle(.secondary)
         }
         .navigationTitle("Change Password")
+        .scrollContentBackground(.hidden)
+        .background(ScreenBackground())
     }
 }
 
@@ -2919,6 +2999,7 @@ struct AppPreviewScaffold: View {
     @State private var downloads = DownloadStore()
     @State private var audioDownloads = AudiobookDownloadStore()
     @State private var audio = AudioPlayerModel()
+    @State private var readingActivity = ReadingActivityStore()
 
     var body: some View {
         RootView()
@@ -2927,6 +3008,7 @@ struct AppPreviewScaffold: View {
             .environment(downloads)
             .environment(audioDownloads)
             .environment(audio)
+            .environment(readingActivity)
     }
 }
 
