@@ -1797,6 +1797,7 @@ enum SubstackHTML {
 
 struct AudiobooksScreen: View {
     @Environment(AudioPlayerModel.self) private var audio
+    @Environment(AudiobookDownloadStore.self) private var audioDownloads
     private let client = AudiobookClient()
 
     @State private var audiobooks: [Audiobook] = []
@@ -1895,7 +1896,13 @@ struct AudiobooksScreen: View {
             isLoading = false
             Task { await SearchIndexService.shared.indexAudiobooks(loadedAudiobooks) }
         } catch {
-            errorMessage = error.localizedDescription
+            let offline = audioDownloads.downloads.compactMap(\.audiobook)
+            if !offline.isEmpty {
+                audiobooks = offline
+                errorMessage = nil
+            } else {
+                errorMessage = error.localizedDescription
+            }
             isLoading = false
         }
     }
@@ -1906,6 +1913,16 @@ struct AudiobookRow: View {
     let isCurrent: Bool
     let isPlaying: Bool
     let onPlay: () -> Void
+
+    @Environment(AudiobookDownloadStore.self) private var audioDownloads
+
+    private var isDownloaded: Bool {
+        audioDownloads.isDownloaded(audiobook.id)
+    }
+
+    private var isDownloading: Bool {
+        audioDownloads.activeDownloadId == audiobook.id
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -1931,6 +1948,27 @@ struct AudiobookRow: View {
                 }
             }
             Spacer(minLength: 8)
+            Button {
+                if let entry = audioDownloads.cached(audiobookId: audiobook.id) {
+                    audioDownloads.remove(entry)
+                } else {
+                    Task { await audioDownloads.download(audiobook) }
+                }
+            } label: {
+                if isDownloading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(width: 30, height: 30)
+                } else {
+                    Image(systemName: isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle")
+                        .font(.system(size: 21, weight: .medium))
+                        .foregroundStyle(isDownloaded ? Brand.redSoft : .secondary)
+                        .frame(width: 30, height: 30)
+                }
+            }
+            .buttonStyle(PressableScaleButtonStyle(scale: 0.9))
+            .disabled(isDownloading)
+            .accessibilityLabel(isDownloaded ? "Remove download" : "Download for offline listening")
             Button(action: onPlay) {
                 PlaybackCircleIcon(isPlaying: isCurrent && isPlaying, size: 34)
             }
@@ -2959,6 +2997,7 @@ struct AppPreviewScaffold: View {
     @State private var auth = AuthStore()
     @State private var settings = SettingsStore()
     @State private var downloads = DownloadStore()
+    @State private var audioDownloads = AudiobookDownloadStore()
     @State private var audio = AudioPlayerModel()
     @State private var readingActivity = ReadingActivityStore()
 
@@ -2967,6 +3006,7 @@ struct AppPreviewScaffold: View {
             .environment(auth)
             .environment(settings)
             .environment(downloads)
+            .environment(audioDownloads)
             .environment(audio)
             .environment(readingActivity)
     }

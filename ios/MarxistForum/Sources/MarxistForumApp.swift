@@ -69,6 +69,7 @@ struct MarxistForumApp: App {
     @State private var auth = AuthStore()
     @State private var settings = SettingsStore()
     @State private var downloads = DownloadStore()
+    @State private var audioDownloads = AudiobookDownloadStore()
     @State private var audio = AudioPlayerModel()
     @State private var readingActivity = ReadingActivityStore()
     @State private var deepLinks = DeepLinkDispatcher.shared
@@ -79,12 +80,14 @@ struct MarxistForumApp: App {
                 .environment(auth)
                 .environment(settings)
                 .environment(downloads)
+                .environment(audioDownloads)
                 .environment(audio)
                 .environment(readingActivity)
                 .environment(deepLinks)
                 .preferredColorScheme(settings.settings.appearance.preferredColorScheme)
                 .task {
                     downloads.restore()
+                    audioDownloads.restore()
                     readingActivity.restore()
                     SystemSnapshotPublisher.publishDailyQuote(.today)
                     SystemSnapshotPublisher.publishContinueReading(readingActivity.continueReading.first)
@@ -352,7 +355,11 @@ struct AppView: View {
                 audio.expanded = true
             }
         } catch {
-            audio.expanded = true
+            if let cached = AudiobookOfflineCache.entries().first(where: { $0.audiobookId == id })?.audiobook {
+                audio.load(cached)
+            } else {
+                audio.expanded = true
+            }
         }
     }
 

@@ -33,6 +33,31 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertEqual(AudioChapterMath.currentIndex(time: 0, chapters: []), -1)
     }
 
+    func testAudiobookOfflineCacheFilename() {
+        let withExtension = Audiobook(id: "ab1", title: "Capital", audioUrl: "https://cdn.example.com/audio/capital-vol1.m4a")
+        XCTAssertEqual(AudiobookOfflineCache.filename(for: withExtension), "ab1-capital-vol1.m4a")
+
+        let withoutExtension = Audiobook(id: "ab2", title: "Manifesto", audioUrl: "https://cdn.example.com/stream")
+        XCTAssertEqual(AudiobookOfflineCache.filename(for: withoutExtension), "ab2.mp3")
+    }
+
+    func testDownloadedAudiobookRoundTripKeepsMetadata() throws {
+        let audiobook = Audiobook(id: "ab1", title: "Capital", author: "Karl Marx", audioUrl: "https://cdn.example.com/a.m4a", durationSeconds: 120, chapters: [AudiobookChapter(title: "Intro", startSeconds: 0)])
+        let entry = DownloadedAudiobook(
+            audiobookId: audiobook.id,
+            title: audiobook.title,
+            author: audiobook.author,
+            filename: "ab1-a.m4a",
+            cachedAt: "2026-07-08T00:00:00Z",
+            fileSize: 1024,
+            audiobook: audiobook
+        )
+        let data = try JSONEncoder.supabase.encode([entry])
+        let decoded = try JSONDecoder.supabase.decode([DownloadedAudiobook].self, from: data)
+        XCTAssertEqual(decoded.first?.audiobook, audiobook)
+        XCTAssertEqual(decoded.first?.filename, "ab1-a.m4a")
+    }
+
     func testSubstackPayloadDecodingAndNormalization() throws {
         let json = """
         {
