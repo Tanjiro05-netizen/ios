@@ -87,9 +87,11 @@ final class AuthStore {
 
     private let client = SupabaseRESTClient()
     private let forumClient = ForumClient()
+    private var appleAuthorizationCode: String?
     private let defaults = UserDefaults.standard
     private let keychain = KeychainStore(service: "com.marxist.forum.auth")
     private let sessionKey = "ios.auth.session"
+    private let appleAuthorizationCodeKey = "ios.auth.apple.authorization.code"
     private let guestKey = "ios.auth.guest"
 
     var accessToken: String? { session?.accessToken }
@@ -102,7 +104,13 @@ final class AuthStore {
         defer { isLoading = false }
 
         if restoreStoredSession() {
-            await refreshProfile()
+            // A saved session is enough to render the archive. Profile data is
+            // non-critical and can arrive after the first frame instead of
+            // keeping the entire app behind a network request.
+            PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
+            Task { [weak self] in
+                await self?.refreshProfile()
+            }
         } else if let data = defaults.data(forKey: guestKey),
                   let guest = try? JSONDecoder.supabase.decode(GuestSession.self, from: data) {
             guestSession = guest
@@ -114,6 +122,8 @@ final class AuthStore {
     func signIn(email: String, password: String) async {
         errorMessage = nil
         statusMessage = nil
+        appleAuthorizationCode = nil
+        keychain.delete(account: appleAuthorizationCodeKey)
         do {
             let signedIn = try await client.authSignIn(email: email, password: password)
             try saveSession(signedIn)
@@ -124,6 +134,8 @@ final class AuthStore {
             PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
             await PushRegistrationService.shared.registerIfPossible()
         } catch {
+            appleAuthorizationCode = nil
+            keychain.delete(account: appleAuthorizationCodeKey)
             errorMessage = error.localizedDescription
         }
     }
@@ -131,6 +143,8 @@ final class AuthStore {
     func signUp(email: String, password: String, username: String, inviteCode: String) async {
         errorMessage = nil
         statusMessage = nil
+        appleAuthorizationCode = nil
+        keychain.delete(account: appleAuthorizationCodeKey)
         do {
             if let created = try await client.authSignUp(email: email, password: password, username: username, inviteCode: inviteCode) {
                 try saveSession(created)
@@ -143,19 +157,35 @@ final class AuthStore {
         }
     }
 
-    func signInWithApple(idToken: String, nonce: String?) async {
+    func signInWithApple(
+        idToken: String,
+        nonce: String?,
+        displayName: String? = nil,
+        authorizationCode: String? = nil
+    ) async {
         errorMessage = nil
         statusMessage = nil
+        appleAuthorizationCode = authorizationCode
+        if let authorizationCode {
+            try? keychain.set(Data(authorizationCode.utf8), for: appleAuthorizationCodeKey)
+        }
         do {
             let signedIn = try await client.authSignInWithApple(idToken: idToken, nonce: nonce)
             try saveSession(signedIn)
             session = signedIn
             guestSession = nil
             defaults.removeObject(forKey: guestKey)
+            if let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !displayName.isEmpty,
+               let userId {
+                try? await forumClient.updateProfile(id: userId, username: displayName, accessToken: accessToken)
+            }
             await refreshProfile()
             PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
             await PushRegistrationService.shared.registerIfPossible()
         } catch {
+            appleAuthorizationCode = nil
+            keychain.delete(account: appleAuthorizationCodeKey)
             errorMessage = error.localizedDescription
         }
     }
@@ -182,7 +212,45 @@ final class AuthStore {
         keychain.delete(account: sessionKey)
         defaults.removeObject(forKey: sessionKey)
         defaults.removeObject(forKey: guestKey)
+        appleAuthorizationCode = nil
+        keychain.delete(account: appleAuthorizationCodeKey)
         PushRegistrationService.shared.configure(userId: nil, accessToken: nil)
+    }
+
+    @discardableResult
+    func deleteAccount() async -> Bool {
+        guard let accessToken else {
+            errorMessage = "There is no signed-in account to delete."
+            return false
+        }
+
+        errorMessage = nil
+        statusMessage = nil
+
+        do {
+            try await client.deleteAccount(
+                accessToken: accessToken,
+                appleAuthorizationCode: appleAuthorizationCode
+            )
+            session = nil
+            guestSession = nil
+            profile = nil
+            appleAuthorizationCode = nil
+            keychain.delete(account: sessionKey)
+            keychain.delete(account: appleAuthorizationCodeKey)
+            defaults.removeObject(forKey: sessionKey)
+            defaults.removeObject(forKey: guestKey)
+            defaults.removeObject(forKey: "ios.reader.continue")
+            defaults.removeObject(forKey: "ios.reader.quotes")
+            defaults.removeObject(forKey: "ios.epub.downloads")
+            SystemIntegrationStore.defaults.removePersistentDomain(forName: AppGroup.identifier)
+            PushRegistrationService.shared.configure(userId: nil, accessToken: nil)
+            statusMessage = "Your account and associated data were deleted."
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            return false
+        }
     }
 
     func refreshProfile() async {
@@ -205,6 +273,10 @@ final class AuthStore {
            let restored = try? JSONDecoder.supabase.decode(AuthSession.self, from: data) {
             session = restored
             guestSession = nil
+            if let codeData = try? keychain.data(for: appleAuthorizationCodeKey),
+               let code = String(data: codeData, encoding: .utf8) {
+                appleAuthorizationCode = code
+            }
             return true
         }
 
@@ -230,10 +302,16 @@ final class AuthStore {
 @Observable
 final class SettingsStore {
     var settings = AppSettings()
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
+    private let settingsKey = "ios.settings"
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        restore()
+    }
 
     func restore() {
-        if let data = defaults.data(forKey: "ios.settings"),
+        if let data = defaults.data(forKey: settingsKey),
            let restored = try? JSONDecoder.supabase.decode(AppSettings.self, from: data) {
             settings = restored
         }
@@ -241,7 +319,7 @@ final class SettingsStore {
 
     func save() {
         if let data = try? JSONEncoder.supabase.encode(settings) {
-            defaults.set(data, forKey: "ios.settings")
+            defaults.set(data, forKey: settingsKey)
         }
     }
 }
@@ -330,8 +408,11 @@ final class ReadingActivityStore {
     var quotes: [QuoteNotebookItem] = []
 
     private let defaults = UserDefaults.standard
+    private let syncClient = ReadingSyncClient()
     private let progressKey = "ios.reader.continue"
     private let quotesKey = "ios.reader.quotes"
+    private var syncUserId: String?
+    private var syncAccessToken: String?
 
     func restore() {
         if let data = defaults.data(forKey: progressKey),
@@ -365,6 +446,7 @@ final class ReadingActivityStore {
             continueReading = Array(continueReading.prefix(12))
         }
         saveProgress()
+        queueProgressUpload(item)
     }
 
     @discardableResult
@@ -384,6 +466,7 @@ final class ReadingActivityStore {
             existing.routeBookId = routeBookId ?? existing.routeBookId
             quotes.insert(existing, at: 0)
             saveQuotes()
+            queueQuoteUpload(existing)
             return existing
         }
 
@@ -400,6 +483,7 @@ final class ReadingActivityStore {
             quotes = Array(quotes.prefix(150))
         }
         saveQuotes()
+        queueQuoteUpload(item)
         return item
     }
 
@@ -415,6 +499,130 @@ final class ReadingActivityStore {
     func removeQuote(_ item: QuoteNotebookItem) {
         quotes.removeAll { $0.id == item.id }
         saveQuotes()
+        guard let syncUserId, let syncAccessToken else { return }
+        Task { [weak self] in
+            guard let self else { return }
+            try? await syncClient.deleteQuote(id: item.id, userId: syncUserId, accessToken: syncAccessToken)
+        }
+    }
+
+    func clearLocalData() {
+        continueReading = []
+        quotes = []
+        defaults.removeObject(forKey: progressKey)
+        defaults.removeObject(forKey: quotesKey)
+        syncUserId = nil
+        syncAccessToken = nil
+    }
+
+    func synchronize(userId: String, accessToken: String) async {
+        syncUserId = userId
+        syncAccessToken = accessToken
+
+        do {
+            async let remoteProgressTask = syncClient.fetchProgress(userId: userId, accessToken: accessToken)
+            async let remoteQuotesTask = syncClient.fetchQuotes(userId: userId, accessToken: accessToken)
+            let (remoteProgress, remoteQuotes) = try await (remoteProgressTask, remoteQuotesTask)
+
+            var remoteProgressByBook = Dictionary(uniqueKeysWithValues: remoteProgress.map { ($0.bookId, $0) })
+            var progressToUpload: [ContinueReadingItem] = []
+            let localProgressItems = continueReading
+            for local in localProgressItems {
+                guard let remote = remoteProgressByBook.removeValue(forKey: local.bookId) else {
+                    progressToUpload.append(local)
+                    continue
+                }
+                if Self.isNewer(local.updatedAt, than: remote.updatedAt) {
+                    progressToUpload.append(local)
+                } else {
+                    continueReading.removeAll { $0.bookId == local.bookId }
+                    continueReading.append(Self.localProgress(from: remote))
+                }
+            }
+            continueReading.append(contentsOf: remoteProgressByBook.values.map(Self.localProgress(from:)))
+            continueReading.sort { Self.isNewer($0.updatedAt, than: $1.updatedAt) }
+            continueReading = Array(continueReading.prefix(12))
+            saveProgress()
+
+            for item in progressToUpload {
+                try? await syncClient.upsertProgress(item, userId: userId, accessToken: accessToken)
+            }
+
+            var remoteQuotesByID = Dictionary(uniqueKeysWithValues: remoteQuotes.map { ($0.quoteId, $0) })
+            var quotesToUpload: [QuoteNotebookItem] = []
+            let localQuoteItems = quotes
+            for local in localQuoteItems {
+                guard let remote = remoteQuotesByID.removeValue(forKey: local.id) else {
+                    quotesToUpload.append(local)
+                    continue
+                }
+                if Self.isNewer(local.createdAt, than: remote.updatedAt) {
+                    quotesToUpload.append(local)
+                } else {
+                    quotes.removeAll { $0.id == local.id }
+                    quotes.append(Self.localQuote(from: remote))
+                }
+            }
+            quotes.append(contentsOf: remoteQuotesByID.values.map(Self.localQuote(from:)))
+            quotes.sort { Self.isNewer($0.createdAt, than: $1.createdAt) }
+            quotes = Array(quotes.prefix(150))
+            saveQuotes()
+
+            for item in quotesToUpload {
+                try? await syncClient.upsertQuote(item, userId: userId, accessToken: accessToken)
+            }
+        } catch {
+            // Keep the local cache available offline and retry next launch or
+            // after the next meaningful reading change.
+            print("Reading sync failed: \(error)")
+        }
+    }
+
+    private func queueProgressUpload(_ item: ContinueReadingItem) {
+        guard let syncUserId, let syncAccessToken else { return }
+        Task { [weak self] in
+            guard let self else { return }
+            try? await syncClient.upsertProgress(item, userId: syncUserId, accessToken: syncAccessToken)
+        }
+    }
+
+    private func queueQuoteUpload(_ item: QuoteNotebookItem) {
+        guard let syncUserId, let syncAccessToken else { return }
+        Task { [weak self] in
+            guard let self else { return }
+            try? await syncClient.upsertQuote(item, userId: syncUserId, accessToken: syncAccessToken)
+        }
+    }
+
+    private static func localProgress(from remote: ReadingProgressRemote) -> ContinueReadingItem {
+        ContinueReadingItem(
+            bookId: remote.bookId,
+            title: remote.title,
+            author: remote.author,
+            chapterTitle: remote.chapterTitle,
+            chapterIndex: remote.chapterIndex,
+            chapterCount: remote.chapterCount,
+            progress: remote.progress,
+            updatedAt: remote.updatedAt
+        )
+    }
+
+    private static func localQuote(from remote: ReadingQuoteRemote) -> QuoteNotebookItem {
+        QuoteNotebookItem(
+            id: remote.quoteId,
+            text: remote.text,
+            sourceTitle: remote.sourceTitle,
+            sourceDetail: remote.sourceDetail,
+            routeBookId: remote.routeBookId,
+            createdAt: remote.createdAt
+        )
+    }
+
+    private static func isNewer(_ lhs: String, than rhs: String) -> Bool {
+        let formatter = ISO8601DateFormatter()
+        let leftDate = formatter.date(from: lhs) ?? .distantPast
+        let rightDate = formatter.date(from: rhs) ?? .distantPast
+        return leftDate > rightDate
     }
 
     private func saveProgress() {

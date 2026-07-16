@@ -1,10 +1,12 @@
 import AuthenticationServices
 import CryptoKit
+import Foundation
 import Security
 import SwiftUI
 
 struct AppleSignInButton: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentNonce: String?
 
     var body: some View {
@@ -23,12 +25,26 @@ struct AppleSignInButton: View {
                     return
                 }
                 let nonce = currentNonce
-                Task { await auth.signInWithApple(idToken: token, nonce: nonce) }
+                let displayName = credential.fullName.flatMap { components in
+                    let formatted = PersonNameComponentsFormatter().string(from: components)
+                    let trimmed = formatted.trimmingCharacters(in: .whitespacesAndNewlines)
+                    return trimmed.isEmpty ? nil : trimmed
+                }
+                let authorizationCode = credential.authorizationCode.flatMap { String(data: $0, encoding: .utf8) }
+                Task {
+                    await auth.signInWithApple(
+                        idToken: token,
+                        nonce: nonce,
+                        displayName: displayName,
+                        authorizationCode: authorizationCode
+                    )
+                }
             case .failure(let error):
                 auth.errorMessage = error.localizedDescription
             }
         }
-        .signInWithAppleButtonStyle(.white)
+        .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+        .id(colorScheme)
         .frame(height: 40)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .accessibilityLabel("Sign in with Apple")

@@ -82,8 +82,8 @@ struct MarxistForumApp: App {
                 .environment(audio)
                 .environment(readingActivity)
                 .environment(deepLinks)
+                .preferredColorScheme(settings.settings.appearance.preferredColorScheme)
                 .task {
-                    settings.restore()
                     downloads.restore()
                     readingActivity.restore()
                     SystemSnapshotPublisher.publishDailyQuote(.today)
@@ -100,6 +100,7 @@ struct MarxistForumApp: App {
 
 struct RootView: View {
     @Environment(AuthStore.self) private var auth
+    @Environment(ReadingActivityStore.self) private var readingActivity
 
     var body: some View {
         ZStack {
@@ -114,7 +115,10 @@ struct RootView: View {
                 LoginScreen()
             }
         }
-        .preferredColorScheme(.dark)
+        .task(id: auth.userId) {
+            guard let userId = auth.userId, let accessToken = auth.accessToken else { return }
+            await readingActivity.synchronize(userId: userId, accessToken: accessToken)
+        }
     }
 }
 
@@ -137,10 +141,12 @@ struct AppView: View {
                 NavigationSplitView {
                     iPadSidebar
                 } detail: {
-                    navigationStack
+                    navigationStack(for: selectedTab)
                 }
+            } else if #available(iOS 26.0, *) {
+                nativeTabShell(router: router)
             } else {
-                navigationStack
+                navigationStack(for: selectedTab)
                     .safeAreaInset(edge: .bottom) {
                         if router.path.isEmpty {
                             VStack(spacing: 8) {
@@ -172,7 +178,7 @@ struct AppView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
-        .tint(Brand.red)
+        .tint(Brand.redSoft)
         .sheet(isPresented: Binding(get: { audio.expanded }, set: { audio.expanded = $0 })) {
                 AudioPlayerScreen()
                 .presentationDetents([.large])
@@ -185,9 +191,50 @@ struct AppView: View {
         }
     }
 
-    private var navigationStack: some View {
-        NavigationStack(path: tabRouter.binding(for: selectedTab)) {
-            tabContent(selectedTab)
+    @available(iOS 26.0, *)
+    private var nativeTabView: some View {
+        TabView(selection: $selectedTab) {
+            Tab("Library", systemImage: "books.vertical", value: AppTab.library) {
+                navigationStack(for: .library)
+            }
+            Tab("Audio", systemImage: "headphones", value: AppTab.audiobooks) {
+                navigationStack(for: .audiobooks)
+            }
+            Tab("Substack", systemImage: "newspaper", value: AppTab.substack) {
+                navigationStack(for: .substack)
+            }
+            Tab("Forum", systemImage: "bubble.left.and.bubble.right", value: AppTab.forum) {
+                navigationStack(for: .forum)
+            }
+            Tab("Alerts", systemImage: "bell", value: AppTab.notifications) {
+                navigationStack(for: .notifications)
+            }
+            Tab("Profile", systemImage: "person.crop.circle", value: AppTab.profile) {
+                navigationStack(for: .profile)
+            }
+        }
+    }
+
+    @available(iOS 26.0, *)
+    @ViewBuilder
+    private func nativeTabShell(router: RouterPath) -> some View {
+        if router.path.isEmpty, audio.current != nil {
+            nativeTabView
+                .tabBarMinimizeBehavior(.never)
+                .tabViewBottomAccessory {
+                    MiniPlayerBar(isTabAccessory: true)
+                        .animation(.snappy(duration: 0.22), value: audio.current?.id)
+                }
+        } else {
+            nativeTabView
+                .tabBarMinimizeBehavior(.never)
+        }
+    }
+
+    private func navigationStack(for tab: AppTab) -> some View {
+        let router = tabRouter.router(for: tab)
+        return NavigationStack(path: tabRouter.binding(for: tab)) {
+            tabContent(tab)
                 .navigationDestination(for: Route.self) { route in
                     destination(route)
                 }
@@ -199,11 +246,12 @@ struct AppView: View {
                             Image(systemName: "magnifyingglass")
                                 .toolbarIconChrome()
                         }
-                        .buttonStyle(.plain)
+                        .glassButtonStyle()
                         .accessibilityLabel("Global search")
                     }
                 }
         }
+        .environment(router)
     }
 
     private var iPadSidebar: some View {

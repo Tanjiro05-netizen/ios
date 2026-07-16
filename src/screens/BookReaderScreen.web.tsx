@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import ePub from 'epubjs';
 import { COLORS } from '../constants';
 import { api } from '../lib/api';
+import { useAuth } from '../hooks/useAuth';
 import { Book, RootStackParamList } from '../types';
 
 type BookReaderRouteProp = RouteProp<RootStackParamList, 'BookReader'>;
@@ -115,6 +116,7 @@ export default function BookReaderScreen() {
   const navigation = useNavigation();
   const route = useRoute<BookReaderRouteProp>();
   const { bookId } = route.params;
+  const { user } = useAuth();
 
   const viewerRef = useRef<HTMLDivElement | null>(null);
   const bookRef = useRef<any>(null);
@@ -123,6 +125,8 @@ export default function BookReaderScreen() {
   const tocRef = useRef<FlatTocItem[]>([]);
   const touchStartXRef = useRef<number | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const readingSyncKeyRef = useRef<string | null>(null);
+  const readingSyncReadyRef = useRef(false);
 
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
@@ -194,6 +198,19 @@ export default function BookReaderScreen() {
 
   // ── Storage key for position persistence ──
   const storageKey = book?.epub_filename ? `epub-cfi::${book.epub_filename}` : null;
+  const updatedStorageKey = book?.epub_filename ? `epub-cfi-updated::${book.epub_filename}` : null;
+
+  const findSpineIndex = useCallback((href: string | undefined): number => {
+    if (!href || !bookRef.current?.spine?.spineItems) return -1;
+    return bookRef.current.spine.spineItems.findIndex((item: any) => {
+      try { return bookRef.current.canonical(item.href) === bookRef.current.canonical(href); } catch { return false; }
+    });
+  }, []);
+
+  useEffect(() => {
+    readingSyncKeyRef.current = null;
+    readingSyncReadyRef.current = false;
+  }, [book?.id, user?.id]);
 
   // ── Initialize / re-initialize EPUB rendition ──
   const goNext = useCallback(() => {
@@ -256,23 +273,41 @@ export default function BookReaderScreen() {
     rendition.on('locationChanged', (loc: any) => {
       locationRef.current = loc.start.cfi;
       if (storageKey) localStorage.setItem(storageKey, loc.start.cfi);
+      const spineIndex = findSpineIndex(loc.start.href);
       setAtStart(loc.atStart || false);
       setAtEnd(loc.atEnd || false);
 
+      let chapterTitle = book.title;
       if (bookRef.current && tocRef.current.length) {
         const match = tocRef.current.find((item: FlatTocItem) => {
           const base = item.href.split('#')[0];
           try { return bookRef.current.canonical(base) === bookRef.current.canonical(loc.start.href); } catch { return false; }
         });
-        if (match) setCurrentChapter(match.label);
+        if (match) {
+          chapterTitle = match.label;
+          setCurrentChapter(match.label);
+        }
       }
 
-      if (bookRef.current?.spine?.spineItems) {
-        const items = bookRef.current.spine.spineItems;
-        const idx = items.findIndex((item: any) => {
-          try { return bookRef.current.canonical(item.href) === bookRef.current.canonical(loc.start.href); } catch { return false; }
-        });
-        if (idx >= 0) setReadingProgress(Math.round(((idx + 1) / items.length) * 100));
+      const chapterCount = bookRef.current?.spine?.spineItems?.length || 1;
+      if (spineIndex >= 0) {
+        setReadingProgress(Math.round(((spineIndex + 1) / chapterCount) * 100));
+      }
+
+      if (user?.id && readingSyncReadyRef.current && spineIndex >= 0) {
+        const updatedAt = new Date().toISOString();
+        if (updatedStorageKey) localStorage.setItem(updatedStorageKey, updatedAt);
+        api.upsertReadingProgress({
+          user_id: user.id,
+          book_id: book.id,
+          title: book.title,
+          author: book.author,
+          chapter_title: chapterTitle,
+          chapter_index: spineIndex,
+          chapter_count: chapterCount,
+          progress: (spineIndex + 1) / chapterCount,
+          updated_at: updatedAt,
+        }).catch(error => console.warn('Could not save reading progress:', error));
       }
     });
 
@@ -308,7 +343,65 @@ export default function BookReaderScreen() {
         }
       }, { passive: true });
     });
-  }, [book?.epub_filename, viewMode, goNext, goPrev, resetIdleTimer]);
+  }, [book?.epub_filename, book?.id, book?.title, book?.author, user?.id, updatedStorageKey, viewMode, goNext, goPrev, resetIdleTimer, findSpineIndex]);
+
+  // Hydrate the web reader from Supabase after the EPUB rendition has a spine.
+  useEffect(() => {
+    if (!book?.id || !book.epub_filename || !user?.id || !isRendered || !renditionRef.current) return;
+    const syncKey = `${user.id}:${book.id}`;
+    if (readingSyncKeyRef.current === syncKey) return;
+    readingSyncKeyRef.current = syncKey;
+    readingSyncReadyRef.current = false;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const [remoteRows, localUpdatedAt] = await Promise.all([
+          api.getReadingProgress(user.id),
+          Promise.resolve(updatedStorageKey ? localStorage.getItem(updatedStorageKey) : null),
+        ]);
+        if (cancelled) return;
+
+        const remote = remoteRows.find(row => row.book_id === book.id);
+        const remoteDate = remote ? Date.parse(remote.updated_at) : 0;
+        const localDate = localUpdatedAt ? Date.parse(localUpdatedAt) : 0;
+        const currentLocation = renditionRef.current.currentLocation?.();
+        const localIndex = findSpineIndex(currentLocation?.start?.href) >= 0
+          ? findSpineIndex(currentLocation?.start?.href)
+          : 0;
+        const chapterCount = bookRef.current?.spine?.spineItems?.length || 1;
+
+        if (remote && remoteDate > localDate) {
+          const targetIndex = Math.min(Math.max(remote.chapter_index, 0), chapterCount - 1);
+          const target = bookRef.current?.spine?.spineItems?.[targetIndex];
+          if (target?.href) await renditionRef.current.display(target.href);
+          if (updatedStorageKey) localStorage.setItem(updatedStorageKey, remote.updated_at);
+          setReadingProgress(Math.round(((targetIndex + 1) / chapterCount) * 100));
+        } else {
+          const updatedAt = localUpdatedAt || new Date().toISOString();
+          const safeIndex = Math.min(Math.max(localIndex, 0), chapterCount - 1);
+          await api.upsertReadingProgress({
+            user_id: user.id,
+            book_id: book.id,
+            title: book.title,
+            author: book.author,
+            chapter_title: currentChapter || book.title,
+            chapter_index: safeIndex,
+            chapter_count: chapterCount,
+            progress: (safeIndex + 1) / chapterCount,
+            updated_at: updatedAt,
+          });
+          if (updatedStorageKey) localStorage.setItem(updatedStorageKey, updatedAt);
+        }
+      } catch (error) {
+        console.warn('Reading progress sync unavailable:', error);
+      } finally {
+        if (!cancelled) readingSyncReadyRef.current = true;
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [book, user?.id, isRendered, updatedStorageKey, findSpineIndex, currentChapter]);
 
   // Dynamic font size
   useEffect(() => {

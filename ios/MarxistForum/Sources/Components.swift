@@ -6,17 +6,21 @@ extension View {
     @ViewBuilder
     func glassSurface(cornerRadius: CGFloat = 14, interactive: Bool = false) -> some View {
         if #available(iOS 26.0, *) {
-            if interactive {
-                self.glassEffect(.regular.interactive(), in: .rect(cornerRadius: cornerRadius))
-            } else {
-                self.glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
-            }
-        } else {
             self
-                .background(Brand.panel.opacity(0.72), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .glassEffect(.regular.interactive(interactive), in: .rect(cornerRadius: cornerRadius))
                 .overlay {
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .stroke(.white.opacity(0.07))
+                        .stroke(Brand.separator.opacity(0.72), lineWidth: 1)
+                        .allowsHitTesting(false)
+                }
+        } else {
+            self
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .background(Brand.surface.opacity(0.34), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .stroke(Brand.separator.opacity(0.72), lineWidth: 1)
+                        .allowsHitTesting(false)
                 }
         }
     }
@@ -64,19 +68,55 @@ struct PressableScaleButtonStyle: ButtonStyle {
 }
 
 struct ScreenBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     var body: some View {
+        let isDark = colorScheme == .dark
+
         ZStack {
             LinearGradient(
-                colors: [
-                    Color(red: 0.035, green: 0.035, blue: 0.035),
-                    Color(red: 0.075, green: 0.075, blue: 0.075),
-                    Color(red: 0.045, green: 0.040, blue: 0.040)
-                ],
+                colors: isDark
+                    ? [
+                        Brand.canvas,
+                        Color(red: 0.085, green: 0.047, blue: 0.050),
+                        Color(red: 0.025, green: 0.026, blue: 0.032)
+                    ]
+                    : [
+                        Brand.canvas,
+                        Brand.surface.opacity(0.92),
+                        Color(red: 0.925, green: 0.882, blue: 0.824)
+                    ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
+            Circle()
+                .fill(Brand.red.opacity(reduceTransparency ? 0 : (isDark ? 0.18 : 0.075)))
+                .frame(width: 260, height: 260)
+                .blur(radius: 70)
+                .offset(x: -140, y: -260)
+            Circle()
+                .fill((isDark ? Color.white : Brand.surface).opacity(reduceTransparency ? 0 : (isDark ? 0.06 : 0.72)))
+                .frame(width: 220, height: 220)
+                .blur(radius: 60)
+                .offset(x: 150, y: 40)
+            Circle()
+                .fill(Brand.red.opacity(reduceTransparency ? 0 : (isDark ? 0.10 : 0.045)))
+                .frame(width: 320, height: 320)
+                .blur(radius: 90)
+                .offset(x: 120, y: 330)
+            Circle()
+                .fill((isDark ? Color.white : Brand.surface).opacity(reduceTransparency ? 0 : (isDark ? 0.07 : 0.60)))
+                .frame(width: 300, height: 300)
+                .blur(radius: 90)
+                .offset(x: -170, y: 230)
+            Circle()
+                .fill(Brand.red.opacity(reduceTransparency ? 0 : (isDark ? 0.14 : 0.055)))
+                .frame(width: 280, height: 280)
+                .blur(radius: 90)
+                .offset(x: 150, y: 250)
             Rectangle()
-                .fill(.black.opacity(0.18))
+                .fill(isDark ? .black.opacity(0.12) : .white.opacity(0.08))
         }
         .ignoresSafeArea()
     }
@@ -118,7 +158,7 @@ struct AsyncImageCover: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Brand.panel)
+                .fill(Brand.surface)
             if let image {
                 Image(uiImage: image)
                     .resizable()
@@ -293,86 +333,114 @@ struct TopFilterBar<Content: View>: View {
 
 struct LiquidTabBar: View {
     @Binding var selectedTab: AppTab
-    @State private var dragLocationX: CGFloat?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let liquidBarHeight: CGFloat = 48
-    private let liquidTotalHeight: CGFloat = 52
+    private let nativeBarHeight: CGFloat = 56
     private let fallbackBarHeight: CGFloat = 46
 
     var body: some View {
-        if #available(iOS 26.0, *) {
-            tabItems(isLiquidGlass: true)
-        } else {
-            tabItems(isLiquidGlass: false)
-                .padding(5)
-                .background(Brand.panel.opacity(0.82), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(.white.opacity(0.08), lineWidth: 1)
-                }
-                .shadow(color: .black.opacity(0.24), radius: 14, y: 7)
+        Group {
+            if #available(iOS 26.0, *) {
+                nativeGlassBar
+            } else {
+                fallbackBar
+            }
         }
+        .animation(tabSpring, value: selectedTab)
     }
 
-    private func tabItems(isLiquidGlass: Bool) -> some View {
+    @available(iOS 26.0, *)
+    private var nativeGlassBar: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width
-            let tabWidth = width / max(CGFloat(AppTab.allCases.count), 1)
-            let sliderWidth = selectedSliderWidth(tabWidth: tabWidth)
-            let sliderCenterX = clampedSliderCenter(
-                dragLocationX ?? selectedTabCenter(width: width),
-                width: width,
-                sliderWidth: sliderWidth
-            )
-
-            ZStack(alignment: .leading) {
-                if #available(iOS 26.0, *), isLiquidGlass {
-                    GlassEffectContainer(spacing: 10) {
-                        ZStack(alignment: .leading) {
-                            liquidGlassBase(width: width)
-                            selectedSlider(
-                                isLiquidGlass: true,
-                                centerX: sliderCenterX,
-                                sliderWidth: sliderWidth
-                            )
-                        }
-                    }
-                    .zIndex(0)
-                } else {
-                    fallbackGlassBase(width: width)
-                    selectedSlider(
-                        isLiquidGlass: false,
-                        centerX: sliderCenterX,
-                        sliderWidth: sliderWidth
-                    )
-                    .allowsHitTesting(false)
-                    .zIndex(1)
+            HStack(spacing: 0) {
+                ForEach(AppTab.allCases) { tab in
+                    tabButton(tab)
                 }
-
-                tabButtonRow
-                    .frame(width: width, height: isLiquidGlass ? liquidBarHeight : fallbackBarHeight)
-                    .zIndex(2)
             }
-            .frame(width: width, height: isLiquidGlass ? liquidTotalHeight : fallbackBarHeight)
+            .padding(4)
+            .frame(width: proxy.size.width, height: nativeBarHeight)
+            .background {
+                Capsule(style: .continuous)
+                    .fill(.clear)
+                    .glassEffect(.clear.interactive(), in: .capsule)
+                    .overlay {
+                        Capsule(style: .continuous)
+                            .stroke(Brand.separator.opacity(0.74), lineWidth: 1)
+                            .allowsHitTesting(false)
+                    }
+            }
             .contentShape(Rectangle())
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 0, coordinateSpace: .local)
-                    .onChanged { value in
-                        dragLocationX = min(max(value.location.x, 0), width)
-                        selectTab(at: value.location.x, width: width)
-                    }
-                    .onEnded { value in
-                        selectTab(at: value.location.x, width: width)
-                        withAnimation(tabSpring) {
-                            dragLocationX = nil
-                        }
-                    }
-            )
+            .simultaneousGesture(tabDragGesture(width: proxy.size.width))
         }
-        .frame(height: isLiquidGlass ? liquidTotalHeight : fallbackBarHeight)
-        .animation(tabSpring, value: selectedTab)
-        .animation(tabSpring, value: dragLocationX)
+        .frame(height: nativeBarHeight)
+        .shadow(color: .black.opacity(0.24), radius: 18, y: 8)
+    }
+
+    @available(iOS 26.0, *)
+    private func tabButton(_ tab: AppTab) -> some View {
+        Button {
+            select(tab)
+        } label: {
+            tabLabel(tab)
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .accessibilityLabel(tab.title)
+        .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
+    }
+
+    private var fallbackBar: some View {
+        GeometryReader { proxy in
+            HStack(spacing: 0) {
+                ForEach(AppTab.allCases) { tab in
+                    Button {
+                        select(tab)
+                    } label: {
+                        tabLabel(tab)
+                    }
+                    .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
+                    .accessibilityLabel(tab.title)
+                    .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
+                }
+            }
+            .padding(5)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(Brand.surface.opacity(0.34), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Brand.separator.opacity(0.72), lineWidth: 1)
+            }
+            .contentShape(Rectangle())
+            .simultaneousGesture(tabDragGesture(width: proxy.size.width))
+        }
+        .frame(height: fallbackBarHeight)
+        .shadow(color: .black.opacity(0.24), radius: 14, y: 7)
+    }
+
+    private func tabLabel(_ tab: AppTab) -> some View {
+        VStack(spacing: 3) {
+            Image(systemName: tab.systemImage)
+                .font(.system(size: 16, weight: .semibold))
+                .symbolVariant(selectedTab == tab ? .fill : .none)
+                .contentTransition(.symbolEffect(.replace))
+            Text(tab.title)
+                .font(.caption2.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .contentTransition(.opacity)
+        }
+        .foregroundStyle(selectedTab == tab ? Brand.redSoft : .secondary)
+        .shadow(color: .black.opacity(0.22), radius: 2, y: 1)
+        .frame(maxWidth: .infinity)
+        .frame(height: 46)
+        .contentShape(Rectangle())
+    }
+
+    private func select(_ tab: AppTab) {
+        guard tab != selectedTab else { return }
+        withAnimation(tabSpring) {
+            selectedTab = tab
+        }
     }
 
     private func selectTab(at locationX: CGFloat, width: CGFloat) {
@@ -380,137 +448,21 @@ struct LiquidTabBar: View {
         let tabs = AppTab.allCases
         let clampedX = min(max(locationX, 0), width - 0.1)
         let index = min(max(Int((clampedX / width) * CGFloat(tabs.count)), 0), tabs.count - 1)
-        let nextTab = tabs[index]
-        guard nextTab != selectedTab else { return }
-        withAnimation(tabSpring) {
-            selectedTab = nextTab
-        }
+        select(tabs[index])
+    }
+
+    private func tabDragGesture(width: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+            .onChanged { value in
+                selectTab(at: value.location.x, width: width)
+            }
+            .onEnded { value in
+                selectTab(at: value.location.x, width: width)
+            }
     }
 
     private var tabSpring: Animation {
         reduceMotion ? .linear(duration: 0.01) : .interactiveSpring(response: 0.28, dampingFraction: 0.78, blendDuration: 0.08)
-    }
-
-    private var tabButtonRow: some View {
-        HStack(spacing: 0) {
-            ForEach(AppTab.allCases) { tab in
-                Button {
-                    withAnimation(tabSpring) {
-                        selectedTab = tab
-                    }
-                } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: tab.systemImage)
-                            .font(.system(size: 16, weight: .semibold))
-                            .symbolVariant(selectedTab == tab ? .fill : .none)
-                            .contentTransition(.symbolEffect(.replace))
-                        Text(tab.title)
-                            .font(.caption2.weight(.semibold))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.72)
-                            .contentTransition(.opacity)
-                    }
-                    .foregroundStyle(tabForeground(tab))
-                    .shadow(color: .black.opacity(selectedTab == tab ? 0.28 : 0.18), radius: 2, y: 1)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
-                .accessibilityLabel(tab.title)
-                .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
-            }
-        }
-    }
-
-    private func tabForeground(_ tab: AppTab) -> Color {
-        selectedTab == tab ? .white : .white.opacity(0.78)
-    }
-
-    @available(iOS 26.0, *)
-    private func liquidGlassBase(width: CGFloat) -> some View {
-        Color.clear
-            .frame(width: width, height: liquidBarHeight)
-            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 18))
-            .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.black.opacity(0.08))
-                    .allowsHitTesting(false)
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(.white.opacity(0.12), lineWidth: 1)
-            }
-            .shadow(color: .black.opacity(0.20), radius: 14, y: 7)
-    }
-
-    @ViewBuilder
-    private func selectedSlider(isLiquidGlass: Bool, centerX: CGFloat, sliderWidth: CGFloat) -> some View {
-        let sliderHeight: CGFloat = isLiquidGlass ? 36 : 34
-        let yOffset: CGFloat = isLiquidGlass ? 6 : 6
-
-        if #available(iOS 26.0, *), isLiquidGlass {
-            Color.clear
-                .frame(width: sliderWidth, height: sliderHeight)
-                .glassEffect(.regular.tint(Brand.red.opacity(0.16)).interactive(), in: .rect(cornerRadius: 11))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .fill(Brand.red.opacity(0.12))
-                    RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .stroke(
-                            LinearGradient(
-                                colors: [.white.opacity(0.24), .white.opacity(0.07), Brand.red.opacity(0.16)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                }
-                .shadow(color: Brand.red.opacity(0.12), radius: 8, y: 4)
-                .offset(x: centerX - sliderWidth / 2, y: yOffset)
-        } else {
-            RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [Brand.red.opacity(0.58), Brand.red.opacity(0.24)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .stroke(.white.opacity(0.12), lineWidth: 1)
-                }
-                .frame(width: sliderWidth, height: sliderHeight)
-                .shadow(color: Brand.red.opacity(0.16), radius: 8, y: 4)
-                .offset(x: centerX - sliderWidth / 2, y: yOffset)
-        }
-    }
-
-    private func fallbackGlassBase(width: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(.black.opacity(0.14))
-            .frame(width: width, height: fallbackBarHeight)
-    }
-
-    private func selectedTabCenter(width: CGFloat) -> CGFloat {
-        guard width > 0,
-              let index = AppTab.allCases.firstIndex(of: selectedTab) else {
-            return 0
-        }
-
-        let tabWidth = width / CGFloat(AppTab.allCases.count)
-        return tabWidth * (CGFloat(index) + 0.5)
-    }
-
-    private func selectedSliderWidth(tabWidth: CGFloat) -> CGFloat {
-        let baseWidth = max(tabWidth - 8, 46)
-        guard dragLocationX != nil else { return baseWidth }
-        return min(tabWidth + 10, baseWidth + 14)
-    }
-
-    private func clampedSliderCenter(_ centerX: CGFloat, width: CGFloat, sliderWidth: CGFloat) -> CGFloat {
-        guard width > 0 else { return centerX }
-        let halfWidth = sliderWidth / 2
-        return min(max(centerX, halfWidth), width - halfWidth)
     }
 }
 
@@ -524,51 +476,65 @@ struct MetricPill: View {
             .foregroundStyle(.secondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+            .background(Brand.subtleFill, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
     }
 }
 
 struct MiniPlayerBar: View {
+    var isTabAccessory = false
     @Environment(AudioPlayerModel.self) private var audio
 
     var body: some View {
         if let current = audio.current {
-            HStack(spacing: 12) {
-                Button {
-                    audio.expanded = true
-                } label: {
-                    HStack(spacing: 12) {
-                        AsyncImageCover(urlString: current.coverUrl, systemImage: "headphones")
-                            .frame(width: 44, height: 44)
-                            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(current.title)
-                                .font(.subheadline.weight(.semibold))
-                                .lineLimit(1)
-                            Text(audio.currentChapter?.title ?? current.author ?? current.narrator ?? "Ready")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                            MiniProgressLine(progress: audio.progress)
+            chrome {
+                HStack(spacing: 12) {
+                    Button {
+                        audio.expanded = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            AsyncImageCover(urlString: current.coverUrl, systemImage: "headphones", maxPixelSize: 240)
+                                .frame(width: 44, height: 44)
+                                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(current.title)
+                                    .font(.subheadline.weight(.semibold))
+                                    .lineLimit(1)
+                                Text(audio.currentChapter?.title ?? current.author ?? current.narrator ?? "Ready")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                MiniProgressLine(progress: audio.progress)
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.plain)
+                    .buttonStyle(.plain)
 
-                Spacer()
+                    Spacer()
 
-                Button {
-                    audio.togglePlay()
-                } label: {
-                    PlaybackCircleIcon(isPlaying: audio.isPlaying, size: 36)
+                    Button {
+                        audio.togglePlay()
+                    } label: {
+                        PlaybackCircleIcon(isPlaying: audio.isPlaying, size: 36)
+                    }
+                    .buttonStyle(PressableScaleButtonStyle(scale: 0.92))
                 }
-                .buttonStyle(PressableScaleButtonStyle(scale: 0.92))
             }
-            .padding(8)
-            .glassSurface(cornerRadius: 14, interactive: true)
-            .padding(.horizontal, 12)
             .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder
+    private func chrome<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        if isTabAccessory {
+            content()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+        } else {
+            content()
+                .padding(8)
+                .glassSurface(cornerRadius: 14, interactive: true)
+                .padding(.horizontal, 12)
         }
     }
 }
@@ -580,13 +546,13 @@ struct PlaybackCircleIcon: View {
     var body: some View {
         Image(systemName: isPlaying ? "pause.fill" : "play.fill")
             .font(.system(size: size * 0.38, weight: .bold))
-            .foregroundStyle(.white)
+            .foregroundStyle(Brand.onAccent)
             .frame(width: size, height: size)
             .background(
                 RoundedRectangle(cornerRadius: max(8, size * 0.22), style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [Brand.red, Color(red: 0.92, green: 0.09, blue: 0.10)],
+                            colors: [Brand.red, Color(red: 0.55, green: 0.045, blue: 0.05)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -603,7 +569,7 @@ struct MiniProgressLine: View {
         GeometryReader { proxy in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(.white.opacity(0.10))
+                    .fill(Brand.controlFill)
                 Capsule()
                     .fill(Brand.red)
                     .frame(width: proxy.size.width * max(0, min(progress, 1)))

@@ -35,6 +35,60 @@ enum SubstackError: LocalizedError {
 
 struct EmptyPayload: Codable {}
 
+struct ReadingProgressRemote: Codable {
+    var userId: String
+    var bookId: String
+    var title: String
+    var author: String?
+    var chapterTitle: String?
+    var chapterIndex: Int
+    var chapterCount: Int
+    var progress: Double
+    var updatedAt: String
+}
+
+struct ReadingQuoteRemote: Codable {
+    var userId: String
+    var quoteId: String
+    var text: String
+    var sourceTitle: String
+    var sourceDetail: String?
+    var routeBookId: String?
+    var createdAt: String
+    var updatedAt: String
+}
+
+/// Short-lived in-memory cache for archive content.  Views are recreated when
+/// switching tabs, so keeping the cache outside individual clients prevents a
+/// tab change from turning into another round-trip to Supabase.
+@MainActor
+private final class ArchiveContentCache {
+    static let shared = ArchiveContentCache()
+
+    struct Entry<Value> {
+        let value: Value
+        let date: Date
+    }
+
+    let listLifetime: TimeInterval = 60
+    let detailLifetime: TimeInterval = 300
+
+    var books: [String: Entry<[Book]>] = [:]
+    var bookDetails: [String: Entry<Book>] = [:]
+    var categories: Entry<[String]>?
+    var audiobooks: Entry<[Audiobook]>?
+    var audiobookDetails: [String: Entry<Audiobook>] = [:]
+    var substack: Entry<SubstackLoadResult>?
+    var threads: [String: Entry<[Thread]>] = [:]
+    var threadDetails: [String: Entry<Thread>] = [:]
+    var comments: [String: Entry<[Comment]>] = [:]
+    var notifications: [String: Entry<[NotificationItem]>] = [:]
+
+    func isFresh(_ date: Date, lifetime: TimeInterval) -> Bool {
+        Date().timeIntervalSince(date) < lifetime
+    }
+}
+
 final class SupabaseRESTClient: @unchecked Sendable {
     let baseURL: URL
     let anonKey: String
@@ -96,6 +150,17 @@ final class SupabaseRESTClient: @unchecked Sendable {
         )
     }
 
+    func upsert<Body: Encodable>(table: String, body: Body, accessToken: String) async throws {
+        let _: EmptyPayload = try await request(
+            path: "/rest/v1/\(table)",
+            queryItems: [],
+            method: "POST",
+            body: body,
+            accessToken: accessToken,
+            prefer: "resolution=merge-duplicates,return=minimal"
+        )
+    }
+
     func authSignIn(email: String, password: String) async throws -> AuthSession {
         let body = ["email": email, "password": password]
         return try await request(path: "/auth/v1/token", queryItems: [URLQueryItem(name: "grant_type", value: "password")], method: "POST", body: body)
@@ -143,6 +208,20 @@ final class SupabaseRESTClient: @unchecked Sendable {
         }
     }
 
+    func deleteAccount(accessToken: String, appleAuthorizationCode: String?) async throws {
+        struct Body: Encodable {
+            var appleAuthorizationCode: String?
+        }
+
+        let _: EmptyPayload = try await request(
+            path: "/functions/v1/delete-account",
+            queryItems: [],
+            method: "POST",
+            body: Body(appleAuthorizationCode: appleAuthorizationCode),
+            accessToken: accessToken
+        )
+    }
+
     func publicStorageURL(bucket: String = "library", filename: String) -> URL {
         baseURL
             .appending(path: "storage/v1/object/public")
@@ -181,6 +260,8 @@ final class SupabaseRESTClient: @unchecked Sendable {
 
         var request = URLRequest(url: url)
         request.httpMethod = method
+        request.timeoutInterval = 12
+        request.cachePolicy = .useProtocolCachePolicy
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(accessToken ?? anonKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -210,12 +291,20 @@ final class SupabaseRESTClient: @unchecked Sendable {
 @MainActor
 final class LibraryClient {
     private let client: SupabaseRESTClient
+    private let cache = ArchiveContentCache.shared
 
     init(client: SupabaseRESTClient = .init()) {
         self.client = client
     }
 
-    func fetchBooks(scope: LibraryScope, category: String?, search: String) async throws -> [Book] {
+    func fetchBooks(scope: LibraryScope, category: String?, search: String, forceRefresh: Bool = false) async throws -> [Book] {
+        let key = "\(scope.rawValue)|\(category ?? "")|\(search.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())"
+        if !forceRefresh,
+           let cached = cache.books[key],
+           cache.isFresh(cached.date, lifetime: cache.listLifetime) {
+            return cached.value
+        }
+
         var items = [
             URLQueryItem(name: "select", value: "*"),
             URLQueryItem(name: "order", value: "created_at.desc"),
@@ -230,23 +319,49 @@ final class LibraryClient {
             let escaped = trimmed.replacingOccurrences(of: ",", with: " ")
             items.append(URLQueryItem(name: "or", value: "(title.ilike.*\(escaped)*,author.ilike.*\(escaped)*,description.ilike.*\(escaped)*)"))
         }
-        return try await client.fetchArray(table: "digital_library_books", queryItems: items)
+        let books: [Book] = try await client.fetchArray(table: "digital_library_books", queryItems: items)
+        cache.books[key] = .init(value: books, date: Date())
+        for book in books {
+            cache.bookDetails[book.id] = .init(value: book, date: Date())
+        }
+        return books
     }
 
-    func fetchBook(id: String) async throws -> Book? {
+    func fetchBook(id: String, forceRefresh: Bool = false) async throws -> Book? {
+        if !forceRefresh,
+           let cached = cache.bookDetails[id],
+           cache.isFresh(cached.date, lifetime: cache.detailLifetime) {
+            return cached.value
+        }
+
         let books: [Book] = try await client.fetchArray(
             table: "digital_library_books",
             queryItems: [URLQueryItem(name: "select", value: "*"), URLQueryItem(name: "id", value: "eq.\(id)"), URLQueryItem(name: "limit", value: "1")]
         )
+        if let book = books.first {
+            cache.bookDetails[id] = .init(value: book, date: Date())
+        }
         return books.first
     }
 
-    func fetchCategories() async throws -> [String] {
+    func fetchCategories(forceRefresh: Bool = false) async throws -> [String] {
+        if !forceRefresh,
+           let cached = cache.categories,
+           cache.isFresh(cached.date, lifetime: cache.detailLifetime) {
+            return cached.value
+        }
+
         let books: [Book] = try await client.fetchArray(
             table: "digital_library_books",
-            queryItems: [URLQueryItem(name: "select", value: "category"), URLQueryItem(name: "category", value: "not.is.null")]
+            queryItems: [
+                URLQueryItem(name: "select", value: "category"),
+                URLQueryItem(name: "category", value: "not.is.null"),
+                URLQueryItem(name: "limit", value: "200")
+            ]
         )
-        return Array(Set(books.compactMap(\.category))).sorted()
+        let categories = Array(Set(books.compactMap(\.category))).sorted()
+        cache.categories = .init(value: categories, date: Date())
+        return categories
     }
 
     func epubURL(filename: String) -> URL {
@@ -261,19 +376,37 @@ final class LibraryClient {
 @MainActor
 final class AudiobookClient {
     private let client: SupabaseRESTClient
+    private let cache = ArchiveContentCache.shared
 
     init(client: SupabaseRESTClient = .init()) {
         self.client = client
     }
 
-    func fetchAudiobooks() async throws -> [Audiobook] {
-        try await client.fetchArray(
+    func fetchAudiobooks(forceRefresh: Bool = false) async throws -> [Audiobook] {
+        if !forceRefresh,
+           let cached = cache.audiobooks,
+           cache.isFresh(cached.date, lifetime: cache.listLifetime) {
+            return cached.value
+        }
+
+        let audiobooks: [Audiobook] = try await client.fetchArray(
             table: "audiobooks",
             queryItems: [URLQueryItem(name: "select", value: "*"), URLQueryItem(name: "order", value: "sort_order.asc")]
         )
+        cache.audiobooks = .init(value: audiobooks, date: Date())
+        for audiobook in audiobooks {
+            cache.audiobookDetails[audiobook.id] = .init(value: audiobook, date: Date())
+        }
+        return audiobooks
     }
 
-    func fetchAudiobook(id: String) async throws -> Audiobook? {
+    func fetchAudiobook(id: String, forceRefresh: Bool = false) async throws -> Audiobook? {
+        if !forceRefresh,
+           let cached = cache.audiobookDetails[id],
+           cache.isFresh(cached.date, lifetime: cache.detailLifetime) {
+            return cached.value
+        }
+
         let rows: [Audiobook] = try await client.fetchArray(
             table: "audiobooks",
             queryItems: [
@@ -282,6 +415,9 @@ final class AudiobookClient {
                 URLQueryItem(name: "limit", value: "1")
             ]
         )
+        if let audiobook = rows.first {
+            cache.audiobookDetails[id] = .init(value: audiobook, date: Date())
+        }
         return rows.first
     }
 }
@@ -293,29 +429,57 @@ struct SubstackLoadResult: Hashable {
     var archiveError: String?
 }
 
-final class SubstackClient: Sendable {
-    func loadPosts() async -> SubstackLoadResult {
-        async let archiveResult = Self.fetchArchiveResult()
-        async let liveResult = Self.fetchLiveResult()
-        let archive = await archiveResult
-        let live = await liveResult
+@MainActor
+final class SubstackClient {
+    private let cache = ArchiveContentCache.shared
 
-        let archivePayload = try? archive.get()
-        let livePayload = try? live.get()
-        let posts = Self.merge(
-            livePosts: livePayload?.posts ?? [],
-            archivePosts: archivePayload?.posts ?? []
-        )
+    func loadPosts(forceRefresh: Bool = false) async -> SubstackLoadResult {
+        if !forceRefresh,
+           let cached = cache.substack,
+           cache.isFresh(cached.date, lifetime: cache.listLifetime) {
+            return cached.value
+        }
 
-        return SubstackLoadResult(
-            source: livePayload?.source ?? archivePayload?.source ?? .fallback,
-            posts: posts,
-            feedError: live.failureMessage,
+        // The bundled archive is local and should be visible immediately. The
+        // live feed refreshes in the background instead of holding the whole
+        // Substack page behind a potentially slow edge function.
+        let archive = Self.fetchArchiveResult()
+        guard let archivePayload = try? archive.get() else {
+            let live = await Self.fetchLiveResult()
+            let livePayload = try? live.get()
+            let result = SubstackLoadResult(
+                source: livePayload?.source ?? .fallback,
+                posts: livePayload?.posts ?? [],
+                feedError: live.failureMessage,
+                archiveError: archive.failureMessage
+            )
+            cache.substack = .init(value: result, date: Date())
+            return result
+        }
+
+        let initial = SubstackLoadResult(
+            source: archivePayload.source ?? .fallback,
+            posts: archivePayload.posts,
+            feedError: nil,
             archiveError: archive.failureMessage
         )
+        cache.substack = .init(value: initial, date: Date())
+
+        Task { @MainActor in
+            let live = await Self.fetchLiveResult()
+            guard let livePayload = try? live.get() else { return }
+            let refreshed = SubstackLoadResult(
+                source: livePayload.source ?? .fallback,
+                posts: Self.merge(livePosts: livePayload.posts, archivePosts: archivePayload.posts),
+                feedError: nil,
+                archiveError: archive.failureMessage
+            )
+            self.cache.substack = .init(value: refreshed, date: Date())
+        }
+        return initial
     }
 
-    private static func fetchArchiveResult() async -> Result<SubstackPayload, Error> {
+    private static func fetchArchiveResult() -> Result<SubstackPayload, Error> {
         do {
             return .success(try fetchBundledArchive())
         } catch {
@@ -348,6 +512,7 @@ final class SubstackClient: Sendable {
         let url = AppConstants.supabaseURL.appending(path: "functions/v1/substack-feed")
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.timeoutInterval = 5
         request.setValue(AppConstants.supabaseAnonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(AppConstants.supabaseAnonKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -368,7 +533,7 @@ final class SubstackClient: Sendable {
         )
     }
 
-    static func merge(livePosts: [SubstackArticle], archivePosts: [SubstackArticle]) -> [SubstackArticle] {
+    nonisolated static func merge(livePosts: [SubstackArticle], archivePosts: [SubstackArticle]) -> [SubstackArticle] {
         var bySlug: [String: SubstackArticle] = [:]
 
         for post in archivePosts.map({ $0.normalized() }) where !post.slug.isEmpty {
@@ -639,12 +804,20 @@ private extension String {
 @MainActor
 final class ForumClient {
     private let client: SupabaseRESTClient
+    private let cache = ArchiveContentCache.shared
 
     init(client: SupabaseRESTClient = .init()) {
         self.client = client
     }
 
-    func fetchThreads(board: String?, sort: String) async throws -> [Thread] {
+    func fetchThreads(board: String?, sort: String, forceRefresh: Bool = false) async throws -> [Thread] {
+        let key = "\(board ?? "*")|\(sort)"
+        if !forceRefresh,
+           let cached = cache.threads[key],
+           cache.isFresh(cached.date, lifetime: cache.listLifetime) {
+            return cached.value
+        }
+
         var items = [
             URLQueryItem(name: "select", value: "*,author:profiles!forum_threads_author_id_fkey(id,username,avatar_url,ideology,is_certified)"),
             URLQueryItem(name: "order", value: "is_pinned.desc"),
@@ -654,10 +827,21 @@ final class ForumClient {
         if let board {
             items.append(URLQueryItem(name: "category_slug", value: "eq.\(board)"))
         }
-        return try await client.fetchArray(table: "forum_threads", queryItems: items)
+        let threads: [Thread] = try await client.fetchArray(table: "forum_threads", queryItems: items)
+        cache.threads[key] = .init(value: threads, date: Date())
+        for thread in threads {
+            cache.threadDetails[thread.id] = .init(value: thread, date: Date())
+        }
+        return threads
     }
 
-    func fetchThread(id: String) async throws -> Thread? {
+    func fetchThread(id: String, forceRefresh: Bool = false) async throws -> Thread? {
+        if !forceRefresh,
+           let cached = cache.threadDetails[id],
+           cache.isFresh(cached.date, lifetime: cache.detailLifetime) {
+            return cached.value
+        }
+
         let rows: [Thread] = try await client.fetchArray(
             table: "forum_threads",
             queryItems: [
@@ -666,11 +850,20 @@ final class ForumClient {
                 URLQueryItem(name: "limit", value: "1")
             ]
         )
+        if let thread = rows.first {
+            cache.threadDetails[id] = .init(value: thread, date: Date())
+        }
         return rows.first
     }
 
-    func fetchComments(threadId: String) async throws -> [Comment] {
-        try await client.fetchArray(
+    func fetchComments(threadId: String, forceRefresh: Bool = false) async throws -> [Comment] {
+        if !forceRefresh,
+           let cached = cache.comments[threadId],
+           cache.isFresh(cached.date, lifetime: cache.detailLifetime) {
+            return cached.value
+        }
+
+        let comments: [Comment] = try await client.fetchArray(
             table: "forum_comments",
             queryItems: [
                 URLQueryItem(name: "select", value: "*,author:profiles!forum_comments_author_id_fkey(id,username,avatar_url,ideology,is_certified)"),
@@ -678,6 +871,8 @@ final class ForumClient {
                 URLQueryItem(name: "order", value: "created_at.asc")
             ]
         )
+        cache.comments[threadId] = .init(value: comments, date: Date())
+        return comments
     }
 
     func fetchProfile(id: String) async throws -> Profile? {
@@ -686,6 +881,19 @@ final class ForumClient {
             queryItems: [URLQueryItem(name: "select", value: "*"), URLQueryItem(name: "id", value: "eq.\(id)"), URLQueryItem(name: "limit", value: "1")]
         )
         return rows.first
+    }
+
+    func updateProfile(id: String, username: String, accessToken: String?) async throws {
+        struct Body: Encodable {
+            var username: String
+        }
+
+        try await client.update(
+            table: "profiles",
+            filters: [URLQueryItem(name: "id", value: "eq.\(id)")],
+            body: Body(username: username),
+            accessToken: accessToken
+        )
     }
 
     func createThread(title: String, content: String, category: String, auth: AuthStore) async throws {
@@ -702,6 +910,79 @@ final class ForumClient {
 }
 
 @MainActor
+final class ReadingSyncClient {
+    private let client: SupabaseRESTClient
+
+    init(client: SupabaseRESTClient = .init()) {
+        self.client = client
+    }
+
+    func fetchProgress(userId: String, accessToken: String) async throws -> [ReadingProgressRemote] {
+        try await client.fetchArray(
+            table: "reading_progress",
+            queryItems: [
+                URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+                URLQueryItem(name: "order", value: "updated_at.desc"),
+                URLQueryItem(name: "limit", value: "200")
+            ],
+            accessToken: accessToken
+        )
+    }
+
+    func fetchQuotes(userId: String, accessToken: String) async throws -> [ReadingQuoteRemote] {
+        try await client.fetchArray(
+            table: "reading_quotes",
+            queryItems: [
+                URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+                URLQueryItem(name: "order", value: "updated_at.desc"),
+                URLQueryItem(name: "limit", value: "300")
+            ],
+            accessToken: accessToken
+        )
+    }
+
+    func upsertProgress(_ item: ContinueReadingItem, userId: String, accessToken: String) async throws {
+        let remote = ReadingProgressRemote(
+            userId: userId,
+            bookId: item.bookId,
+            title: item.title,
+            author: item.author,
+            chapterTitle: item.chapterTitle,
+            chapterIndex: item.chapterIndex,
+            chapterCount: item.chapterCount,
+            progress: item.progress,
+            updatedAt: item.updatedAt
+        )
+        try await client.upsert(table: "reading_progress", body: remote, accessToken: accessToken)
+    }
+
+    func upsertQuote(_ item: QuoteNotebookItem, userId: String, accessToken: String) async throws {
+        let remote = ReadingQuoteRemote(
+            userId: userId,
+            quoteId: item.id,
+            text: item.text,
+            sourceTitle: item.sourceTitle,
+            sourceDetail: item.sourceDetail,
+            routeBookId: item.routeBookId,
+            createdAt: item.createdAt,
+            updatedAt: item.createdAt
+        )
+        try await client.upsert(table: "reading_quotes", body: remote, accessToken: accessToken)
+    }
+
+    func deleteQuote(id: String, userId: String, accessToken: String) async throws {
+        try await client.delete(
+            table: "reading_quotes",
+            filters: [
+                URLQueryItem(name: "user_id", value: "eq.\(userId)"),
+                URLQueryItem(name: "quote_id", value: "eq.\(id)")
+            ],
+            accessToken: accessToken
+        )
+    }
+}
+
+@MainActor
 final class NotificationClient {
     private let client: SupabaseRESTClient
 
@@ -709,8 +990,14 @@ final class NotificationClient {
         self.client = client
     }
 
-    func fetchNotifications(userId: String, accessToken: String?) async throws -> [NotificationItem] {
-        try await client.fetchArray(
+    func fetchNotifications(userId: String, accessToken: String?, forceRefresh: Bool = false) async throws -> [NotificationItem] {
+        if !forceRefresh,
+           let cached = ArchiveContentCache.shared.notifications[userId],
+           ArchiveContentCache.shared.isFresh(cached.date, lifetime: ArchiveContentCache.shared.listLifetime) {
+            return cached.value
+        }
+
+        let notifications: [NotificationItem] = try await client.fetchArray(
             table: "forum_notifications",
             queryItems: [
                 URLQueryItem(name: "select", value: "id,type,content_preview,is_read,created_at,thread_id,comment_id,source_user:profiles!forum_notifications_source_user_id_fkey(id,username,avatar_url)"),
@@ -720,6 +1007,8 @@ final class NotificationClient {
             ],
             accessToken: accessToken
         )
+        ArchiveContentCache.shared.notifications[userId] = .init(value: notifications, date: Date())
+        return notifications
     }
 
     func unreadCount(userId: String, accessToken: String?) async -> Int {
