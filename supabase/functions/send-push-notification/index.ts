@@ -1,7 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const IOS_BUNDLE_ID = Deno.env.get('APNS_BUNDLE_ID') ?? 'com.marxist.forum';
 const APNS_HOST = Deno.env.get('APNS_USE_SANDBOX') === 'true'
   ? 'https://api.sandbox.push.apple.com'
@@ -52,19 +51,6 @@ async function makeApnsJwt() {
     new TextEncoder().encode(signingInput),
   );
   return `${signingInput}.${base64Url(signature)}`;
-}
-
-async function sendExpoPush(token: string, message: Record<string, unknown>) {
-  const response = await fetch(EXPO_PUSH_URL, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Accept-Encoding': 'gzip, deflate',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ to: token, ...message }),
-  });
-  return response.json();
 }
 
 async function sendApnsPush(token: string, message: Record<string, unknown>) {
@@ -143,17 +129,12 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('push_token')
-      .eq('id', record.user_id)
-      .single();
-
     const { data: tokens, error: tokenError } = await supabase
       .from('push_tokens')
-      .select('provider, token')
+      .select('token')
       .eq('user_id', record.user_id)
-      .eq('enabled', true);
+      .eq('enabled', true)
+      .eq('provider', 'apns');
 
     const notifType = record.type || 'notification';
     const category = categoryForNotification(notifType);
@@ -186,18 +167,9 @@ serve(async (req) => {
 
     const deliveries: Promise<unknown>[] = [];
 
-    if (!error && profile?.push_token) {
-      deliveries.push(sendExpoPush(profile.push_token, message));
-    }
-
     if (!tokenError && Array.isArray(tokens)) {
       for (const token of tokens) {
-        if (token.provider === 'expo') {
-          deliveries.push(sendExpoPush(token.token, message));
-        }
-        if (token.provider === 'apns') {
-          deliveries.push(sendApnsPush(token.token, message));
-        }
+        deliveries.push(sendApnsPush(token.token, message));
       }
     }
 

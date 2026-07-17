@@ -23,9 +23,7 @@ Supabase accounts before a public or TestFlight build is considered ready.
 1. Apply migrations, including `20260714122007_reading_sync.sql`, to
    the production project.
 2. Deploy `substack-feed`, `send-push-notification`, and `delete-account`.
-3. Enable the Apple Auth provider. Native iOS uses the App ID; configure a
-   Services ID/private key as well if the website or Android client will offer
-   Apple login.
+3. Enable the Apple Auth provider for the native iOS App ID.
 4. Configure Edge Function secrets. Never put these values in the iOS app:
 
    - `SUPABASE_SERVICE_ROLE_KEY`
@@ -61,12 +59,8 @@ ALTER TABLE public.knowledge_scenario_concepts ENABLE ROW LEVEL SECURITY;
 - Delete Account removes the Supabase auth user, profile, reading progress,
   quotes, push tokens, owned files, and local Keychain/UserDefaults/app-group
   state.
-- Reading progress converges between iOS, Android, and web using the Supabase
-  user ID and timestamp-based conflict resolution; iOS quote records sync to
-  the same account-scoped backend.
-- Android and web readers now synchronize chapter progress; quote capture is
-  currently available in the native iOS notebook/API, while quote-selection UI
-  still needs to be added to the other readers before claiming quote parity.
+- Reading progress and quote records synchronize with the account-scoped
+  Supabase backend using the user ID and timestamp-based conflict resolution.
 - A failed deletion leaves the account recoverable and presents a retryable
   error rather than silently signing out.
 
