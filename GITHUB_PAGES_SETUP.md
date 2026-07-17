@@ -12,7 +12,7 @@ The dependency-free site in `docs/` is prepared for GitHub Pages. It includes:
 ## Publish it
 
 1. Commit and push the `docs/` directory to the repository's `main` branch.
-2. Open `Tanjiro05-netizen/MarxistAndroidApp` on GitHub.
+2. Open `Tanjiro05-netizen/ios` on GitHub.
 3. Go to **Settings → Pages**.
 4. Under **Build and deployment**, choose **Deploy from a branch**.
 5. Select branch **main**, folder **/docs**, then choose **Save**.
@@ -21,11 +21,11 @@ The dependency-free site in `docs/` is prepared for GitHub Pages. It includes:
 
 The resulting public URLs are expected to be:
 
-- `https://tanjiro05-netizen.github.io/MarxistAndroidApp/`
-- `https://tanjiro05-netizen.github.io/MarxistAndroidApp/privacy.html`
-- `https://tanjiro05-netizen.github.io/MarxistAndroidApp/support.html`
-- `https://tanjiro05-netizen.github.io/MarxistAndroidApp/account-and-data.html`
-- `https://tanjiro05-netizen.github.io/MarxistAndroidApp/terms.html`
+- `https://tanjiro05-netizen.github.io/ios/`
+- `https://tanjiro05-netizen.github.io/ios/privacy.html`
+- `https://tanjiro05-netizen.github.io/ios/support.html`
+- `https://tanjiro05-netizen.github.io/ios/account-and-data.html`
+- `https://tanjiro05-netizen.github.io/ios/terms.html`
 
 No purchased domain, GitHub Actions workflow, package installation, or build
 command is required. A custom domain can be added later without rewriting the

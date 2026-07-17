@@ -834,8 +834,9 @@ final class NowPlayingController {
         artworkTask = Task { [weak self] in
             guard let image = await NowPlayingArtworkLoader.load(url: url) else { return }
             guard !Task.isCancelled else { return }
+            let artwork = NowPlayingArtworkFactory.make(image: image)
             await MainActor.run {
-                self?.artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+                self?.artwork = artwork
                 self?.publishNowPlayingInfo()
             }
         }
@@ -1026,6 +1027,15 @@ private enum NowPlayingArtworkLoader {
             return UIImage(data: data)
         }
         return UIImage(cgImage: cgImage)
+    }
+}
+
+/// MediaPlayer invokes an artwork request handler on its own background queue.
+/// Constructing that handler inside `NowPlayingController` would inherit the
+/// controller's main-actor isolation and trap at runtime under Swift 6.
+private enum NowPlayingArtworkFactory {
+    static func make(image: UIImage) -> MPMediaItemArtwork {
+        MPMediaItemArtwork(boundsSize: image.size) { _ in image }
     }
 }
 
