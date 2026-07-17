@@ -271,7 +271,7 @@ struct AppView: View {
                 .accessibilityLabel(tab.title)
             }
         }
-        .navigationTitle("Marxist Forum")
+        .navigationTitle("MarxistInfo")
     }
 
     private func openSearchResult(_ result: GlobalSearchResult) {

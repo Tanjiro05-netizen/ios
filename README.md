@@ -1,4 +1,4 @@
-# Marxist Forum for iOS
+# MarxistInfo for iOS
 
 This repository contains the native SwiftUI iOS app, its widget extension, shared Supabase backend definitions, and the static legal/support site used for App Store distribution.
 

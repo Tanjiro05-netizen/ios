@@ -100,7 +100,7 @@ struct LoginScreen: View {
                         .font(.system(size: 30, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(Brand.red)
-                    Text("Marxist Forum")
+                    Text("MarxistInfo")
                         .font(.system(size: 34, weight: .semibold, design: .serif))
                         .foregroundStyle(.primary)
                     Text("A native iOS archive for reading, listening, and discussion.")

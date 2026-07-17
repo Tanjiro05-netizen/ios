@@ -870,7 +870,7 @@ final class NowPlayingController {
         let clampedDuration = max(duration, audiobook.durationSeconds ?? 0)
         let clampedTime = max(0, min(currentTime, max(clampedDuration, currentTime)))
         let currentChapter = chapters.indices.contains(currentChapterIndex) ? chapters[currentChapterIndex] : nil
-        let artist = audiobook.author ?? audiobook.narrator ?? "Marxist Forum"
+        let artist = audiobook.author ?? audiobook.narrator ?? "MarxistInfo"
 
         var info: [String: Any] = [
             MPMediaItemPropertyTitle: audiobook.title,

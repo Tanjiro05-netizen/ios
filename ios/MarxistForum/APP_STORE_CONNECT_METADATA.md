@@ -11,7 +11,7 @@ domain. Do not submit placeholder contact details.
 | Field | Value |
 | --- | --- |
 | Platform | iOS |
-| Name | Marxist Forum |
+| Name | MarxistInfo |
 | Subtitle | Marxist Library & Audio |
 | Primary language | English (U.S.) |
 | Bundle ID | `com.marxist.forum` |
@@ -206,7 +206,7 @@ left off across devices — all in one focused Marxist study app.
 
 ### Description
 
-Marxist Forum brings a focused library of Marxist theory, history, and analysis
+MarxistInfo brings a focused library of Marxist theory, history, and analysis
 to iPhone and iPad.
 
 Read books in a native EPUB reader, open available PDFs, and save titles for
@@ -239,7 +239,7 @@ in this version.
 
 ### What's New — version 1.0
 
-Welcome to the first iOS release of Marxist Forum: read and download books,
+Welcome to the first iOS release of MarxistInfo: read and download books,
 listen to audiobooks, browse the article archive, save quotes, and synchronize
 reading progress with your account.
 

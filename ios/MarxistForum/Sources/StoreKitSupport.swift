@@ -77,7 +77,7 @@ struct SupportScreen: View {
     var body: some View {
         Form {
             Section {
-                Text("Tips support Marxist Forum without unlocking or gating any content.")
+                Text("Tips support MarxistInfo without unlocking or gating any content.")
                     .foregroundStyle(.secondary)
             }
 

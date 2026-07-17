@@ -3,7 +3,7 @@ import Foundation
 
 struct ContinueReadingIntent: AppIntent {
     static let title: LocalizedStringResource = "Continue Reading"
-    static let description = IntentDescription("Open the most recent book in Marxist Forum.")
+    static let description = IntentDescription("Open the most recent book in MarxistInfo.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(AppDeepLink.continueReading.url))
@@ -12,7 +12,7 @@ struct ContinueReadingIntent: AppIntent {
 
 struct PlayCurrentAudiobookIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Current Audiobook"
-    static let description = IntentDescription("Open the current audiobook in Marxist Forum.")
+    static let description = IntentDescription("Open the current audiobook in MarxistInfo.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         let snapshot = SystemIntegrationStore.loadSnapshot()
@@ -23,7 +23,7 @@ struct PlayCurrentAudiobookIntent: AppIntent {
 
 struct OpenDailyQuoteIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Daily Quote"
-    static let description = IntentDescription("Open today's quote in Marxist Forum.")
+    static let description = IntentDescription("Open today's quote in MarxistInfo.")
 
     func perform() async throws -> some IntentResult & OpensIntent {
         .result(opensIntent: OpenURLIntent(AppDeepLink.dailyQuote.url))
@@ -31,14 +31,14 @@ struct OpenDailyQuoteIntent: AppIntent {
 }
 
 struct SearchArchiveIntent: AppIntent {
-    static let title: LocalizedStringResource = "Search Marxist Forum"
+    static let title: LocalizedStringResource = "Search MarxistInfo"
     static let description = IntentDescription("Search books, audiobooks, Substack articles, and forum content.")
 
     @Parameter(title: "Query")
     var query: String
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Search Marxist Forum for \(\.$query)")
+        Summary("Search MarxistInfo for \(\.$query)")
     }
 
     init() {
@@ -56,7 +56,7 @@ struct SearchArchiveIntent: AppIntent {
 
 struct OpenBookIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Book"
-    static let description = IntentDescription("Open a book in Marxist Forum.")
+    static let description = IntentDescription("Open a book in MarxistInfo.")
 
     @Parameter(title: "Book")
     var book: BookIntentEntity
@@ -72,7 +72,7 @@ struct OpenBookIntent: AppIntent {
 
 struct OpenAudiobookIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Audiobook"
-    static let description = IntentDescription("Open an audiobook in Marxist Forum.")
+    static let description = IntentDescription("Open an audiobook in MarxistInfo.")
 
     @Parameter(title: "Audiobook")
     var audiobook: AudiobookIntentEntity
@@ -88,7 +88,7 @@ struct OpenAudiobookIntent: AppIntent {
 
 struct OpenSubstackArticleIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Article"
-    static let description = IntentDescription("Open a Substack article in Marxist Forum.")
+    static let description = IntentDescription("Open a Substack article in MarxistInfo.")
 
     @Parameter(title: "Article")
     var article: ArticleIntentEntity
@@ -104,7 +104,7 @@ struct OpenSubstackArticleIntent: AppIntent {
 
 struct OpenThreadIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Thread"
-    static let description = IntentDescription("Open a forum thread in Marxist Forum.")
+    static let description = IntentDescription("Open a forum thread in MarxistInfo.")
 
     @Parameter(title: "Thread")
     var thread: ThreadIntentEntity
