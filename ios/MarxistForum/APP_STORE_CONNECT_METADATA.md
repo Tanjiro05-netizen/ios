@@ -42,13 +42,13 @@ repository's GitHub Pages source is set to the `docs/` folder on `main`.
 
 | App Store Connect field | Value |
 | --- | --- |
-| Privacy Policy URL | `https://tanjiro05-netizen.github.io/MarxistAndroidApp/privacy.html` |
-| Support URL | `https://tanjiro05-netizen.github.io/MarxistAndroidApp/support.html` |
-| User Privacy Choices URL | Optional: `https://tanjiro05-netizen.github.io/MarxistAndroidApp/account-and-data.html` |
-| Marketing URL | Optional: `https://tanjiro05-netizen.github.io/MarxistAndroidApp/` |
+| Privacy Policy URL | `https://tanjiro05-netizen.github.io/ios/privacy.html` |
+| Support URL | `https://tanjiro05-netizen.github.io/ios/support.html` |
+| User Privacy Choices URL | Optional: `https://tanjiro05-netizen.github.io/ios/account-and-data.html` |
+| Marketing URL | Optional: `https://tanjiro05-netizen.github.io/ios/` |
 
 The additional Terms page is
-`https://tanjiro05-netizen.github.io/MarxistAndroidApp/terms.html`. A custom
+`https://tanjiro05-netizen.github.io/ios/terms.html`. A custom
 Terms/EULA URL is not required by App Store Connect: Apple's standard EULA is
 already selected above. The page can still explain the account-backed service
 in plain language.
