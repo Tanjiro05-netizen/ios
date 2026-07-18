@@ -22,7 +22,7 @@ domain. Do not submit placeholder contact details.
 | Secondary category | Education |
 | Price | Free |
 | Made for Kids | No |
-| Copyright | `© 2026 REPLACE BEFORE SUBMISSION: LEGAL NAME` |
+| Copyright | `© 2026 Andreas Kurz` |
 | License agreement | Apple's standard EULA |
 
 ### Content rights
@@ -275,10 +275,10 @@ before uploading the first build instead of submitting an unreviewed layout.
 
 | Field | Value |
 | --- | --- |
-| Contact first name | `REPLACE BEFORE SUBMISSION` |
-| Contact last name | `REPLACE BEFORE SUBMISSION` |
+| Contact first name | `Andreas` |
+| Contact last name | `Kurz` |
 | Contact phone | `REPLACE BEFORE SUBMISSION` |
-| Contact email | `REPLACE BEFORE SUBMISSION` |
+| Contact email | `Modernmarxist05@gmail.com` |
 | Sign-in required | No — reviewers can choose guest browsing |
 | Review account | Optional but recommended: `REPLACE BEFORE SUBMISSION` |
 

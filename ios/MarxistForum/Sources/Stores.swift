@@ -82,6 +82,7 @@ final class AuthStore {
     var guestSession: GuestSession?
     var profile: Profile?
     var isLoading = true
+    var isAuthenticating = false
     var errorMessage: String?
     var statusMessage: String?
 
@@ -120,6 +121,9 @@ final class AuthStore {
     }
 
     func signIn(email: String, password: String) async {
+        guard !isAuthenticating else { return }
+        isAuthenticating = true
+        defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
         appleAuthorizationCode = nil
@@ -141,6 +145,9 @@ final class AuthStore {
     }
 
     func signUp(email: String, password: String, username: String, inviteCode: String) async {
+        guard !isAuthenticating else { return }
+        isAuthenticating = true
+        defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
         appleAuthorizationCode = nil
@@ -163,6 +170,9 @@ final class AuthStore {
         displayName: String? = nil,
         authorizationCode: String? = nil
     ) async {
+        guard !isAuthenticating else { return }
+        isAuthenticating = true
+        defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
         appleAuthorizationCode = authorizationCode
@@ -799,12 +809,14 @@ final class NowPlayingController {
         currentChapterIndex = AudioChapterMath.currentIndex(time: 0, chapters: chapters)
 
         let session = MPNowPlayingSession(players: [player])
+        session.automaticallyPublishesNowPlayingInfo = false
         self.session = session
         commandCenter = session.remoteCommandCenter
         configureCommands(commandCenter: session.remoteCommandCenter, handlers: handlers, hasChapters: chapters.count > 1)
         UIApplication.shared.beginReceivingRemoteControlEvents()
 
         publishNowPlayingInfo()
+        session.becomeActiveIfPossible()
         updateArtwork(from: audiobook.coverUrl)
     }
 
@@ -845,6 +857,7 @@ final class NowPlayingController {
     func clear() {
         artworkTask?.cancel()
         artworkTask = nil
+        session?.nowPlayingInfoCenter.nowPlayingInfo = nil
         if let commandCenter {
             removeCommandTargets(commandCenter)
         }
@@ -854,7 +867,6 @@ final class NowPlayingController {
         chapters = []
         artwork = nil
         currentChapterIndex = -1
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
     static func makeMetadata(
@@ -896,8 +908,8 @@ final class NowPlayingController {
     }
 
     private func publishNowPlayingInfo() {
-        guard let audiobook else { return }
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = Self.makeMetadata(
+        guard let session, let audiobook else { return }
+        session.nowPlayingInfoCenter.nowPlayingInfo = Self.makeMetadata(
             audiobook: audiobook,
             chapters: chapters,
             artwork: artwork,
@@ -1380,6 +1392,7 @@ final class RouterPath {
     var presentedSheet: SheetDestination?
 
     func navigate(to route: Route) {
+        guard path.last != route else { return }
         path.append(route)
     }
 
