@@ -28,7 +28,7 @@ struct DailyQuoteWidget: Widget {
             DailyQuoteWidgetView(entry: entry)
         }
         .configurationDisplayName("Daily Quote")
-        .description("Show today's Marxist Forum quote.")
+        .description("Show today's MarxistInfo quote.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

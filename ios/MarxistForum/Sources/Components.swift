@@ -29,11 +29,16 @@ extension View {
     func glassButtonStyle(prominent: Bool = false) -> some View {
         if #available(iOS 26.0, *) {
             if prominent {
-                self.buttonStyle(.glassProminent)
-                    .buttonBorderShape(.roundedRectangle(radius: 9))
+                self
+                    .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
+                    .padding(6)
+                    .foregroundStyle(Brand.onAccent)
+                    .glassEffect(.regular.tint(Brand.red).interactive(), in: .rect(cornerRadius: 9))
             } else {
-                self.buttonStyle(.glass)
-                    .buttonBorderShape(.roundedRectangle(radius: 9))
+                self
+                    .buttonStyle(PressableScaleButtonStyle(scale: 0.94))
+                    .padding(6)
+                    .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 9))
             }
         } else {
             if prominent {

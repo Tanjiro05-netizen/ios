@@ -89,7 +89,8 @@ struct LoginScreen: View {
 
     private var canSubmit: Bool {
         !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !password.isEmpty
+        !password.isEmpty &&
+        !auth.isAuthenticating
     }
 
     var body: some View {
@@ -100,7 +101,7 @@ struct LoginScreen: View {
                         .font(.system(size: 30, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(Brand.red)
-                    Text("Marxist Forum")
+                    Text("MarxistInfo")
                         .font(.system(size: 34, weight: .semibold, design: .serif))
                         .foregroundStyle(.primary)
                     Text("A native iOS archive for reading, listening, and discussion.")
@@ -151,9 +152,15 @@ struct LoginScreen: View {
                         }
                     } label: {
                         HStack(spacing: 7) {
-                            Image(systemName: "arrow.right")
-                                .font(.caption.weight(.bold))
-                            Text(isCreatingAccount ? "Create Account" : "Sign In")
+                            if auth.isAuthenticating {
+                                ProgressView()
+                                    .controlSize(.small)
+                                Text(isCreatingAccount ? "Creating Account…" : "Signing In…")
+                            } else {
+                                Image(systemName: "arrow.right")
+                                    .font(.caption.weight(.bold))
+                                Text(isCreatingAccount ? "Create Account" : "Sign In")
+                            }
                         }
                             .frame(maxWidth: .infinity)
                     }
@@ -172,6 +179,7 @@ struct LoginScreen: View {
                             }
                         }
                         .buttonStyle(LoginLinkButtonStyle())
+                        .disabled(auth.isAuthenticating)
 
                         Spacer(minLength: 8)
 
@@ -179,6 +187,7 @@ struct LoginScreen: View {
                             auth.browseAsGuest()
                         }
                         .buttonStyle(LoginLinkButtonStyle())
+                        .disabled(auth.isAuthenticating)
                     }
                     .padding(.top, 2)
                 }
@@ -261,6 +270,14 @@ struct LibraryScreen: View {
     @State private var isLoading = true
     @State private var didLoadInitial = false
     @State private var errorMessage: String?
+
+    private var requestID: String {
+        [
+            scope.rawValue,
+            selectedCategory ?? "all",
+            searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        ].joined(separator: "|")
+    }
 
     private let columns = [GridItem(.adaptive(minimum: 156), spacing: 16)]
 
@@ -349,14 +366,14 @@ struct LibraryScreen: View {
         .task {
             await loadInitial()
         }
-        .task(id: "\(didLoadInitial)-\(searchQuery)") {
-            guard didLoadInitial, !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-            try? await Task.sleep(for: .milliseconds(350))
+        .task(id: requestID) {
+            guard didLoadInitial else { return }
+            if !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                try? await Task.sleep(for: .milliseconds(350))
+            }
             guard !Task.isCancelled else { return }
             await loadBooks()
         }
-        .onChange(of: scope) { _, _ in Task { await loadBooks() } }
-        .onChange(of: selectedCategory) { _, _ in Task { await loadBooks() } }
         .background(ScreenBackground())
     }
 
@@ -375,6 +392,7 @@ struct LibraryScreen: View {
         guard !didLoadInitial else { return }
         async let categoriesRequest = try? client.fetchCategories()
         await loadBooks()
+        guard !Task.isCancelled else { return }
         didLoadInitial = true
         if let loadedCategories = await categoriesRequest {
             categories = loadedCategories
@@ -385,11 +403,15 @@ struct LibraryScreen: View {
         isLoading = true
         do {
             let loadedBooks = try await client.fetchBooks(scope: scope, category: selectedCategory, search: searchQuery)
+            try Task.checkCancellation()
             books = loadedBooks
             errorMessage = nil
             isLoading = false
             Task { await SearchIndexService.shared.indexBooks(loadedBooks) }
+        } catch is CancellationError {
+            return
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
             isLoading = false
         }
@@ -2650,6 +2672,7 @@ struct ProfileScreen: View {
                 .glassSurface(cornerRadius: 14)
 
                 VStack(spacing: 10) {
+                    ProfileButton(title: "Notifications", systemImage: "bell") { router.navigate(to: .notifications) }
                     ProfileButton(title: "Quote Notebook", systemImage: "quote.bubble") { router.navigate(to: .quoteNotebook) }
                     if !readingActivity.quotes.isEmpty {
                         Text("\(readingActivity.quotes.count) saved highlights")

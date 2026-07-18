@@ -632,6 +632,7 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
 }
 
 enum Route: Hashable {
+    case notifications
     case settings
     case bookReader(id: String)
     case substackArticle(slug: String)

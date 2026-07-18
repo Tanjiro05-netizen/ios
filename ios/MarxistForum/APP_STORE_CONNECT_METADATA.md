@@ -11,7 +11,7 @@ domain. Do not submit placeholder contact details.
 | Field | Value |
 | --- | --- |
 | Platform | iOS |
-| Name | Marxist Forum |
+| Name | MarxistInfo |
 | Subtitle | Marxist Library & Audio |
 | Primary language | English (U.S.) |
 | Bundle ID | `com.marxist.forum` |
@@ -22,7 +22,7 @@ domain. Do not submit placeholder contact details.
 | Secondary category | Education |
 | Price | Free |
 | Made for Kids | No |
-| Copyright | `© 2026 REPLACE BEFORE SUBMISSION: LEGAL NAME` |
+| Copyright | `© 2026 Andreas Kurz` |
 | License agreement | Apple's standard EULA |
 
 ### Content rights
@@ -42,13 +42,13 @@ repository's GitHub Pages source is set to the `docs/` folder on `main`.
 
 | App Store Connect field | Value |
 | --- | --- |
-| Privacy Policy URL | `https://tanjiro05-netizen.github.io/MarxistAndroidApp/privacy.html` |
-| Support URL | `https://tanjiro05-netizen.github.io/MarxistAndroidApp/support.html` |
-| User Privacy Choices URL | Optional: `https://tanjiro05-netizen.github.io/MarxistAndroidApp/account-and-data.html` |
-| Marketing URL | Optional: `https://tanjiro05-netizen.github.io/MarxistAndroidApp/` |
+| Privacy Policy URL | `https://tanjiro05-netizen.github.io/ios/privacy.html` |
+| Support URL | `https://tanjiro05-netizen.github.io/ios/support.html` |
+| User Privacy Choices URL | Optional: `https://tanjiro05-netizen.github.io/ios/account-and-data.html` |
+| Marketing URL | Optional: `https://tanjiro05-netizen.github.io/ios/` |
 
 The additional Terms page is
-`https://tanjiro05-netizen.github.io/MarxistAndroidApp/terms.html`. A custom
+`https://tanjiro05-netizen.github.io/ios/terms.html`. A custom
 Terms/EULA URL is not required by App Store Connect: Apple's standard EULA is
 already selected above. The page can still explain the account-backed service
 in plain language.
@@ -206,7 +206,7 @@ left off across devices — all in one focused Marxist study app.
 
 ### Description
 
-Marxist Forum brings a focused library of Marxist theory, history, and analysis
+MarxistInfo brings a focused library of Marxist theory, history, and analysis
 to iPhone and iPad.
 
 Read books in a native EPUB reader, open available PDFs, and save titles for
@@ -239,7 +239,7 @@ in this version.
 
 ### What's New — version 1.0
 
-Welcome to the first iOS release of Marxist Forum: read and download books,
+Welcome to the first iOS release of MarxistInfo: read and download books,
 listen to audiobooks, browse the article archive, save quotes, and synchronize
 reading progress with your account.
 
@@ -275,10 +275,10 @@ before uploading the first build instead of submitting an unreviewed layout.
 
 | Field | Value |
 | --- | --- |
-| Contact first name | `REPLACE BEFORE SUBMISSION` |
-| Contact last name | `REPLACE BEFORE SUBMISSION` |
+| Contact first name | `Andreas` |
+| Contact last name | `Kurz` |
 | Contact phone | `REPLACE BEFORE SUBMISSION` |
-| Contact email | `REPLACE BEFORE SUBMISSION` |
+| Contact email | `Modernmarxist05@gmail.com` |
 | Sign-in required | No — reviewers can choose guest browsing |
 | Review account | Optional but recommended: `REPLACE BEFORE SUBMISSION` |
 

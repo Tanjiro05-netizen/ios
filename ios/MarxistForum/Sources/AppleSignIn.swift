@@ -11,6 +11,7 @@ struct AppleSignInButton: View {
 
     var body: some View {
         SignInWithAppleButton(.signIn) { request in
+            auth.errorMessage = nil
             let nonce = AppleSignInSecurity.randomNonceString()
             currentNonce = nonce
             request.requestedScopes = [.fullName, .email]
@@ -18,13 +19,14 @@ struct AppleSignInButton: View {
         } onCompletion: { result in
             switch result {
             case .success(let authorization):
+                let nonce = currentNonce
+                currentNonce = nil
                 guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
                       let tokenData = credential.identityToken,
                       let token = String(data: tokenData, encoding: .utf8) else {
                     auth.errorMessage = "Apple did not return a valid identity token."
                     return
                 }
-                let nonce = currentNonce
                 let displayName = credential.fullName.flatMap { components in
                     let formatted = PersonNameComponentsFormatter().string(from: components)
                     let trimmed = formatted.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -40,14 +42,38 @@ struct AppleSignInButton: View {
                     )
                 }
             case .failure(let error):
-                auth.errorMessage = error.localizedDescription
+                currentNonce = nil
+                auth.errorMessage = AppleSignInErrorPresentation.message(for: error)
             }
         }
         .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
         .id(colorScheme)
         .frame(height: 40)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .allowsHitTesting(currentNonce == nil && !auth.isAuthenticating)
+        .opacity(auth.isAuthenticating ? 0.62 : 1)
         .accessibilityLabel("Sign in with Apple")
+    }
+}
+
+enum AppleSignInErrorPresentation {
+    static func message(for error: Error) -> String? {
+        guard let authorizationError = error as? ASAuthorizationError else {
+            return "Apple sign-in could not be completed. Please try again."
+        }
+
+        switch authorizationError.code {
+        case .canceled:
+            return nil
+        case .invalidResponse:
+            return "Apple returned an invalid sign-in response. Please try again."
+        case .notHandled, .notInteractive:
+            return "Apple sign-in is not available right now. Please try again."
+        case .failed, .unknown:
+            return "Apple sign-in could not be completed. Please try again."
+        default:
+            return "Apple sign-in could not be completed. Please try again."
+        }
     }
 }
 

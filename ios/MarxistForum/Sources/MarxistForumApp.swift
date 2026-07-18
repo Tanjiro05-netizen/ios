@@ -209,10 +209,7 @@ struct AppView: View {
             Tab("Forum", systemImage: "bubble.left.and.bubble.right", value: AppTab.forum) {
                 navigationStack(for: .forum)
             }
-            Tab("Alerts", systemImage: "bell", value: AppTab.notifications) {
-                navigationStack(for: .notifications)
-            }
-            Tab("Profile", systemImage: "person.crop.circle", value: AppTab.profile) {
+            Tab("More", systemImage: "ellipsis", value: AppTab.profile) {
                 navigationStack(for: .profile)
             }
         }
@@ -242,15 +239,17 @@ struct AppView: View {
                     destination(route)
                 }
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            isGlobalSearchPresented = true
-                        } label: {
-                            Image(systemName: "magnifyingglass")
-                                .toolbarIconChrome()
+                    if router.path.isEmpty {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                isGlobalSearchPresented = true
+                            } label: {
+                                Image(systemName: "magnifyingglass")
+                                    .toolbarIconChrome()
+                            }
+                            .glassButtonStyle()
+                            .accessibilityLabel("Global search")
                         }
-                        .glassButtonStyle()
-                        .accessibilityLabel("Global search")
                     }
                 }
         }
@@ -271,7 +270,7 @@ struct AppView: View {
                 .accessibilityLabel(tab.title)
             }
         }
-        .navigationTitle("Marxist Forum")
+        .navigationTitle("MarxistInfo")
     }
 
     private func openSearchResult(_ result: GlobalSearchResult) {
@@ -307,8 +306,7 @@ struct AppView: View {
             selectedTab = .forum
             tabRouter.router(for: .forum).reset()
         case .notifications:
-            selectedTab = .notifications
-            tabRouter.router(for: .notifications).reset()
+            openNotifications()
         case .profile:
             selectedTab = .profile
             tabRouter.router(for: .profile).reset()
@@ -363,6 +361,20 @@ struct AppView: View {
         }
     }
 
+    private func openNotifications() {
+        if horizontalSizeClass == .compact {
+            if #available(iOS 26.0, *) {
+                selectedTab = .profile
+                let router = tabRouter.router(for: .profile)
+                router.reset()
+                router.navigate(to: .notifications)
+                return
+            }
+        }
+        selectedTab = .notifications
+        tabRouter.router(for: .notifications).reset()
+    }
+
     @ViewBuilder
     private func tabContent(_ tab: AppTab) -> some View {
         switch tab {
@@ -378,6 +390,8 @@ struct AppView: View {
     @ViewBuilder
     private func destination(_ route: Route) -> some View {
         switch route {
+        case .notifications:
+            NotificationsScreen()
         case .settings:
             SettingsScreen()
         case .bookReader(let id):

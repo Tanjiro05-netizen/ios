@@ -1,8 +1,24 @@
+import AuthenticationServices
 import MediaPlayer
 import XCTest
 @testable import MarxistForum
 
 final class MarxistForumTests: XCTestCase {
+    @MainActor
+    func testRouterIgnoresRepeatedDestinationTap() {
+        let router = RouterPath()
+
+        router.navigate(to: .quoteNotebook)
+        router.navigate(to: .quoteNotebook)
+
+        XCTAssertEqual(router.path, [.quoteNotebook])
+    }
+
+    func testCancelledAppleSignInDoesNotShowAnError() {
+        let error = ASAuthorizationError(.canceled)
+        XCTAssertNil(AppleSignInErrorPresentation.message(for: error))
+    }
+
     func testBookDecodingUsesSnakeCase() throws {
         let json = """
         {

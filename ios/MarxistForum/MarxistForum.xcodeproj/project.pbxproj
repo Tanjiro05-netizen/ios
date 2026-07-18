@@ -68,7 +68,7 @@
 		0FDBA440E92118BC6DA76589 /* Screens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screens.swift; sourceTree = "<group>"; };
 		252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrationShared.swift; sourceTree = "<group>"; };
 		622D92D8C2418BCAFF4C8F32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignIn.swift; sourceTree = "<group>"; };
 		69A4C8482BF1675E054CDD0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitSupport.swift; sourceTree = "<group>"; };
@@ -77,8 +77,8 @@
 		866C3F4FE30B1216D52089EC /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumTests.swift; sourceTree = "<group>"; };
 		AF8D394898CFD98875515CF2 /* MarxistForumWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumWidgets.swift; sourceTree = "<group>"; };
-		D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MarxistForumWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		E9830FDE5093B0803DEC5D08 /* MarxistForum.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MarxistForum.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MarxistForumWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9830FDE5093B0803DEC5D08 /* MarxistForum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MarxistForum.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF06395641E487346113B5B5 /* MarxistForumApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumApp.swift; sourceTree = "<group>"; };
 		F66A91C45E409AE86C282264 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrations.swift; sourceTree = "<group>"; };
@@ -368,6 +368,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForumWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = WidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -393,6 +394,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -417,6 +419,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -520,6 +523,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForumWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = WidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
