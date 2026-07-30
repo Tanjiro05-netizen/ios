@@ -83,9 +83,6 @@ struct LoginScreen: View {
     @Environment(AuthStore.self) private var auth
     @State private var email = ""
     @State private var password = ""
-    @State private var username = ""
-    @State private var inviteCode = ""
-    @State private var isCreatingAccount = false
 
     private var canSubmit: Bool {
         !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -94,114 +91,268 @@ struct LoginScreen: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Image(systemName: "books.vertical")
-                        .font(.system(size: 30, weight: .semibold))
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(Brand.red)
-                    Text("MarxistInfo")
-                        .font(.system(size: 34, weight: .semibold, design: .serif))
-                        .foregroundStyle(.primary)
-                    Text("A native iOS archive for reading, listening, and discussion.")
-                        .font(.callout)
-                        .lineSpacing(2)
-                        .foregroundStyle(.secondary)
-                }
+        GeometryReader { geometry in
+            ScrollView {
+                LoginPageLayout(minimumHeight: max(0, geometry.size.height - 58)) {
+                    LoginHeader()
 
-                VStack(spacing: 10) {
-                    TextField("Email", text: $email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .loginTextFieldChrome()
-                    SecureField("Password", text: $password)
-                        .textContentType(isCreatingAccount ? .newPassword : .password)
-                        .loginTextFieldChrome()
-                    if isCreatingAccount {
-                        TextField("Username", text: $username)
+                    VStack(spacing: 10) {
+                        TextField("Email", text: $email)
+                            .textContentType(.emailAddress)
+                            .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .loginTextFieldChrome()
-                        TextField("Invite code", text: $inviteCode)
-                            .textInputAutocapitalization(.characters)
-                            .autocorrectionDisabled()
+                        SecureField("Password", text: $password)
+                            .textContentType(.password)
                             .loginTextFieldChrome()
-                    }
-                    if let error = auth.errorMessage {
-                        Text(error)
-                            .font(.footnote)
-                            .foregroundStyle(Brand.redSoft)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    if let message = auth.statusMessage {
-                        Text(message)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    Button {
-                        Task {
-                            if isCreatingAccount {
-                                await auth.signUp(email: email, password: password, username: username, inviteCode: inviteCode)
-                            } else {
+                        if let error = auth.errorMessage {
+                            Text(error)
+                                .font(.footnote)
+                                .foregroundStyle(Brand.redSoft)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        if let message = auth.statusMessage {
+                            Text(message)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        Button {
+                            Task {
                                 await auth.signIn(email: email, password: password)
                             }
-                        }
-                    } label: {
-                        HStack(spacing: 7) {
-                            if auth.isAuthenticating {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text(isCreatingAccount ? "Creating Account…" : "Signing In…")
-                            } else {
-                                Image(systemName: "arrow.right")
-                                    .font(.caption.weight(.bold))
-                                Text(isCreatingAccount ? "Create Account" : "Sign In")
+                        } label: {
+                            HStack(spacing: 7) {
+                                if auth.isAuthenticating {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                    Text("Signing In…")
+                                } else {
+                                    Image(systemName: "arrow.right")
+                                        .font(.caption.weight(.bold))
+                                    Text("Sign In")
+                                }
                             }
+                                .frame(maxWidth: .infinity)
                         }
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(LoginPrimaryButtonStyle(isEnabled: canSubmit))
-                    .disabled(!canSubmit)
-                    .padding(.top, 2)
+                        .buttonStyle(LoginPrimaryButtonStyle(isEnabled: canSubmit))
+                        .disabled(!canSubmit)
+                        .padding(.top, 2)
 
-                    if !isCreatingAccount {
                         AppleSignInButton()
-                    }
 
-                    HStack(spacing: 12) {
-                        Button(isCreatingAccount ? "Sign in instead" : "Create account") {
-                            withAnimation(.snappy(duration: 0.18)) {
-                                isCreatingAccount.toggle()
+                        HStack(spacing: 12) {
+                            Link("Password help", destination: AppConstants.supportURL)
+                            .buttonStyle(LoginLinkButtonStyle())
+
+                            Spacer(minLength: 8)
+
+                            Button("Browse as Guest") {
+                                auth.browseAsGuest()
                             }
+                            .buttonStyle(LoginLinkButtonStyle())
+                            .disabled(auth.isAuthenticating)
                         }
-                        .buttonStyle(LoginLinkButtonStyle())
-                        .disabled(auth.isAuthenticating)
-
-                        Spacer(minLength: 8)
-
-                        Button("Browse as Guest") {
-                            auth.browseAsGuest()
-                        }
-                        .buttonStyle(LoginLinkButtonStyle())
-                        .disabled(auth.isAuthenticating)
+                        .padding(.top, 2)
                     }
-                    .padding(.top, 2)
+                    .textFieldStyle(.plain)
+                    .padding(16)
+                    .loginPanelChrome()
+
+                    LoginLoopingVideo()
+                        .frame(width: 350, height: 209)
+                        .offset(x: 34)
+                        .accessibilityLabel("Karl Marx roasting a marshmallow over a campfire")
                 }
-                .textFieldStyle(.plain)
-                .padding(16)
-                .loginPanelChrome()
+                .padding(.horizontal, 28)
+                .padding(.top, 46)
+                .padding(.bottom, 12)
+                .frame(maxWidth: 440, alignment: .leading)
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 28)
-            .padding(.top, 46)
-            .padding(.bottom, 28)
-            .frame(maxWidth: 440, alignment: .leading)
-            .frame(maxWidth: .infinity)
         }
         .background(ScreenBackground())
+    }
+}
+
+private struct LoginHeader: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Image(systemName: "books.vertical.fill")
+                .font(.system(size: 34, weight: .semibold))
+                .foregroundStyle(Brand.redSoft)
+                .frame(width: 60, height: 60)
+                .background(Brand.red.opacity(0.1), in: Circle())
+                .accessibilityHidden(true)
+
+            Text("MarxistInfo")
+                .font(.system(size: 34, weight: .semibold, design: .serif))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .padding(.top, 10)
+
+            Text("Library & Study Center")
+                .font(.system(size: 17, weight: .semibold, design: .serif))
+                .foregroundStyle(.primary)
+                .padding(.top, 2)
+        }
+    }
+}
+
+private struct LoginLoopingVideo: UIViewRepresentable {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> LoopingVideoPlayerView {
+        let view = LoopingVideoPlayerView()
+
+        guard let url = Bundle.main.url(forResource: "marx-login-loop", withExtension: "mov") else {
+            return view
+        }
+
+        let player = AVQueuePlayer()
+        player.isMuted = true
+        player.preventsDisplaySleepDuringVideoPlayback = false
+        context.coordinator.player = player
+        context.coordinator.looper = AVPlayerLooper(
+            player: player,
+            templateItem: AVPlayerItem(url: url)
+        )
+        view.player = player
+        updatePlayback(player)
+        return view
+    }
+
+    func updateUIView(_ uiView: LoopingVideoPlayerView, context: Context) {
+        guard let player = context.coordinator.player else { return }
+        updatePlayback(player)
+    }
+
+    static func dismantleUIView(_ uiView: LoopingVideoPlayerView, coordinator: Coordinator) {
+        coordinator.looper = nil
+        coordinator.player?.pause()
+        coordinator.player?.removeAllItems()
+        coordinator.player = nil
+        uiView.player = nil
+    }
+
+    private func updatePlayback(_ player: AVQueuePlayer) {
+        guard !reduceMotion, scenePhase == .active else {
+            player.pause()
+            return
+        }
+
+        player.play()
+    }
+
+    final class Coordinator {
+        var player: AVQueuePlayer?
+        var looper: AVPlayerLooper?
+    }
+}
+
+private final class LoopingVideoPlayerView: UIView {
+    override class var layerClass: AnyClass {
+        AVPlayerLayer.self
+    }
+
+    var player: AVPlayer? {
+        get { playerLayer.player }
+        set { playerLayer.player = newValue }
+    }
+
+    private var playerLayer: AVPlayerLayer {
+        layer as! AVPlayerLayer
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isOpaque = false
+        isUserInteractionEnabled = false
+        backgroundColor = .clear
+        playerLayer.backgroundColor = UIColor.clear.cgColor
+        playerLayer.videoGravity = .resizeAspect
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private struct LoginPageLayout: Layout {
+    let minimumHeight: CGFloat
+
+    private let headerToPanelSpacing: CGFloat = 24
+    private let panelToArtworkSpacing: CGFloat = 32
+
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) -> CGSize {
+        guard subviews.count == 3 else {
+            return CGSize(width: proposal.width ?? 0, height: minimumHeight)
+        }
+
+        let width = proposal.width ?? subviews
+            .map { $0.sizeThatFits(.unspecified).width }
+            .max() ?? 0
+        let fullWidthProposal = ProposedViewSize(width: width, height: nil)
+        let headerSize = subviews[0].sizeThatFits(fullWidthProposal)
+        let panelSize = subviews[1].sizeThatFits(fullWidthProposal)
+        let artworkSize = subviews[2].sizeThatFits(fullWidthProposal)
+        let naturalHeight = headerSize.height
+            + headerToPanelSpacing
+            + panelSize.height
+            + panelToArtworkSpacing
+            + artworkSize.height
+
+        return CGSize(width: width, height: max(minimumHeight, naturalHeight))
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout ()
+    ) {
+        guard subviews.count == 3 else { return }
+
+        let fullWidthProposal = ProposedViewSize(width: bounds.width, height: nil)
+        let headerSize = subviews[0].sizeThatFits(fullWidthProposal)
+        let panelSize = subviews[1].sizeThatFits(fullWidthProposal)
+        let artworkSize = subviews[2].sizeThatFits(fullWidthProposal)
+
+        subviews[0].place(
+            at: CGPoint(x: bounds.minX, y: bounds.minY),
+            anchor: .topLeading,
+            proposal: fullWidthProposal
+        )
+
+        let panelY = bounds.minY + headerSize.height + headerToPanelSpacing
+        subviews[1].place(
+            at: CGPoint(x: bounds.minX, y: panelY),
+            anchor: .topLeading,
+            proposal: fullWidthProposal
+        )
+
+        let firstAvailableArtworkY = panelY + panelSize.height + panelToArtworkSpacing
+        let bottomAnchoredArtworkY = bounds.maxY - artworkSize.height
+        subviews[2].place(
+            at: CGPoint(
+                x: bounds.maxX,
+                y: max(firstAvailableArtworkY, bottomAnchoredArtworkY)
+            ),
+            anchor: .topTrailing,
+            proposal: ProposedViewSize(width: artworkSize.width, height: artworkSize.height)
+        )
     }
 }
 
@@ -2650,6 +2801,8 @@ struct ProfileScreen: View {
     @Environment(AuthStore.self) private var auth
     @Environment(RouterPath.self) private var router
     @Environment(ReadingActivityStore.self) private var readingActivity
+    @Environment(StudyAssessmentStore.self) private var studyAssessments
+    @Environment(\.modelContext) private var modelContext
     @State private var isDeleteConfirmationPresented = false
     @State private var isDeletingAccount = false
     @State private var deletionError = ""
@@ -2672,7 +2825,6 @@ struct ProfileScreen: View {
                 .glassSurface(cornerRadius: 14)
 
                 VStack(spacing: 10) {
-                    ProfileButton(title: "Notifications", systemImage: "bell") { router.navigate(to: .notifications) }
                     ProfileButton(title: "Quote Notebook", systemImage: "quote.bubble") { router.navigate(to: .quoteNotebook) }
                     if !readingActivity.quotes.isEmpty {
                         Text("\(readingActivity.quotes.count) saved highlights")
@@ -2683,9 +2835,9 @@ struct ProfileScreen: View {
                             .transition(.opacity)
                     }
                     ProfileButton(title: "Settings", systemImage: "gearshape") { router.navigate(to: .settings) }
-                    ProfileButton(title: "Support the Archive", systemImage: "heart") { router.navigate(to: .support) }
-                    ProfileButton(title: "Email Preferences", systemImage: "envelope.badge") { router.navigate(to: .emailPreferences) }
-                    ProfileButton(title: "Change Password", systemImage: "key") { router.navigate(to: .changePassword) }
+                    if AppFeatureFlags.supportTipsEnabled {
+                        ProfileButton(title: "Support the Archive", systemImage: "heart") { router.navigate(to: .support) }
+                    }
                     ProfileButton(title: "Community Guidelines", systemImage: "checkmark.seal") { router.navigate(to: .legal(.guidelines)) }
                     Button(role: .destructive) {
                         Task { await auth.signOut() }
@@ -2724,9 +2876,18 @@ struct ProfileScreen: View {
             Button("Delete Account", role: .destructive) {
                 isDeletingAccount = true
                 Task {
+                    let subjectID = auth.studySubjectID
                     let deleted = await auth.deleteAccount()
                     if deleted {
                         readingActivity.clearLocalData()
+                        if let subjectID {
+                            do {
+                                try await studyAssessments.deleteLocalData(for: subjectID)
+                                try StudyLocalDataEraser.erase(subjectID: subjectID, from: modelContext)
+                            } catch {
+                                deletionError = "Your account was deleted, but some local Study Center data could not be erased. Delete and reinstall the app before giving the device to another person."
+                            }
+                        }
                     } else {
                         deletionError = auth.errorMessage ?? "Account deletion failed. Please try again."
                     }
@@ -2735,7 +2896,7 @@ struct ProfileScreen: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This permanently removes your account, reading sync data, saved quotes, push tokens, and files. This cannot be undone.")
+            Text("This permanently removes your account, reading sync data, saved quotes, local Study Center progress and drafts, push tokens, and owned files. This cannot be undone.")
         }
         .alert("Account deletion failed", isPresented: Binding(
             get: { !deletionError.isEmpty },
@@ -2923,16 +3084,8 @@ struct SettingsScreen: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            Section("Notifications") {
-                Toggle("Push Notifications", isOn: $settingsStore.settings.pushNotifications)
-                Toggle("Email Notifications", isOn: $settingsStore.settings.emailNotifications)
-            }
             Section("Reading") {
                 Toggle("Data Saver", isOn: $settingsStore.settings.dataSaver)
-                Toggle("Show Ideology Badges", isOn: $settingsStore.settings.showIdeologyBadges)
-            }
-            Section("Support") {
-                Button("Support the Archive") { router.navigate(to: .support) }
             }
             Section("Legal") {
                 Button("Terms of Service") { router.navigate(to: .legal(.terms)) }
@@ -2997,6 +3150,8 @@ struct LegalScreen: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .lineSpacing(5)
+                Link("Read the public \(kind.title.lowercased())", destination: publicURL)
+                    .font(.headline)
             }
             .padding()
         }
@@ -3007,11 +3162,19 @@ struct LegalScreen: View {
     private var copy: String {
         switch kind {
         case .terms:
-            "Use the app respectfully and within applicable law. Accounts may be moderated when they harm the community or undermine the safety of readers and contributors."
+            "MarxistInfo provides reading, listening, and educational material for personal study. Do not misuse the service, interfere with its operation, or violate applicable law or content rights. Course completion, practice scores, XP, and streaks are learning aids and are not accredited qualifications. Written assignments, examiner grading, payments, and the community forum are not enabled in this beta. Apple’s standard End User License Agreement also applies. You may delete a signed-in account from Profile at any time."
         case .privacy:
-            "The app uses Supabase for authentication, forum data, notifications, and library metadata. Local reading settings, guest session data, and downloaded EPUB metadata stay on this device."
+            "MarxistInfo uses Supabase for authentication, account profiles, library metadata, synchronized reading progress, and saved quotations. Sign in with Apple may provide an Apple account identifier, name, email address, or private relay address. The app does not sell personal data, show third-party advertising, or track you across other companies’ apps and websites.\n\nStudy Center course packages and the question catalogue are bundled or downloaded as versioned content. Study progress, course completion, quiz attempts, review cards, saved study items, achievements, assignment drafts, and examination drafts stay on this device in local files or SwiftData for this beta; they are not uploaded to Supabase. Guest study and reading data also remain local. Downloaded books, cached media, reader preferences, and offline metadata remain on the device until removed.\n\nPush permission is not requested automatically and notification controls are hidden in this beta. If notifications are enabled in a future build, the APNs device token will be linked to the account only for app functionality. Account deletion removes the Supabase account and associated cloud records, then erases account-scoped local reading and Study Center data. Apple credential revocation is attempted by the server and does not prevent deletion if Apple is temporarily unavailable."
         case .guidelines:
-            "Discuss rigorously, cite generously, avoid harassment, and keep organizing details safe. Moderation tools and verified community workflows remain part of the forum rollout."
+            "Discuss rigorously, cite sources, avoid harassment, and protect private organizing details. The community forum remains unavailable during this beta while reporting, blocking, filtering, and moderation workflows are completed."
+        }
+    }
+
+    private var publicURL: URL {
+        switch kind {
+        case .terms: AppConstants.termsURL
+        case .privacy: AppConstants.privacyPolicyURL
+        case .guidelines: AppConstants.termsURL
         }
     }
 }

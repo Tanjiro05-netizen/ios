@@ -208,16 +208,26 @@ final class SupabaseRESTClient: @unchecked Sendable {
         }
     }
 
-    func deleteAccount(accessToken: String, appleAuthorizationCode: String?) async throws {
+    func exchangeAppleAuthorizationCode(accessToken: String, authorizationCode: String) async throws {
         struct Body: Encodable {
-            var appleAuthorizationCode: String?
+            var authorizationCode: String
         }
 
+        let _: EmptyPayload = try await request(
+            path: "/functions/v1/apple-token-exchange",
+            queryItems: [],
+            method: "POST",
+            body: Body(authorizationCode: authorizationCode),
+            accessToken: accessToken
+        )
+    }
+
+    func deleteAccount(accessToken: String) async throws {
         let _: EmptyPayload = try await request(
             path: "/functions/v1/delete-account",
             queryItems: [],
             method: "POST",
-            body: Body(appleAuthorizationCode: appleAuthorizationCode),
+            body: Optional<EmptyPayload>.none,
             accessToken: accessToken
         )
     }

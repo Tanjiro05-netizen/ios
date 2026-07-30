@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import UIKit
 import CoreSpotlight
 import UserNotifications
@@ -72,6 +73,8 @@ struct MarxistForumApp: App {
     @State private var audioDownloads = AudiobookDownloadStore()
     @State private var audio = AudioPlayerModel()
     @State private var readingActivity = ReadingActivityStore()
+    @State private var studyAssessments = StudyAssessmentStore()
+    @State private var studyCourses = StudyCourseLibrary()
     @State private var deepLinks = DeepLinkDispatcher.shared
 
     var body: some Scene {
@@ -83,7 +86,19 @@ struct MarxistForumApp: App {
                 .environment(audioDownloads)
                 .environment(audio)
                 .environment(readingActivity)
+                .environment(studyAssessments)
+                .environment(studyCourses)
                 .environment(deepLinks)
+                .modelContainer(for: [
+                    StudyCourseProgressRecord.self,
+                    StudyLearningEventRecord.self,
+                    StudySavedContentRecord.self,
+                    StudyAssignmentSubmissionRecord.self,
+                    StudyRubricMarkRecord.self,
+                    StudyExamSubmissionRecord.self,
+                    StudyExamQuestionMarkRecord.self,
+                    StudyAchievementRecord.self
+                ])
                 .preferredColorScheme(settings.settings.appearance.preferredColorScheme)
                 .task {
                     downloads.restore()
@@ -91,8 +106,25 @@ struct MarxistForumApp: App {
                     readingActivity.restore()
                     SystemSnapshotPublisher.publishDailyQuote(.today)
                     SystemSnapshotPublisher.publishContinueReading(readingActivity.continueReading.first)
+                    #if DEBUG
+                    if ProcessInfo.processInfo.arguments.contains("--uitest-guest") {
+                        auth.browseAsGuest()
+                    } else {
+                        await auth.restore()
+                    }
+                    #else
                     await auth.restore()
+                    #endif
+                    await studyCourses.reload()
+                    studyAssessments.setCourseQuestions(studyCourses.questions)
                     await audio.restoreLastSession()
+                }
+                .task(id: auth.studySubjectID) {
+                    if let subjectID = auth.studySubjectID {
+                        await studyAssessments.activate(subjectID: subjectID)
+                    } else {
+                        studyAssessments.clearActiveSubject()
+                    }
                 }
                 .onOpenURL { url in
                     deepLinks.open(url)
@@ -146,8 +178,6 @@ struct AppView: View {
                 } detail: {
                     navigationStack(for: selectedTab)
                 }
-            } else if #available(iOS 26.0, *) {
-                nativeTabShell(router: router)
             } else {
                 navigationStack(for: selectedTab)
                     .safeAreaInset(edge: .bottom) {
@@ -191,43 +221,6 @@ struct AppView: View {
             guard let link else { return }
             handleDeepLink(link)
             deepLinks.consume()
-        }
-    }
-
-    @available(iOS 26.0, *)
-    private var nativeTabView: some View {
-        TabView(selection: $selectedTab) {
-            Tab("Library", systemImage: "books.vertical", value: AppTab.library) {
-                navigationStack(for: .library)
-            }
-            Tab("Audio", systemImage: "headphones", value: AppTab.audiobooks) {
-                navigationStack(for: .audiobooks)
-            }
-            Tab("Substack", systemImage: "newspaper", value: AppTab.substack) {
-                navigationStack(for: .substack)
-            }
-            Tab("Forum", systemImage: "bubble.left.and.bubble.right", value: AppTab.forum) {
-                navigationStack(for: .forum)
-            }
-            Tab("More", systemImage: "ellipsis", value: AppTab.profile) {
-                navigationStack(for: .profile)
-            }
-        }
-    }
-
-    @available(iOS 26.0, *)
-    @ViewBuilder
-    private func nativeTabShell(router: RouterPath) -> some View {
-        if router.path.isEmpty, audio.current != nil {
-            nativeTabView
-                .tabBarMinimizeBehavior(.never)
-                .tabViewBottomAccessory {
-                    MiniPlayerBar(isTabAccessory: true)
-                        .animation(.snappy(duration: 0.22), value: audio.current?.id)
-                }
-        } else {
-            nativeTabView
-                .tabBarMinimizeBehavior(.never)
         }
     }
 
@@ -299,6 +292,9 @@ struct AppView: View {
         case .audiobooks:
             selectedTab = .audiobooks
             tabRouter.router(for: .audiobooks).reset()
+        case .study:
+            selectedTab = .study
+            tabRouter.router(for: .study).reset()
         case .substack:
             selectedTab = .substack
             tabRouter.router(for: .substack).reset()
@@ -363,13 +359,11 @@ struct AppView: View {
 
     private func openNotifications() {
         if horizontalSizeClass == .compact {
-            if #available(iOS 26.0, *) {
-                selectedTab = .profile
-                let router = tabRouter.router(for: .profile)
-                router.reset()
-                router.navigate(to: .notifications)
-                return
-            }
+            selectedTab = .profile
+            let router = tabRouter.router(for: .profile)
+            router.reset()
+            router.navigate(to: .notifications)
+            return
         }
         selectedTab = .notifications
         tabRouter.router(for: .notifications).reset()
@@ -380,6 +374,7 @@ struct AppView: View {
         switch tab {
         case .library: LibraryScreen()
         case .audiobooks: AudiobooksScreen()
+        case .study: StudyScreen()
         case .substack: SubstackScreen()
         case .forum: ForumScreen()
         case .notifications: NotificationsScreen()
@@ -394,6 +389,67 @@ struct AppView: View {
             NotificationsScreen()
         case .settings:
             SettingsScreen()
+        case .studyCollection(let kind):
+            StudyCollectionScreen(kind: kind)
+        case .studyCourse(let id):
+            StudyCourseDetailScreen(courseID: id)
+        case .studyCourseDocument(let courseID, let kind):
+            StudyCourseDocumentScreen(courseID: courseID, kind: kind)
+        case .studyLesson(let courseID, let moduleID, let lessonID):
+            StudyLessonScreen(courseID: courseID, moduleID: moduleID, lessonID: lessonID)
+        case .studyCourseOrientation(let courseID):
+            StudyCourseOrientationScreen(courseID: courseID)
+        case .studyCourseSection(let courseID, let moduleID, let lessonID, let blockID):
+            StudyCourseSectionScreen(
+                courseID: courseID,
+                moduleID: moduleID,
+                lessonID: lessonID,
+                blockID: blockID
+            )
+        case .studyAssignment(let id):
+            StudyAssignmentDetailScreen(assignmentID: id)
+        case .studyCourseMarking(let courseID):
+            StudyCourseMarkingScreen(courseID: courseID)
+        case .studyAssignmentMarking(let submissionID):
+            StudyAssignmentMarkingScreen(submissionID: submissionID)
+        case .studyExamMarking(let submissionID):
+            StudyExamMarkingScreen(submissionID: submissionID)
+        case .studyCourseExam(let id):
+            if AppFeatureFlags.writtenCourseSubmissionsEnabled {
+                StudyCourseInteractiveExamScreen(assessmentID: id)
+            } else {
+                StudyCourseExamScreen(assessmentID: id)
+            }
+        case .studyGuide(let id):
+            StudyGuideDetailScreen(guideID: id)
+        case .studyReadingGuide(let id):
+            StudyReadingGuideDetailScreen(guideID: id)
+        case .studyReadingGuideChunk(let guideID, let chunkID):
+            StudyReadingGuideChunkScreen(guideID: guideID, chunkID: chunkID)
+        case .studyDaily:
+            StudyDailyLearningScreen()
+        case .studyExercises:
+            StudyExercisesScreen()
+        case .studyPractice:
+            StudyPracticeScreen()
+        case .studyQuestionCatalogue:
+            StudyQuestionCatalogueScreen()
+        case .studyQuiz(let attemptID):
+            StudyQuizScreen(attemptID: attemptID)
+        case .studyResults(let attemptID):
+            StudyResultsScreen(attemptID: attemptID)
+        case .studyReview:
+            StudyReviewScreen()
+        case .studyDiagnostic:
+            StudyDiagnosticScreen()
+        case .studyProgress:
+            StudyProgressScreen()
+        case .studyExams:
+            StudyExamsScreen()
+        case .studyExamInstructions(let examID):
+            StudyExamInstructionsScreen(examID: examID)
+        case .studyGlossary:
+            StudyGlossaryScreen()
         case .bookReader(let id):
             ReaderScreen(bookId: id)
         case .substackArticle(let slug):

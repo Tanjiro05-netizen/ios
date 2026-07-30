@@ -88,21 +88,22 @@ final class AuthStore {
 
     private let client = SupabaseRESTClient()
     private let forumClient = ForumClient()
-    private var appleAuthorizationCode: String?
     private let defaults = UserDefaults.standard
     private let keychain = KeychainStore(service: "com.marxist.forum.auth")
     private let sessionKey = "ios.auth.session"
-    private let appleAuthorizationCodeKey = "ios.auth.apple.authorization.code"
+    private let legacyAppleAuthorizationCodeKey = "ios.auth.apple.authorization.code"
     private let guestKey = "ios.auth.guest"
 
     var accessToken: String? { session?.accessToken }
     var userId: String? { session?.user.id }
+    var studySubjectID: String? { session?.user.id ?? guestSession?.id }
     var isGuest: Bool { guestSession != nil }
     var isAuthenticated: Bool { session != nil || guestSession != nil }
     var displayName: String { profile?.username ?? session?.user.email ?? guestSession?.username ?? "Reader" }
 
     func restore() async {
         defer { isLoading = false }
+        keychain.delete(account: legacyAppleAuthorizationCodeKey)
 
         if restoreStoredSession() {
             // A saved session is enough to render the archive. Profile data is
@@ -126,8 +127,6 @@ final class AuthStore {
         defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
-        appleAuthorizationCode = nil
-        keychain.delete(account: appleAuthorizationCodeKey)
         do {
             let signedIn = try await client.authSignIn(email: email, password: password)
             try saveSession(signedIn)
@@ -136,10 +135,7 @@ final class AuthStore {
             defaults.removeObject(forKey: guestKey)
             await refreshProfile()
             PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
-            await PushRegistrationService.shared.registerIfPossible()
         } catch {
-            appleAuthorizationCode = nil
-            keychain.delete(account: appleAuthorizationCodeKey)
             errorMessage = error.localizedDescription
         }
     }
@@ -150,8 +146,6 @@ final class AuthStore {
         defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
-        appleAuthorizationCode = nil
-        keychain.delete(account: appleAuthorizationCodeKey)
         do {
             if let created = try await client.authSignUp(email: email, password: password, username: username, inviteCode: inviteCode) {
                 try saveSession(created)
@@ -175,12 +169,22 @@ final class AuthStore {
         defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
-        appleAuthorizationCode = authorizationCode
-        if let authorizationCode {
-            try? keychain.set(Data(authorizationCode.utf8), for: appleAuthorizationCodeKey)
+        guard let authorizationCode = authorizationCode?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !authorizationCode.isEmpty else {
+            errorMessage = "Apple did not return the account-protection code. Please try Sign in with Apple again."
+            return
         }
         do {
             let signedIn = try await client.authSignInWithApple(idToken: idToken, nonce: nonce)
+            do {
+                try await client.exchangeAppleAuthorizationCode(
+                    accessToken: signedIn.accessToken,
+                    authorizationCode: authorizationCode
+                )
+            } catch {
+                await client.authSignOut(accessToken: signedIn.accessToken)
+                throw error
+            }
             try saveSession(signedIn)
             session = signedIn
             guestSession = nil
@@ -192,10 +196,7 @@ final class AuthStore {
             }
             await refreshProfile()
             PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
-            await PushRegistrationService.shared.registerIfPossible()
         } catch {
-            appleAuthorizationCode = nil
-            keychain.delete(account: appleAuthorizationCodeKey)
             errorMessage = error.localizedDescription
         }
     }
@@ -206,10 +207,12 @@ final class AuthStore {
         session = nil
         profile = Profile(id: guest.id, username: guest.username, avatarUrl: nil, website: nil, updatedAt: guest.createdAt, bio: "Browsing as guest", ideology: nil, bannerUrl: nil, role: "guest", isCertified: false, isAdmin: false, hasInviteAccess: false, inviteCodeUsed: nil)
         keychain.delete(account: sessionKey)
+        keychain.delete(account: legacyAppleAuthorizationCodeKey)
         defaults.removeObject(forKey: sessionKey)
         if let data = try? JSONEncoder.supabase.encode(guest) {
             defaults.set(data, forKey: guestKey)
         }
+        isLoading = false
     }
 
     func signOut() async {
@@ -220,10 +223,9 @@ final class AuthStore {
         guestSession = nil
         profile = nil
         keychain.delete(account: sessionKey)
+        keychain.delete(account: legacyAppleAuthorizationCodeKey)
         defaults.removeObject(forKey: sessionKey)
         defaults.removeObject(forKey: guestKey)
-        appleAuthorizationCode = nil
-        keychain.delete(account: appleAuthorizationCodeKey)
         PushRegistrationService.shared.configure(userId: nil, accessToken: nil)
     }
 
@@ -238,16 +240,12 @@ final class AuthStore {
         statusMessage = nil
 
         do {
-            try await client.deleteAccount(
-                accessToken: accessToken,
-                appleAuthorizationCode: appleAuthorizationCode
-            )
+            try await client.deleteAccount(accessToken: accessToken)
             session = nil
             guestSession = nil
             profile = nil
-            appleAuthorizationCode = nil
             keychain.delete(account: sessionKey)
-            keychain.delete(account: appleAuthorizationCodeKey)
+            keychain.delete(account: legacyAppleAuthorizationCodeKey)
             defaults.removeObject(forKey: sessionKey)
             defaults.removeObject(forKey: guestKey)
             defaults.removeObject(forKey: "ios.reader.continue")
@@ -283,10 +281,6 @@ final class AuthStore {
            let restored = try? JSONDecoder.supabase.decode(AuthSession.self, from: data) {
             session = restored
             guestSession = nil
-            if let codeData = try? keychain.data(for: appleAuthorizationCodeKey),
-               let code = String(data: codeData, encoding: .utf8) {
-                appleAuthorizationCode = code
-            }
             return true
         }
 
@@ -1394,6 +1388,11 @@ final class RouterPath {
     func navigate(to route: Route) {
         guard path.last != route else { return }
         path.append(route)
+    }
+
+    func replacePath(with routes: [Route]) {
+        path = routes
+        presentedSheet = nil
     }
 
     func reset() {

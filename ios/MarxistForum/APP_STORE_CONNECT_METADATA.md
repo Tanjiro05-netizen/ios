@@ -1,322 +1,220 @@
-# App Store Connect metadata — iOS 1.0
+# App Store Connect metadata — external TestFlight build 1.0 (2)
 
-Status: submission draft for the current TestFlight-first build.
-
-Anything marked `REPLACE BEFORE SUBMISSION` requires account-holder
-information. The public pages use GitHub Pages and do not require a purchased
-domain. Do not submit placeholder contact details.
+This is the submission record for a closed external beta. Values that depend on
+the Account Holder are explicitly called out; no invented contact information
+or credentials are stored in the repository.
 
 ## App record
 
 | Field | Value |
 | --- | --- |
-| Platform | iOS |
+| Platform | iOS and iPadOS |
 | Name | MarxistInfo |
-| Subtitle | Marxist Library & Audio |
+| Subtitle | Library, Courses & Study |
 | Primary language | English (U.S.) |
 | Bundle ID | `com.marxist.forum` |
 | SKU | `marxist-forum-ios-001` |
 | Version | `1.0` |
-| Build | `1` |
-| Primary category | Books |
-| Secondary category | Education |
+| Build | `2` — confirm that this is unused before upload |
+| Primary category | Education |
+| Secondary category | Books |
 | Price | Free |
 | Made for Kids | No |
 | Copyright | `© 2026 Andreas Kurz` |
 | License agreement | Apple's standard EULA |
 
-### Content rights
-
-Proposed answer: **Yes, this app contains or accesses third-party content.**
-
-Before submission, confirm that every distributed book, audiobook, cover,
-translation, and Substack article is public domain, licensed, or used with the
-rightsholder's permission. Keep a private rights/source register that can be
-provided to App Review if requested.
-
 ## Public URLs
 
-The required pages must be publicly reachable over HTTPS without an account,
-redirect loop, or region restriction. These paths will become live after the
-repository's GitHub Pages source is set to the `docs/` folder on `main`.
+These pages must return HTTP 200 over HTTPS before inviting external testers.
 
 | App Store Connect field | Value |
 | --- | --- |
-| Privacy Policy URL | `https://tanjiro05-netizen.github.io/ios/privacy.html` |
-| Support URL | `https://tanjiro05-netizen.github.io/ios/support.html` |
-| User Privacy Choices URL | Optional: `https://tanjiro05-netizen.github.io/ios/account-and-data.html` |
-| Marketing URL | Optional: `https://tanjiro05-netizen.github.io/ios/` |
+| Privacy Policy | `https://tanjiro05-netizen.github.io/ios/privacy.html` |
+| Support | `https://tanjiro05-netizen.github.io/ios/support.html` |
+| Account and data deletion | `https://tanjiro05-netizen.github.io/ios/account-and-data.html` |
+| Marketing | `https://tanjiro05-netizen.github.io/ios/` |
+| Terms | `https://tanjiro05-netizen.github.io/ios/terms.html` |
 
-The additional Terms page is
-`https://tanjiro05-netizen.github.io/ios/terms.html`. A custom
-Terms/EULA URL is not required by App Store Connect: Apple's standard EULA is
-already selected above. The page can still explain the account-backed service
-in plain language.
+The same policy links are available inside the app. The policies explain that
+Study Center packages, attempts, review data, written drafts, achievements, and
+course progress are local-first and are not uploaded to Supabase in this beta.
 
-Before submission, replace the visible operator/contact placeholders in
-`docs/privacy.html`, `docs/support.html`, and `docs/terms.html` with the final
-legal operator identity and a working private support email. The
-account-and-data page explains account deletion, data access/correction, and
-what to do if in-app deletion fails.
+## Content rights
 
-The hosted privacy policy must accurately cover:
+Answer **Yes** to third-party content. Rights sign-off is required for every
+distributed lesson, quotation, translation, bibliography item, book,
+audiobook, cover, article, logo, animation, and course source. The repository's
+`CONTENT_RIGHTS_REGISTER.md` records the current status. Draft course content
+may be shown to an expert beta cohort for review, but its status must not be
+represented as independently certified.
 
-- Supabase authentication and database/storage processing;
-- Sign in with Apple, including private relay email addresses;
-- name, email address, username/account ID, and optional profile data;
-- reading progress and saved quotes synchronized to the signed-in account;
-- push-notification device tokens when notifications are enabled;
-- local preferences, cached EPUBs, and offline reading metadata;
-- the Substack archive/feed and links that open outside the app;
-- retention, account deletion, processors, user rights, and contact details;
-- no sale of personal data, no third-party advertising, and no cross-app
-  tracking, provided those practices remain true at submission time.
+## App Privacy draft
 
-The short legal copy currently displayed inside the iOS app is not sufficient
-as the hosted policy by itself and must be reconciled with the final webpages.
+Answer **Yes** to data collection: signed-in library/account data is transmitted
+to Supabase and retained. Guest Study Center data, cached books, downloaded
+content, local preferences, course progress, quiz attempts, review cards,
+assignment drafts, and exam drafts are local-only and are not part of the
+privacy label.
 
-## App Privacy answers
-
-### Initial question
-
-**Do you or your third-party partners collect data from this app?** Yes.
-
-"Collect" here means transmitted off the device and retained. Local-only guest
-data, cached books, and preferences are not included in the label.
-
-### Data types to select
-
-| Data type | Collected for | Linked to identity | Used for tracking | Why |
+| Data type | Purpose | Linked | Tracking | Detail |
 | --- | --- | --- | --- | --- |
-| Contact Info → Name | App Functionality | Yes | No | Apple-provided name or chosen username/profile name |
-| Contact Info → Email Address | App Functionality | Yes | No | Authentication, account recovery, and private relay support |
-| Identifiers → User ID | App Functionality | Yes | No | Supabase account ID and username |
-| Identifiers → Device ID | App Functionality | Yes | No | APNs push token tied to the signed-in account |
-| Usage Data → Product Interaction | App Functionality | Yes | No | Synced book/chapter position and reading progress |
-| User Content → Other User Content | App Functionality | Yes | No | User-saved quote/highlight text and its source metadata |
+| Name | App Functionality | Yes | No | Apple-provided or chosen profile name |
+| Email Address | App Functionality | Yes | No | Authentication and private relay support |
+| User ID | App Functionality | Yes | No | Supabase account identifier and username |
+| Device ID | App Functionality | Yes | No | APNs token retained for an account that previously enabled notifications |
+| Product Interaction | App Functionality | Yes | No | Synchronized book/chapter reading position |
+| Other User Content | App Functionality | Yes | No | Synchronized saved quotations and source metadata |
 
-For every selected data type:
+Push permission is not requested and its controls are hidden, but Device ID is
+declared conservatively because an existing account may already have an APNs
+token in the account service. Reassess all answers before enabling push,
+analytics, crash reporting, forum posting, uploads, or any additional SDK. The
+app has no third-party advertising and performs no cross-app tracking.
 
-- Third-Party Advertising: No
-- Developer's Advertising or Marketing: No
-- Analytics: No
-- Product Personalization: No
-- App Functionality: Yes
-- Other Purposes: No
-- Linked to the user's identity: Yes
-- Used for tracking: No
+## Age rating draft
 
-Do **not** select the following for this build unless the implementation or
-production services change before submission:
+Use a conservative target appropriate to recurring discussion of political
+strife, revolution, war, and repression. Proposed target: **16+** where the
+current questionnaire supports it.
 
-- Payment Info or Purchase History — StoreKit handles payment outside the app,
-  and the app does not retain transaction history in Supabase.
-- Search History — searches are not retained off device.
-- Browsing History — the app does not retain external browsing history.
-- Location, Contacts, Health, Fitness, Financial Info, Photos/Videos, Audio
-  Data, Diagnostics, or Advertising Data.
-- Sensitive Info — the current iOS release does not ask the user to provide a
-  political-opinion/ideology field. Reassess this if profile editing adds it.
-
-Privacy answers must be rechecked if analytics, crash reporting, advertising,
-forum posting, profile uploads, or a new third-party SDK is enabled.
-
-## Age rating answers
-
-Recommended calculated/override target: **16+ on iOS 26 and later**. Older OS
-versions may display Apple's corresponding legacy rating. This conservative
-recommendation reflects the library's recurring discussion of political
-strife, revolution, war, repression, and other mature historical themes.
-
-### In-app controls
-
-| Question | Answer |
+| Capability | Answer |
 | --- | --- |
-| Parental controls | No |
-| Age assurance | No |
-
-### Capabilities
-
-| Question | Answer |
-| --- | --- |
-| Unrestricted web access | No — article links open through the system; the app is not a general browser |
-| User-generated content | No — the forum is disabled in this release |
-| Messaging and chat | No |
+| User-generated content | No — the forum is under construction and disabled |
+| Messaging or chat | No |
 | Advertising | No |
-| Social media capabilities | No — no active social feed, amplification, or interaction with user posts |
-
-### Content frequency
-
-| Content descriptor | Answer |
-| --- | --- |
-| Profanity or crude humor | Infrequent |
-| Horror or fear themes | None |
-| Alcohol, tobacco, or drug use or references | Infrequent |
-| Medical or treatment information | None |
-| Health or wellness topics | None |
-| Mature or suggestive themes | Frequent — political strife and mature historical subjects |
-| Sexual content or nudity | None |
-| Graphic sexual content and nudity | None |
-| Cartoon or fantasy violence | None |
-| Realistic violence | Infrequent — textual historical discussion |
-| Prolonged graphic or sadistic realistic violence | None |
-| Guns or other weapons | Infrequent — textual historical references |
-| Gambling | No |
-| Simulated gambling | None |
-| Contests | None — there are no quizzes or competitive activities in this release |
-| Loot boxes | No |
-
-Age category and override:
-
-- Made for Kids: No
-- Override: Not Applicable if App Store Connect calculates 16+
-- If the questionnaire calculates a lower rating, consider overriding to 16+
-  so the product page matches the intended audience and subject matter.
-
-Re-answer the capabilities section before enabling the future forum. An active
-forum would change User-Generated Content, Messaging/Chat, Social Media, and
-possibly content-frequency answers.
+| Social-media features | No |
+| Unrestricted web access | No |
+| Contests | None — academic quizzes have no prizes, wagering, or public competition |
+| Loot boxes or simulated gambling | No |
+| Mature themes | Frequent, in an academic/historical context |
+| Realistic violence | Infrequent textual historical discussion |
+| Weapons | Infrequent textual historical references |
 
 ## Export compliance
 
-The app uses standard HTTPS/TLS and Apple/Supabase authentication through
-system and published cryptographic APIs. It does not implement proprietary or
-non-standard encryption.
-
-Proposed submission position:
-
-| Question | Answer |
-| --- | --- |
-| Does the app use encryption? | Yes, only standard/exempt encryption for HTTPS and authentication |
-| Does it implement proprietary or non-standard cryptographic algorithms? | No |
-| Does it implement non-exempt encryption independently of Apple's operating system? | No |
-| Is export-compliance documentation expected? | No, based on the current implementation; confirm during App Store Connect's questionnaire |
-
-`ITSAppUsesNonExemptEncryption` is already set to `NO` in `Info.plist`. Reassess
-this answer if VPN, secure messaging, custom cryptography, or encrypted file
-sharing is later added. Export classification is ultimately the account
-holder's legal responsibility.
+The app uses published system and SDK cryptography for HTTPS, authentication,
+and local/service data protection. It does not implement proprietary or
+non-standard cryptography. `ITSAppUsesNonExemptEncryption` is `NO`; confirm the
+standard/exempt-encryption answers during upload.
 
 ## Product-page copy
 
 ### Promotional text
 
-Read classic texts, listen to audiobooks, save quotes, and continue where you
-left off across devices — all in one focused Marxist study app.
+Read primary texts, follow substantial courses, use study and reading guides,
+and continue learning offline in one focused Apple-native study app.
 
 ### Description
 
-MarxistInfo brings a focused library of Marxist theory, history, and analysis
-to iPhone and iPad.
+MarxistInfo combines a native reading library with a structured Study Center
+for serious, self-paced learning on iPhone and iPad.
 
-Read books in a native EPUB reader, open available PDFs, and save titles for
-offline study. Your reading progress can follow your signed-in account across
-devices, while guest mode keeps local reading available without requiring an
-account.
+The Study Center includes the complete PHI111 course, *Hegelian Dialectics I:
+Being, Essence, Concept*, and its sequel PHI211, *Marx's Dialectical Method*.
+Each course preserves its ordered modules and lessons, long-form teaching text,
+embedded exercises, study and reading guides, reading lists, assignments,
+public rubrics, glossary, bibliography, and final candidate examination paper.
+PHI211 is linked as the recommended sequel to PHI111.
 
-Listen to audiobooks with chapter navigation, playback-speed controls,
-background audio, and system Now Playing support. Browse and search the bundled
-Substack archive, save passages to your quote notebook, and search across books,
-audio, and articles from one place.
+The separate question catalogue, practice, daily-learning, review, progress,
+XP, and streak systems are included as local-first learning tools. Scored
+questions remain unavailable until their answers and citations have received
+the explicit academic-review status required by the app. Written submissions,
+examiner grading, formal course grades, and certificates are not enabled in
+this beta; complete candidate papers and public rubrics remain available for
+study.
+
+The library provides native EPUB reading, offline downloads, available PDFs,
+audiobooks with chapter controls, a searchable article archive, saved
+quotations, and optional signed-in reading synchronization. Guest mode keeps
+library and course study available without an account.
 
 Features:
 
-- Curated books covering theory, history, political economy, and more
-- Native EPUB reading with themes, text sizing, chapter navigation, and offline access
-- PDF access when a title includes a PDF edition
-- Audiobooks with background playback and chapter controls
-- Searchable articles and archive content
-- Quote notebook and cross-device reading progress
-- Sign in with Apple, email sign-in, or guest browsing
+- Two complete, reading-centred dialectics courses with 26 ordered modules
+- 221 course sections and 52 exercises in their intended lesson positions
+- Study Guides, Reading Guides, primary-source reading plans, glossaries, and bibliographies
+- 529-question canonical catalogue, with review status shown transparently
+- Local course progress, review tools, achievements, XP, and optional streaks
+- Complete read-only candidate assignments, rubrics, and final examination papers
+- Native EPUB and audio reading tools with offline use
+- Sign in with Apple, existing-account email sign-in, or guest browsing
 - No third-party advertising or cross-app tracking
 
-The community forum is under construction and is not an active social feature
-in this version.
+The community forum remains under construction and unchanged. Educational
+videos, written submissions, examiner grading, tips, and unreviewed scored
+assessments are hidden for this beta.
 
 ### Keywords
 
-`marxism,books,library,audiobooks,theory,history,politics,reading,archive,study`
+`marxism,courses,study,philosophy,dialectics,books,education,reading,hegel,marx`
 
-### What's New — version 1.0
+### What's New — 1.0
 
-Welcome to the first iOS release of MarxistInfo: read and download books,
-listen to audiobooks, browse the article archive, save quotes, and synchronize
-reading progress with your account.
+Welcome to MarxistInfo: use the native reading library and begin two complete,
+reading-centred courses in Hegelian and Marxian dialectics. Follow lessons,
+guides, exercises, local progress, and complete candidate assessment papers on
+iPhone or iPad.
 
-## Screenshots
+## External TestFlight information
 
-Upload six portrait screenshots for each supported device class. Do not include
-the disabled forum, empty error states, placeholder legal text, unavailable
-StoreKit products, personal email addresses, or real user data.
+### Beta description
 
-### iPhone
+This closed expert beta tests the MarxistInfo library and new Study Center,
+including two full courses, lesson navigation, embedded exercises, guides,
+question catalogue, local progress, review tools, offline continuation, and
+read-only formal assessment materials. It does not enable the forum, tips,
+videos, written submissions, examiner grading, certificates, or unreviewed
+scored questions.
 
-Use a 6.9-inch simulator such as iPhone 17 Pro Max and export one accepted
-portrait size, preferably the simulator's native `1260 × 2736`, `1290 × 2796`,
-or `1320 × 2868` pixels. App Store Connect accepts one to ten screenshots.
+### What to Test
 
-| Order | Screen | Suggested caption |
-| --- | --- | --- |
-| 1 | Library home with real covers and Continue Reading | A library built for serious study |
-| 2 | EPUB reader showing a clean chapter | Read without distractions |
-| 3 | Book detail/offline download state | Keep essential texts available offline |
-| 4 | Audiobook player with chapters | Listen wherever you are |
-| 5 | Substack archive/article reader | Essays and analysis in one place |
-| 6 | Quote notebook or global search | Save ideas. Find them again. |
+1. Choose **Continue as Guest**, open Study Center, and begin PHI111.
+2. Check module and section order, long-form lesson rendering, exercises, Study
+   Guide, Reading Guide, glossary, bibliography, and progress persistence.
+3. Follow the recommended sequel from PHI111 to PHI211.
+4. Search and filter the 529-question catalogue and confirm review status is
+   clear; report any disputed answer, citation, duplicated heading, or missing
+   passage using its stable question/content ID.
+5. Open assignments and final examinations and confirm they are complete,
+   readable candidate papers without submission, timer, examiner, or grade UI.
+6. Relaunch offline and confirm the current course and reading position remain.
+7. Test iPhone and iPad layouts, Larger Text, VoiceOver, Reduce Motion, and dark
+   mode. Confirm the Forum tab still shows its under-construction screen.
 
-### iPad
+Feedback email: `Modernmarxist05@gmail.com`
 
-The Xcode target currently supports iPad, so a 13-inch iPad screenshot set is
-required. Capture the same six screens at `2064 × 2752` or `2048 × 2732`
-portrait. If iPad is not intended for version 1.0, remove iPad from the target
-before uploading the first build instead of submitting an unreviewed layout.
-
-## App Review information
+### App Review information
 
 | Field | Value |
 | --- | --- |
-| Contact first name | `Andreas` |
-| Contact last name | `Kurz` |
-| Contact phone | `REPLACE BEFORE SUBMISSION` |
+| Contact | Andreas Kurz |
 | Contact email | `Modernmarxist05@gmail.com` |
-| Sign-in required | No — reviewers can choose guest browsing |
-| Review account | Optional but recommended: `REPLACE BEFORE SUBMISSION` |
+| Contact phone | Enter the verified Account Holder phone directly in App Store Connect; it is intentionally not stored here |
+| Sign-in required | No |
+| Review path | Choose **Continue as Guest** |
+| Review account | Not required for core review; provide a non-expiring existing-account credential privately only for cloud-reading tests |
 
-### Review notes draft
+Review notes: the app is fully reviewable in guest mode. Sign in with Apple and
+existing-account email login are only needed for account-backed reading sync.
+Account deletion is in Profile → Delete Account. The Forum tab intentionally
+shows an under-construction page. Academic scoring is review-gated; formal
+assessment materials are read-only. No purchase surface is exposed.
 
-The app can be reviewed without an account by selecting guest browsing. Sign in
-with Apple and email authentication enable cloud reading progress, saved quotes,
-push notifications, and account deletion. Account deletion is available from
-More → Profile → Delete Account.
+## Screenshot plan
 
-The Forum tab intentionally displays an under-construction page. Forum posting,
-messaging, quizzes, contests, and social-media functionality are not enabled in
-version 1.0. No moderation workflow needs to be exercised for this build.
+Capture clean iPhone 17 Pro Max and iPad Pro 13-inch portrait sets from the
+release build. Prioritize Library, PHI111 landing/syllabus, a long lesson with
+an exercise, Study/Reading Guide, question catalogue with transparent QA state,
+and PHI211 sequel navigation. Do not show personal data, disabled forum, tips,
+examiner screens, unavailable videos, or developer scaffolding.
 
-If StoreKit support products are not configured for version 1.0, the Support
-entry and unavailable purchase screen must be hidden before submission. Do not
-reference purchases in the review notes or privacy answers for that build.
+## Account Holder checks before upload
 
-## Final metadata checks
-
-- Replace every `REPLACE BEFORE SUBMISSION` value.
-- Publish and test all legal/support URLs on a signed-out device.
-- Reconcile the in-app legal screens with the hosted policies.
-- Verify content rights for every included or remotely delivered work.
-- Confirm the privacy label against production Supabase tables, Storage, Edge
-  Functions, and every included SDK.
-- Confirm the age-rating answers against the exact content shipped in the
-  submitted build.
-- Hide the StoreKit support route unless the products are configured and being
-  submitted with the app.
-- Capture clean iPhone and iPad screenshots from release-quality data.
-- Do not advertise the forum, quizzes, messaging, or other future features.
-
-## Apple references
-
-- App privacy: https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy/
-- Privacy data definitions: https://developer.apple.com/app-store/app-privacy-details/
-- Age-rating questionnaire: https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating/
-- Age-rating values: https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/
-- Export compliance: https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance/
-- Screenshot specifications: https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/
+- Confirm build `2` is unused, then upload it.
+- Enter and verify the review phone number directly in App Store Connect.
+- Confirm the feedback email and legal operator identity.
+- Complete the final rights and academic sign-offs for anything presented as approved.
+- Confirm App Privacy and age-rating answers against the archived binary.
+- Complete EU DSA trader status before later public EU distribution; it is not
+  itself required solely for TestFlight distribution.

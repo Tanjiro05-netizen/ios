@@ -17,3 +17,14 @@ build/
 xcuserdata/
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
+
+# Examiner-only course keys are copied locally for verification but must never
+# enter the learner app target or source control.
+ios/MarxistForum/RestrictedCourseContent/
+
+# Local export/source artifacts that are not part of the learner application.
+MarxistForum-GitHub-Pages-HTML.zip
+ios/MarxistForum/Resources/Assets.xcassets/JenaResearchLogo.imageset/
+
+# Supabase CLI's local update marker is machine-specific.
+supabase/.temp/cli-latest

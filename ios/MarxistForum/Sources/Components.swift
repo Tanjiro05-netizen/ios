@@ -358,7 +358,7 @@ struct LiquidTabBar: View {
     private var nativeGlassBar: some View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
-                ForEach(AppTab.allCases) { tab in
+                ForEach(AppTab.bottomBarTabs) { tab in
                     tabButton(tab)
                 }
             }
@@ -397,7 +397,7 @@ struct LiquidTabBar: View {
     private var fallbackBar: some View {
         GeometryReader { proxy in
             HStack(spacing: 0) {
-                ForEach(AppTab.allCases) { tab in
+                ForEach(AppTab.bottomBarTabs) { tab in
                     Button {
                         select(tab)
                     } label: {
@@ -450,7 +450,7 @@ struct LiquidTabBar: View {
 
     private func selectTab(at locationX: CGFloat, width: CGFloat) {
         guard width > 0 else { return }
-        let tabs = AppTab.allCases
+        let tabs = AppTab.bottomBarTabs
         let clampedX = min(max(locationX, 0), width - 0.1)
         let index = min(max(Int((clampedX / width) * CGFloat(tabs.count)), 0), tabs.count - 1)
         select(tabs[index])
