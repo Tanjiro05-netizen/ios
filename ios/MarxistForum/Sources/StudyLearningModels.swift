@@ -104,6 +104,79 @@ final class StudySavedContentRecord {
     }
 }
 
+@Model
+final class StudySectionWorkRecord {
+    @Attribute(.unique) var recordID: String
+    var subjectID: String
+    var courseID: String
+    var courseVersion: String
+    var lessonID: String
+    var blockID: String
+    var notesMarkdown: String
+    var reflectionMarkdown: String
+    var summaryMarkdown: String
+    var confidence: Int?
+    var createdAt: Date
+    var updatedAt: Date
+
+    init(
+        subjectID: String,
+        courseID: String,
+        courseVersion: String,
+        lessonID: String,
+        blockID: String,
+        notesMarkdown: String = "",
+        reflectionMarkdown: String = "",
+        summaryMarkdown: String = "",
+        confidence: Int? = nil,
+        createdAt: Date = .now,
+        updatedAt: Date = .now
+    ) {
+        self.recordID = Self.makeRecordID(
+            subjectID: subjectID,
+            courseID: courseID,
+            courseVersion: courseVersion,
+            lessonID: lessonID,
+            blockID: blockID
+        )
+        self.subjectID = subjectID
+        self.courseID = courseID
+        self.courseVersion = courseVersion
+        self.lessonID = lessonID
+        self.blockID = blockID
+        self.notesMarkdown = notesMarkdown
+        self.reflectionMarkdown = reflectionMarkdown
+        self.summaryMarkdown = summaryMarkdown
+        self.confidence = confidence.map { min(max($0, 1), 5) }
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+
+    static func makeRecordID(
+        subjectID: String,
+        courseID: String,
+        courseVersion: String,
+        lessonID: String,
+        blockID: String
+    ) -> String {
+        [subjectID, courseID, courseVersion, lessonID, blockID].joined(separator: "::")
+    }
+
+    func update(
+        notesMarkdown: String,
+        reflectionMarkdown: String,
+        summaryMarkdown: String,
+        confidence: Int?,
+        at date: Date = .now
+    ) {
+        self.notesMarkdown = notesMarkdown
+        self.reflectionMarkdown = reflectionMarkdown
+        self.summaryMarkdown = summaryMarkdown
+        self.confidence = confidence.map { min(max($0, 1), 5) }
+        updatedAt = date
+    }
+}
+
 enum StudySubmissionStatus: String, Codable, Sendable {
     case draft
     case submitted
@@ -325,6 +398,9 @@ enum StudyLocalDataEraser {
         let savedContent = try modelContext.fetch(FetchDescriptor<StudySavedContentRecord>(
             predicate: #Predicate { $0.subjectID == subjectID }
         ))
+        let sectionWork = try modelContext.fetch(FetchDescriptor<StudySectionWorkRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
         let assignmentSubmissions = try modelContext.fetch(FetchDescriptor<StudyAssignmentSubmissionRecord>(
             predicate: #Predicate { $0.subjectID == subjectID }
         ))
@@ -344,6 +420,7 @@ enum StudyLocalDataEraser {
         courseProgress.forEach(modelContext.delete)
         learningEvents.forEach(modelContext.delete)
         savedContent.forEach(modelContext.delete)
+        sectionWork.forEach(modelContext.delete)
         assignmentSubmissions.forEach(modelContext.delete)
         rubricMarks.forEach(modelContext.delete)
         examMarks.forEach(modelContext.delete)

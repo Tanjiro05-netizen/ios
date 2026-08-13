@@ -1147,6 +1147,56 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertTrue(issues.isEmpty, issues.map { "\($0.path): \($0.message)" }.joined(separator: "\n"))
     }
 
+    func testPHI111LessonsIncludeOptionalCourseLearningSupportsWithoutChangingSchema() throws {
+        let package = try loadDialecticsCoursePackage()
+        let phi111 = try XCTUnwrap(package.courses.first { $0.id == "PHI111" })
+        let phi211 = try XCTUnwrap(package.courses.first { $0.id == "PHI211" })
+        let phi111Lessons = phi111.modules.flatMap(\.lessons)
+
+        XCTAssertEqual(package.schemaVersion, 3)
+        XCTAssertEqual(phi111Lessons.count, 12)
+        XCTAssertTrue(phi111Lessons.allSatisfy { ($0.objectives?.count ?? 0) == 3 })
+        XCTAssertTrue(phi111Lessons.allSatisfy { ($0.essentialQuestions?.count ?? 0) == 2 })
+        XCTAssertTrue(phi111Lessons.allSatisfy { ($0.reflectionPrompts?.count ?? 0) == 2 })
+        XCTAssertTrue(phi211.modules.flatMap(\.lessons).allSatisfy {
+            $0.objectives == nil && $0.essentialQuestions == nil && $0.reflectionPrompts == nil
+        })
+    }
+
+    func testSectionWorkRecordIsVersionScopedAndClampsConfidence() {
+        let first = StudySectionWorkRecord(
+            subjectID: "guest.local",
+            courseID: "PHI111",
+            courseVersion: "2.0.0",
+            lessonID: "L1",
+            blockID: "S1",
+            confidence: 8
+        )
+        let upgraded = StudySectionWorkRecord(
+            subjectID: "guest.local",
+            courseID: "PHI111",
+            courseVersion: "3.0.0",
+            lessonID: "L1",
+            blockID: "S1",
+            confidence: 0
+        )
+
+        XCTAssertNotEqual(first.recordID, upgraded.recordID)
+        XCTAssertEqual(first.confidence, 5)
+        XCTAssertEqual(upgraded.confidence, 1)
+
+        first.update(
+            notesMarkdown: "A note",
+            reflectionMarkdown: "A reflection",
+            summaryMarkdown: "A summary",
+            confidence: nil,
+            at: Date(timeIntervalSince1970: 123)
+        )
+        XCTAssertEqual(first.notesMarkdown, "A note")
+        XCTAssertNil(first.confidence)
+        XCTAssertEqual(first.updatedAt, Date(timeIntervalSince1970: 123))
+    }
+
     func testDialecticsCourseRelationshipsAndAssessmentPlacementRemainCanonical() throws {
         let package = try loadDialecticsCoursePackage()
         let questions = try XCTUnwrap(package.questions)
@@ -1632,6 +1682,7 @@ final class MarxistForumTests: XCTestCase {
             StudyCourseProgressRecord.self,
             StudyLearningEventRecord.self,
             StudySavedContentRecord.self,
+            StudySectionWorkRecord.self,
             StudyAssignmentSubmissionRecord.self,
             StudyRubricMarkRecord.self,
             StudyExamSubmissionRecord.self,
@@ -1670,6 +1721,22 @@ final class MarxistForumTests: XCTestCase {
         ].forEach(context.insert)
         context.insert(StudyLearningEventRecord(eventID: "delete-event", subjectID: target, kind: "lesson", contentID: "L1", points: 10))
         context.insert(StudySavedContentRecord(subjectID: target, contentID: "L1", contentKind: "lesson"))
+        context.insert(StudySectionWorkRecord(
+            subjectID: target,
+            courseID: "PHI111",
+            courseVersion: "2.0.0",
+            lessonID: "L1",
+            blockID: "S1",
+            notesMarkdown: "private notes"
+        ))
+        context.insert(StudySectionWorkRecord(
+            subjectID: survivor,
+            courseID: "PHI111",
+            courseVersion: "2.0.0",
+            lessonID: "L1",
+            blockID: "S1",
+            notesMarkdown: "survivor notes"
+        ))
         context.insert(targetSubmission)
         context.insert(StudyRubricMarkRecord(
             submissionRecordID: targetSubmission.recordID,
@@ -1696,6 +1763,10 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertEqual(try context.fetch(FetchDescriptor<StudyCourseProgressRecord>()).map(\.subjectID), [survivor])
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyLearningEventRecord>()).isEmpty)
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudySavedContentRecord>()).isEmpty)
+        XCTAssertEqual(
+            try context.fetch(FetchDescriptor<StudySectionWorkRecord>()).map(\.subjectID),
+            [survivor]
+        )
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyAssignmentSubmissionRecord>()).isEmpty)
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyRubricMarkRecord>()).isEmpty)
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyExamSubmissionRecord>()).isEmpty)

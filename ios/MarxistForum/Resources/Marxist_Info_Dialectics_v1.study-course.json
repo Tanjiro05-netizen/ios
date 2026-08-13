@@ -38,6 +38,19 @@
               "title": "The Prehistory of the Dialectical Problem",
               "summary": "Module 1 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Trace how dialectic changes from ancient refutation to Hegelian immanent development.",
+                "Explain why Kantian antinomies make contradiction a systematic philosophical problem.",
+                "Distinguish Hegel's determinate negation from a fixed thesis-antithesis-synthesis formula."
+              ],
+              "essentialQuestions": [
+                "When does an opposition arise from a position's own commitments rather than from an external objection?",
+                "What must a richer determination preserve from the one it overcomes?"
+              ],
+              "reflectionPrompts": [
+                "Choose one precursor and explain precisely what Hegel retains and transforms.",
+                "Identify one tempting simplification of dialectic that this module rules out."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M01-S01",
@@ -139,6 +152,19 @@
               "title": "What Hegel Means by Logic",
               "summary": "Module 2 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Distinguish Hegel's speculative logic from a merely formal account of valid inference.",
+                "Explain why logical determinations concern both thought and the intelligibility of objects.",
+                "Reconstruct why a presuppositionless logic begins with pure being rather than a richer category."
+              ],
+              "essentialQuestions": [
+                "How can logic examine forms of thought without treating them as empty shells applied from outside?",
+                "What would count as an immanent rather than assumed beginning for a science of logic?"
+              ],
+              "reflectionPrompts": [
+                "Identify one assumption you normally make about the separation of thought and object, then test it against this module.",
+                "State the strongest reason for beginning with the poorest possible determination."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M02-S01",
@@ -251,6 +277,19 @@
               "title": "Understanding, Dialectical Reason, and Speculative Reason",
               "summary": "Module 3 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Describe understanding, dialectical reason, and speculative reason as inseparable moments of logical thought.",
+                "Explain why fixed determinacy is necessary even though it proves finite.",
+                "Distinguish speculative unity from compromise, vagueness, or the erasure of difference."
+              ],
+              "essentialQuestions": [
+                "How does a fixed determination generate a relation to what it excludes?",
+                "What makes the result of determinate negation affirmative without restoring the original category unchanged?"
+              ],
+              "reflectionPrompts": [
+                "Take one rigid either-or from ordinary reasoning and analyse what each side presupposes.",
+                "Explain why dialectical criticism still depends on the precision supplied by understanding."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M03-S01",
@@ -370,6 +409,19 @@
               "title": "Being, Nothing, and Becoming",
               "summary": "Module 4 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Reconstruct the transition from pure being and pure nothing to becoming.",
+                "Keep Hegel's opening categories distinct from ordinary examples of existing things and absences.",
+                "Explain how becoming stabilises into determinate being without cancelling transition."
+              ],
+              "essentialQuestions": [
+                "Why does completely indeterminate being fail to differ from completely indeterminate nothing?",
+                "How can becoming preserve both vanishing moments while producing a more determinate result?"
+              ],
+              "reflectionPrompts": [
+                "Write the transition without using the words thesis, antithesis, or synthesis.",
+                "Name one everyday example that helps orient the discussion and one way it can mislead."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M04-S01",
@@ -491,6 +543,19 @@
               "title": "Determinate Being, Finitude, Infinity, and Being-for-Self",
               "summary": "Module 5 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Explain how something, other, and limit mutually determine one another.",
+                "Distinguish the bad infinite from true infinity as a self-returning relation.",
+                "Trace the movement from being-for-self to the One and the many."
+              ],
+              "essentialQuestions": [
+                "In what sense does the finite contain its own negation rather than merely meeting an external boundary?",
+                "Why does an endless progression beyond limits remain finite in form?"
+              ],
+              "reflectionPrompts": [
+                "Analyse a limit that partly constitutes the thing it appears only to constrain.",
+                "Explain how true infinity changes the relation between finite and infinite."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M05-S01",
@@ -619,6 +684,19 @@
               "title": "Quantity, Quantum, and Measure",
               "summary": "Module 6 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Distinguish pure quantity, quantum, amount, and degree.",
+                "Explain measure as the unity of qualitative identity and quantitative variation.",
+                "Use nodal change precisely without turning it into a slogan about every accumulation."
+              ],
+              "essentialQuestions": [
+                "When is quantitative variation indifferent to a thing, and when does it alter what the thing is?",
+                "How does the instability of measure prepare the transition from being to essence?"
+              ],
+              "reflectionPrompts": [
+                "Choose a case of threshold change and specify the evidence needed before calling it a change of measure.",
+                "Explain why logic can orient empirical inquiry but cannot replace it."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M06-S01",
@@ -749,6 +827,19 @@
               "title": "Essence, Reflection, Identity, Difference, and Contradiction",
               "summary": "Module 7 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Explain essence as being mediated through reflection rather than a hidden second world.",
+                "Show how identity, difference, diversity, and opposition develop as relational determinations.",
+                "Distinguish dialectical contradiction from the careless acceptance of inconsistent statements."
+              ],
+              "essentialQuestions": [
+                "Why must a determinate identity include a relation to difference?",
+                "When do opposed determinations form internally connected moments of one relation?"
+              ],
+              "reflectionPrompts": [
+                "Analyse one identity claim and identify the differences that make it determinate.",
+                "Formulate a contradiction precisely enough to show its shared ground rather than merely naming a conflict."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M07-S01",
@@ -877,6 +968,19 @@
               "title": "Ground, Appearance, Actuality, and Necessity",
               "summary": "Module 8 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Relate ground and grounded without treating explanation as an arbitrary external reason.",
+                "Explain why appearance is the manifestation of essence rather than mere illusion.",
+                "Distinguish possibility, contingency, actuality, and necessity in their developed relation."
+              ],
+              "essentialQuestions": [
+                "What prevents an appeal to ground from producing an endless series of unexplained reasons?",
+                "How can necessity emerge through conditions and activity without becoming blind fatalism?"
+              ],
+              "reflectionPrompts": [
+                "Take one explanation and ask whether its stated ground genuinely determines what it explains.",
+                "Describe a real possibility whose conditions are present and contrast it with an abstract possibility."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M08-S01",
@@ -1043,6 +1147,19 @@
               "title": "The Concept: Universality, Particularity, and Singularity",
               "summary": "Module 9 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Explain the Concept as self-determining universality rather than a subjective label.",
+                "Reconstruct the reciprocal mediation of universality, particularity, and singularity.",
+                "Distinguish a concrete universal from a collection defined by an externally shared feature."
+              ],
+              "essentialQuestions": [
+                "How does a universal become determinate through particularisation without ceasing to be universal?",
+                "Why is the singular intelligible only as the unity of universal and particular?"
+              ],
+              "reflectionPrompts": [
+                "Choose a concept and show how its particulars arise from its principle rather than from arbitrary classification.",
+                "Identify where an abstract universal hides the differences needed to explain its instances."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M09-S01",
@@ -1171,6 +1288,19 @@
               "title": "Judgment and Syllogism",
               "summary": "Module 10 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Explain judgment as the division and relation of the Concept's moments.",
+                "Trace the development from judgments of existence through reflection and necessity to judgments of the Concept.",
+                "Show how syllogism makes the mediation of universal, particular, and singular explicit."
+              ],
+              "essentialQuestions": [
+                "Why can no immediate subject-predicate judgment fully express the unity of singular and universal?",
+                "What turns a merely external middle term into an internally necessary mediation?"
+              ],
+              "reflectionPrompts": [
+                "Recast one claim through two families of judgment and explain what changes.",
+                "Diagram a mediation and identify whether its middle is contingent or belongs internally to the extremes."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M10-S01",
@@ -1317,6 +1447,19 @@
               "title": "Objectivity: Mechanism, Chemism, and Teleology",
               "summary": "Module 11 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Distinguish mechanical external relation, chemical affinity, and purposive organisation.",
+                "Explain how teleology works through objective causal processes rather than suspending them.",
+                "Reconstruct how realised purpose prepares the unity of Concept and objectivity in the Idea."
+              ],
+              "essentialQuestions": [
+                "What explanatory limits appear when objects are treated only as externally arranged units?",
+                "How can an end organise means without implying conscious purpose in every natural process?"
+              ],
+              "reflectionPrompts": [
+                "Classify one process as chiefly mechanical, chemical, or purposive and defend the level chosen.",
+                "Trace an end through its means and identify how the realised result changes the initial purpose."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M11-S01",
@@ -1454,6 +1597,19 @@
               "title": "Life, Cognition, the Absolute Idea, and the Meaning of Dialectical Method",
               "summary": "Module 12 of 12",
               "estimatedMinutes": 1375,
+              "objectives": [
+                "Relate life, theoretical cognition, and practical activity as forms of the Idea.",
+                "Explain the absolute Idea as method conscious of its movement rather than an inventory of all facts.",
+                "Synthesize the distinct forms of dialectical movement across Being, Essence, and Concept."
+              ],
+              "essentialQuestions": [
+                "How do theoretical and practical cognition each seek adequacy between Concept and objectivity?",
+                "What definition of dialectical method preserves immanence, determinate negation, and differentiated development?"
+              ],
+              "reflectionPrompts": [
+                "Compare one transition from each major sphere and state what changes in the form of movement.",
+                "Write a final definition of dialectic precise enough to exclude both a three-step formula and the slogan that everything changes."
+              ],
               "blocks": [
                 {
                   "id": "PHI111-M12-S01",

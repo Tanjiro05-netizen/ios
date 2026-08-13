@@ -72,6 +72,14 @@ struct StudyCourseDetailScreen: View {
     private var progress: StudyCourseProgressRecord? {
         progressRecords.first { $0.subjectID == subjectID && $0.courseID == courseID }
     }
+    private var activeModuleID: String? {
+        guard let course else { return nil }
+        return StudyLearningProgress.nextSection(
+            for: course,
+            completedLessonIDs: Set(progress?.completedLessonIDs ?? []),
+            completedRequiredBlockIDs: Set(progress?.completedRequiredBlockIDs ?? [])
+        )?.moduleID ?? StudyLearningProgress.firstSection(for: course)?.moduleID
+    }
 
     private enum CourseHomeSection: String, CaseIterable, Identifiable {
         case home = "Home"
@@ -109,6 +117,11 @@ struct StudyCourseDetailScreen: View {
         .navigationTitle(course?.title ?? "Course")
         .navigationBarTitleDisplayMode(.inline)
         .background(ScreenBackground())
+        .task(id: activeModuleID) {
+            if let activeModuleID {
+                expandedModuleIDs.insert(activeModuleID)
+            }
+        }
         .task(id: learningEvents.count) { syncAchievements() }
         .alert("Unable to begin course", isPresented: Binding(
             get: { enrollmentError != nil },
@@ -137,6 +150,15 @@ struct StudyCourseDetailScreen: View {
             completedRequiredBlockIDs: completedBlocks
         )
         let launchDestination = nextSection ?? StudyLearningProgress.firstSection(for: course)
+        let requiredSections = StudyLearningProgress.sectionDestinations(for: course).filter(\.isRequired)
+        let completedRequiredSectionCount = requiredSections.lazy.filter {
+            StudyLearningProgress.isSectionCompleted(
+                $0,
+                completedLessonIDs: completedLessons,
+                completedRequiredBlockIDs: completedBlocks
+            )
+        }.count
+        let remainingRequiredSectionCount = max(requiredSections.count - completedRequiredSectionCount, 0)
         let gradebook = StudyCourseGradebook.make(
             course: course,
             assignments: courseAssignments,
@@ -185,6 +207,11 @@ struct StudyCourseDetailScreen: View {
                             Text(fraction, format: .percent.precision(.fractionLength(0)))
                         }
                         .tint(Brand.red)
+
+                        Text("\(completedRequiredSectionCount) of \(requiredSections.count) required sections complete")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("study.course.\(course.id).required-section-count")
                     }
                 }
                 .padding(18)
@@ -195,6 +222,9 @@ struct StudyCourseDetailScreen: View {
                         ForEach(visibleCourseHomeSections) { section in
                             Button {
                                 withAnimation(.snappy(duration: 0.22)) { selectedSection = section }
+                                if section == .content, let activeModuleID {
+                                    expandedModuleIDs.insert(activeModuleID)
+                                }
                             } label: {
                                 Label(section.rawValue, systemImage: section.systemImage)
                                     .font(.caption.weight(.semibold))
@@ -231,7 +261,10 @@ struct StudyCourseDetailScreen: View {
                         fraction: fraction,
                         gradebook: gradebook,
                         learning: learning,
-                        learningPaths: learningPaths
+                        learningPaths: learningPaths,
+                        completedRequiredSectionCount: completedRequiredSectionCount,
+                        requiredSectionCount: requiredSections.count,
+                        remainingRequiredSectionCount: remainingRequiredSectionCount
                     )
                 case .content:
                     courseContentList(
@@ -240,7 +273,8 @@ struct StudyCourseDetailScreen: View {
                         completedBlocks: completedBlocks,
                         launchDestination: launchDestination,
                         nextSection: nextSection,
-                        fraction: fraction
+                        fraction: fraction,
+                        remainingRequiredSectionCount: remainingRequiredSectionCount
                     )
                 case .assignments:
                     courseAssignmentsView(course, assignments: courseAssignments, finalAssessment: finalAssessment)
@@ -263,19 +297,27 @@ struct StudyCourseDetailScreen: View {
         fraction: Double,
         gradebook: StudyCourseGradeSnapshot,
         learning: StudyLearningProgressSnapshot,
-        learningPaths: [StudyLearningPath]
+        learningPaths: [StudyLearningPath],
+        completedRequiredSectionCount: Int,
+        requiredSectionCount: Int,
+        remainingRequiredSectionCount: Int
     ) -> some View {
         if let launchDestination {
                     StudyCourseLaunchCard(
                         isEnrolled: progress != nil,
                         isComplete: nextSection == nil && fraction >= 1,
-                        destination: launchDestination
+                        destination: launchDestination,
+                        remainingRequiredSectionCount: remainingRequiredSectionCount
                     ) {
                         beginOrContinue(course, destination: launchDestination)
                     }
         }
         HStack(spacing: 10) {
-            StudyCourseMetricTile(title: "Reading", value: fraction.formatted(.percent.precision(.fractionLength(0))), detail: "required sections")
+            StudyCourseMetricTile(
+                title: "Reading",
+                value: fraction.formatted(.percent.precision(.fractionLength(0))),
+                detail: "\(completedRequiredSectionCount)/\(requiredSectionCount) required sections"
+            )
             if AppFeatureFlags.writtenCourseSubmissionsEnabled {
                 StudyCourseMetricTile(title: "Academic", value: gradebook.overallPercent.map { $0.formatted(.number.precision(.fractionLength(0))) + "%" } ?? "Pending", detail: gradebook.academicResult)
             } else {
@@ -316,10 +358,16 @@ struct StudyCourseDetailScreen: View {
         completedBlocks: Set<String>,
         launchDestination: StudyLearningProgress.SectionDestination?,
         nextSection: StudyLearningProgress.SectionDestination?,
-        fraction: Double
+        fraction: Double,
+        remainingRequiredSectionCount: Int
     ) -> some View {
         if let launchDestination {
-            StudyCourseLaunchCard(isEnrolled: progress != nil, isComplete: nextSection == nil && fraction >= 1, destination: launchDestination) {
+            StudyCourseLaunchCard(
+                isEnrolled: progress != nil,
+                isComplete: nextSection == nil && fraction >= 1,
+                destination: launchDestination,
+                remainingRequiredSectionCount: remainingRequiredSectionCount
+            ) {
                 beginOrContinue(course, destination: launchDestination)
             }
         }
@@ -692,8 +740,22 @@ struct StudyCourseSectionScreen: View {
     @Environment(\.openURL) private var openURL
     @Query private var progressRecords: [StudyCourseProgressRecord]
     @Query private var learningEvents: [StudyLearningEventRecord]
+    @Query private var sectionWorkRecords: [StudySectionWorkRecord]
     @State private var launchingAssessmentID: String?
     @State private var presentedError: String?
+    @State private var notesMarkdown = ""
+    @State private var reflectionMarkdown = ""
+    @State private var summaryMarkdown = ""
+    @State private var confidence: Int?
+    @State private var workspaceDidLoad = false
+    @State private var workspaceRecord: StudySectionWorkRecord?
+
+    private struct SectionWorkspaceDraft: Hashable {
+        let notesMarkdown: String
+        let reflectionMarkdown: String
+        let summaryMarkdown: String
+        let confidence: Int?
+    }
 
     private var course: StudyCourse? { library.course(id: courseID) }
     private var module: StudyCourseModule? { course?.modules.first { $0.id == moduleID } }
@@ -711,6 +773,24 @@ struct StudyCourseSectionScreen: View {
     }
     private var completedLessons: Set<String> { Set(progress?.completedLessonIDs ?? []) }
     private var completedBlocks: Set<String> { Set(progress?.completedRequiredBlockIDs ?? []) }
+    private var workspaceRecordID: String? {
+        guard let course else { return nil }
+        return StudySectionWorkRecord.makeRecordID(
+            subjectID: subjectID,
+            courseID: course.id,
+            courseVersion: course.contentVersion,
+            lessonID: lessonID,
+            blockID: blockID
+        )
+    }
+    private var workspaceDraft: SectionWorkspaceDraft {
+        SectionWorkspaceDraft(
+            notesMarkdown: notesMarkdown,
+            reflectionMarkdown: reflectionMarkdown,
+            summaryMarkdown: summaryMarkdown,
+            confidence: confidence
+        )
+    }
 
     var body: some View {
         Group {
@@ -724,6 +804,14 @@ struct StudyCourseSectionScreen: View {
                             systemImage: "doc.text"
                         )
                         .accessibilityIdentifier("study.course.section.\(sectionBlock.id).header")
+
+                        if !(lesson.objectives ?? []).isEmpty || !(lesson.essentialQuestions ?? []).isEmpty {
+                            StudySectionLearningGoals(
+                                objectives: lesson.objectives ?? [],
+                                essentialQuestions: lesson.essentialQuestions ?? []
+                            )
+                            .accessibilityIdentifier("study.course.section.\(sectionBlock.id).learning-goals")
+                        }
 
                         if let markdown = sectionBlock.bodyMarkdown, !markdown.isEmpty {
                             StudyMarkdownSection(title: sectionBlock.title, markdown: markdown)
@@ -742,12 +830,37 @@ struct StudyCourseSectionScreen: View {
                             .accessibilityIdentifier("study.course.block.\(block.id)")
                         }
 
-                        Button(isCompleted(destination) ? "Mark section as not completed" : "Mark section complete") {
-                            setCompleted(!isCompleted(destination), course: course, lesson: lesson, destination: destination)
+                        StudySectionWorkspace(
+                            notesMarkdown: $notesMarkdown,
+                            reflectionMarkdown: $reflectionMarkdown,
+                            summaryMarkdown: $summaryMarkdown,
+                            confidence: $confidence,
+                            reflectionPrompts: lesson.reflectionPrompts ?? [],
+                            accessibilityPrefix: "study.course.section.\(sectionBlock.id).workspace"
+                        )
+
+                        if isCompleted(destination) {
+                            Button("Mark section as not completed") {
+                                _ = saveWorkspace(course: course)
+                                setCompleted(false, course: course, lesson: lesson, destination: destination)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .studySecondaryActionStyle()
+                            .accessibilityIdentifier("study.course.section.\(sectionBlock.id).completion")
+                        } else {
+                            Button {
+                                completeAndContinue(course: course, lesson: lesson, destination: destination)
+                            } label: {
+                                HStack {
+                                    Label("Complete and continue", systemImage: "checkmark.circle")
+                                    Spacer()
+                                    Image(systemName: "arrow.right")
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 34)
+                            }
+                            .studyPrimaryActionStyle()
+                            .accessibilityIdentifier("study.course.section.\(sectionBlock.id).completion")
                         }
-                        .frame(maxWidth: .infinity)
-                        .studyPrimaryActionStyle()
-                        .accessibilityIdentifier("study.course.section.\(sectionBlock.id).completion")
 
                         StudySectionNavigation(
                             previous: StudyLearningProgress.previousSection(in: course, before: blockID),
@@ -775,6 +888,22 @@ struct StudyCourseSectionScreen: View {
         .navigationTitle(sectionBlock?.title ?? "Course Section")
         .navigationBarTitleDisplayMode(.inline)
         .background(ScreenBackground())
+        .task(id: workspaceRecordID) {
+            loadWorkspace()
+        }
+        .task(id: workspaceDraft) {
+            guard workspaceDidLoad else { return }
+            do {
+                try await Task.sleep(for: .milliseconds(600))
+                try Task.checkCancellation()
+            } catch {
+                return
+            }
+            _ = saveWorkspace()
+        }
+        .onDisappear {
+            _ = saveWorkspace()
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -805,6 +934,81 @@ struct StudyCourseSectionScreen: View {
         return Array(lesson.blocks[lesson.blocks.index(after: sectionIndex)..<nextSectionIndex])
     }
 
+    private func loadWorkspace() {
+        guard let workspaceRecordID else { return }
+        workspaceDidLoad = false
+        if let record = sectionWorkRecords.first(where: { $0.recordID == workspaceRecordID }) {
+            workspaceRecord = record
+            notesMarkdown = record.notesMarkdown
+            reflectionMarkdown = record.reflectionMarkdown
+            summaryMarkdown = record.summaryMarkdown
+            confidence = record.confidence
+        } else {
+            workspaceRecord = nil
+            notesMarkdown = ""
+            reflectionMarkdown = ""
+            summaryMarkdown = ""
+            confidence = nil
+        }
+        workspaceDidLoad = true
+    }
+
+    @discardableResult
+    private func saveWorkspace(course explicitCourse: StudyCourse? = nil) -> Bool {
+        guard workspaceDidLoad, let resolvedCourse = explicitCourse ?? course else { return true }
+        let recordID = StudySectionWorkRecord.makeRecordID(
+            subjectID: subjectID,
+            courseID: resolvedCourse.id,
+            courseVersion: resolvedCourse.contentVersion,
+            lessonID: lessonID,
+            blockID: blockID
+        )
+        let existing = workspaceRecord ?? sectionWorkRecords.first { $0.recordID == recordID }
+        let isNewRecord = existing == nil
+        let hasContent = !notesMarkdown.isEmpty
+            || !reflectionMarkdown.isEmpty
+            || !summaryMarkdown.isEmpty
+            || confidence != nil
+
+        if let existing {
+            guard existing.notesMarkdown != notesMarkdown
+                    || existing.reflectionMarkdown != reflectionMarkdown
+                    || existing.summaryMarkdown != summaryMarkdown
+                    || existing.confidence != confidence else { return true }
+            existing.update(
+                notesMarkdown: notesMarkdown,
+                reflectionMarkdown: reflectionMarkdown,
+                summaryMarkdown: summaryMarkdown,
+                confidence: confidence
+            )
+        } else {
+            guard hasContent else { return true }
+            let record = StudySectionWorkRecord(
+                subjectID: subjectID,
+                courseID: resolvedCourse.id,
+                courseVersion: resolvedCourse.contentVersion,
+                lessonID: lessonID,
+                blockID: blockID,
+                notesMarkdown: notesMarkdown,
+                reflectionMarkdown: reflectionMarkdown,
+                summaryMarkdown: summaryMarkdown,
+                confidence: confidence
+            )
+            modelContext.insert(record)
+            workspaceRecord = record
+        }
+
+        do {
+            try modelContext.save()
+            return true
+        } catch {
+            modelContext.rollback()
+            if isNewRecord { workspaceRecord = nil }
+            presentedError = "Your private notes could not be saved. \(error.localizedDescription)"
+            return false
+        }
+    }
+
     private func isCompleted(_ destination: StudyLearningProgress.SectionDestination) -> Bool {
         StudyLearningProgress.isSectionCompleted(
             destination,
@@ -814,6 +1018,7 @@ struct StudyCourseSectionScreen: View {
     }
 
     private func open(_ destination: StudyLearningProgress.SectionDestination) {
+        _ = saveWorkspace()
         router.navigate(to: .studyCourseSection(
             courseID: courseID,
             moduleID: destination.moduleID,
@@ -823,6 +1028,7 @@ struct StudyCourseSectionScreen: View {
     }
 
     private func open(_ block: StudyLessonBlock) {
+        _ = saveWorkspace()
         switch block.kind {
         case .studyGuide:
             if let id = block.referencedContentID { router.navigate(to: .studyGuide(id: id)) }
@@ -862,12 +1068,35 @@ struct StudyCourseSectionScreen: View {
         }
     }
 
+    private func completeAndContinue(
+        course: StudyCourse,
+        lesson: StudyLesson,
+        destination: StudyLearningProgress.SectionDestination
+    ) {
+        guard saveWorkspace(course: course),
+              setCompleted(true, course: course, lesson: lesson, destination: destination) else { return }
+
+        if let next = StudyLearningProgress.nextSection(in: course, after: destination.blockID) {
+            router.navigate(to: .studyCourseSection(
+                courseID: course.id,
+                moduleID: next.moduleID,
+                lessonID: next.lessonID,
+                blockID: next.blockID
+            ))
+        } else if course.conclusionMarkdown != nil {
+            router.navigate(to: .studyCourseDocument(courseID: course.id, kind: .conclusion))
+        } else if let assessmentID = course.finalAssessmentID {
+            router.navigate(to: .studyCourseExam(id: assessmentID))
+        }
+    }
+
+    @discardableResult
     private func setCompleted(
         _ completed: Bool,
         course: StudyCourse,
         lesson: StudyLesson,
         destination: StudyLearningProgress.SectionDestination
-    ) {
+    ) -> Bool {
         let record: StudyCourseProgressRecord
         if let progress {
             record = progress
@@ -899,9 +1128,11 @@ struct StudyCourseSectionScreen: View {
 
         do {
             try modelContext.save()
+            return true
         } catch {
             modelContext.rollback()
             presentedError = error.localizedDescription
+            return false
         }
     }
 
@@ -2007,6 +2238,7 @@ private struct StudyCourseLaunchCard: View {
     let isEnrolled: Bool
     let isComplete: Bool
     let destination: StudyLearningProgress.SectionDestination
+    let remainingRequiredSectionCount: Int
     let action: () -> Void
 
     private var eyebrow: String {
@@ -2032,6 +2264,19 @@ private struct StudyCourseLaunchCard: View {
             Text(destination.blockTitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
+            HStack(spacing: 8) {
+                Label(
+                    "Section \(destination.sectionNumber) of \(destination.sectionCount)",
+                    systemImage: "doc.text"
+                )
+                if !isComplete {
+                    Text("·")
+                    Text("\(remainingRequiredSectionCount) required remaining")
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
 
             Button(action: action) {
                 HStack {
@@ -2164,6 +2409,149 @@ private struct StudyModuleResourceRows: View {
         }
         components.append("follows the final section")
         return components.joined(separator: " · ")
+    }
+}
+
+private struct StudySectionLearningGoals: View {
+    let objectives: [String]
+    let essentialQuestions: [String]
+
+    private var visibleObjectives: [String] {
+        objectives.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
+    private var visibleQuestions: [String] {
+        essentialQuestions.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
+    var body: some View {
+        StudyCourseSection(title: "Before you read") {
+            if !visibleObjectives.isEmpty {
+                Text("Learning goals")
+                    .font(.subheadline.weight(.semibold))
+                ForEach(visibleObjectives, id: \.self) { objective in
+                    Label(objective, systemImage: "target")
+                        .font(.subheadline)
+                }
+            }
+
+            if !visibleQuestions.isEmpty {
+                if !visibleObjectives.isEmpty { Divider() }
+                Text("Essential questions")
+                    .font(.subheadline.weight(.semibold))
+                ForEach(visibleQuestions, id: \.self) { question in
+                    Label(question, systemImage: "questionmark.bubble")
+                        .font(.subheadline)
+                }
+            }
+        }
+    }
+}
+
+private struct StudySectionWorkspace: View {
+    @Binding var notesMarkdown: String
+    @Binding var reflectionMarkdown: String
+    @Binding var summaryMarkdown: String
+    @Binding var confidence: Int?
+    let reflectionPrompts: [String]
+    let accessibilityPrefix: String
+
+    private var visiblePrompts: [String] {
+        reflectionPrompts.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    }
+
+    var body: some View {
+        StudyCourseSection(title: "Notes & reflection") {
+            Label("Private study workspace · saved locally", systemImage: "lock.doc")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            StudyWorkspaceEditor(
+                title: "Notes",
+                prompt: "Capture key ideas, passages, or questions…",
+                accessibilityIdentifier: "\(accessibilityPrefix).notes",
+                text: $notesMarkdown
+            )
+
+            if !visiblePrompts.isEmpty {
+                VStack(alignment: .leading, spacing: 7) {
+                    Text("Reflection prompts")
+                        .font(.subheadline.weight(.semibold))
+                    ForEach(visiblePrompts, id: \.self) { prompt in
+                        Label(prompt, systemImage: "quote.bubble")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            StudyWorkspaceEditor(
+                title: "Reflection",
+                prompt: "Respond in your own words…",
+                accessibilityIdentifier: "\(accessibilityPrefix).reflection",
+                text: $reflectionMarkdown
+            )
+
+            StudyWorkspaceEditor(
+                title: "One-sentence summary",
+                prompt: "What is the central point of this section?",
+                minimumHeight: 76,
+                accessibilityIdentifier: "\(accessibilityPrefix).summary",
+                text: $summaryMarkdown
+            )
+
+            VStack(alignment: .leading, spacing: 7) {
+                HStack {
+                    Text("Confidence")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Text("1 unsure · 5 confident")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Picker("Confidence", selection: $confidence) {
+                    Text("—").tag(nil as Int?)
+                    ForEach(1...5, id: \.self) { value in
+                        Text("\(value)").tag(value as Int?)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("\(accessibilityPrefix).confidence")
+            }
+        }
+        .accessibilityIdentifier(accessibilityPrefix)
+    }
+}
+
+private struct StudyWorkspaceEditor: View {
+    let title: String
+    let prompt: String
+    var minimumHeight: CGFloat = 112
+    let accessibilityIdentifier: String
+    @Binding var text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+            ZStack(alignment: .topLeading) {
+                if text.isEmpty {
+                    Text(prompt)
+                        .font(.body)
+                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 8)
+                        .allowsHitTesting(false)
+                }
+                TextEditor(text: $text)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: minimumHeight)
+                    .accessibilityLabel(title)
+                    .accessibilityIdentifier(accessibilityIdentifier)
+            }
+            .padding(7)
+            .background(Brand.controlFill, in: RoundedRectangle(cornerRadius: 12))
+        }
     }
 }
 
@@ -2374,13 +2762,31 @@ private struct StudyCollapsibleModuleCard: View {
     }
 
     private var completedCount: Int {
-        sections.filter {
+        trackedSections.filter {
             StudyLearningProgress.isSectionCompleted(
                 $0,
                 completedLessonIDs: completedLessonIDs,
                 completedRequiredBlockIDs: completedRequiredBlockIDs
             )
         }.count
+    }
+
+    private var trackedSections: [StudyLearningProgress.SectionDestination] {
+        let required = sections.filter(\.isRequired)
+        return required.isEmpty ? sections : required
+    }
+
+    private var statusTitle: String {
+        guard !trackedSections.isEmpty, completedCount > 0 else { return "Not started" }
+        return completedCount == trackedSections.count ? "Complete" : "In progress"
+    }
+
+    private var statusSystemImage: String {
+        switch statusTitle {
+        case "Complete": "checkmark.circle.fill"
+        case "In progress": "circle.lefthalf.filled"
+        default: "circle"
+        }
     }
 
     var body: some View {
@@ -2393,9 +2799,9 @@ private struct StudyCollapsibleModuleCard: View {
                             .tracking(0.7)
                             .foregroundStyle(Brand.redSoft)
                         Spacer()
-                        Text("\(completedCount)/\(sections.count)")
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
+                        Label(statusTitle, systemImage: statusSystemImage)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(statusTitle == "Complete" ? Brand.redSoft : .secondary)
                         Image(systemName: "chevron.down")
                             .font(.caption.weight(.bold))
                             .rotationEffect(.degrees(isExpanded ? 180 : 0))
@@ -2404,7 +2810,13 @@ private struct StudyCollapsibleModuleCard: View {
                     Text(module.title)
                         .font(.system(.headline, design: .serif, weight: .semibold))
                         .multilineTextAlignment(.leading)
-                    ProgressView(value: sections.isEmpty ? 0 : Double(completedCount) / Double(sections.count))
+                    HStack {
+                        Text("\(completedCount) of \(trackedSections.count) required sections")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                    ProgressView(value: trackedSections.isEmpty ? 0 : Double(completedCount) / Double(trackedSections.count))
                         .tint(Brand.red)
                 }
                 .contentShape(Rectangle())

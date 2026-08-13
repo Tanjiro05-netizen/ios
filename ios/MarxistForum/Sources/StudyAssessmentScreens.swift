@@ -1395,8 +1395,10 @@ struct StudyExamInstructionsScreen: View {
 
 struct StudyProgressScreen: View {
     @Environment(StudyAssessmentStore.self) private var store
+    @Environment(StudyCourseLibrary.self) private var library
     @Environment(RouterPath.self) private var router
     @Environment(AuthStore.self) private var auth
+    @Query private var courseProgressRecords: [StudyCourseProgressRecord]
     @Query private var learningEvents: [StudyLearningEventRecord]
     @Query private var achievements: [StudyAchievementRecord]
     private let columns = [GridItem(.adaptive(minimum: 140), spacing: 10)]
@@ -1404,6 +1406,18 @@ struct StudyProgressScreen: View {
     private var subjectID: String { auth.studySubjectID ?? "guest.local" }
     private var learning: StudyLearningProgressSnapshot {
         StudyLearningProgressSnapshot.make(events: learningEvents, subjectID: subjectID)
+    }
+    private var enrolledCourses: [StudyEnrolledCourseProgress] {
+        courseProgressRecords
+            .filter { $0.subjectID == subjectID }
+            .sorted { $0.updatedAt > $1.updatedAt }
+            .compactMap { record in
+                guard let course = library.course(id: record.courseID) else { return nil }
+                return StudyEnrolledCourseProgress(
+                    course: course,
+                    summary: StudyCourseProgressSummary(course: course, progress: record)
+                )
+            }
     }
 
     var body: some View {
@@ -1418,6 +1432,28 @@ struct StudyProgressScreen: View {
                             message: "Academic grades, course reading, practice evidence, and optional learning rewards are recorded separately so one measure never impersonates another.",
                             systemImage: "chart.bar.xaxis"
                         )
+
+                        StudyAssessmentSectionHeader(
+                            title: "Course progress",
+                            message: "Resume an enrolled course at its next unfinished section. Reading progress remains separate from practice results and grades."
+                        )
+                        if enrolledCourses.isEmpty {
+                            EmptyPanel(
+                                systemImage: "rectangle.stack",
+                                title: "No courses in progress",
+                                message: "Open a course from Study Center to begin and track its required sections here."
+                            )
+                            .accessibilityIdentifier("study.course-progress.empty")
+                        } else {
+                            VStack(spacing: 10) {
+                                ForEach(enrolledCourses) { item in
+                                    StudyCourseProgressRow(item: item) {
+                                        openCourse(item)
+                                    }
+                                }
+                            }
+                            .accessibilityIdentifier("study.course-progress.list")
+                        }
 
                         StudyAssessmentSectionHeader(
                             title: "Learning activity — not an academic grade",
@@ -1544,6 +1580,99 @@ struct StudyProgressScreen: View {
             }
         }
         .navigationTitle("Progress")
+    }
+
+    private func openCourse(_ item: StudyEnrolledCourseProgress) {
+        if let nextSection = item.summary.nextSection {
+            router.navigate(to: .studyCourseSection(
+                courseID: item.course.id,
+                moduleID: nextSection.moduleID,
+                lessonID: nextSection.lessonID,
+                blockID: nextSection.blockID
+            ))
+        } else {
+            router.navigate(to: .studyCourse(id: item.course.id))
+        }
+    }
+}
+
+private struct StudyEnrolledCourseProgress: Identifiable {
+    let course: StudyCourse
+    let summary: StudyCourseProgressSummary
+
+    var id: String { course.id }
+}
+
+private struct StudyCourseProgressRow: View {
+    let item: StudyEnrolledCourseProgress
+    let action: () -> Void
+
+    private var actionTitle: String {
+        item.summary.nextSection == nil ? "Open course" : "Resume"
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 11) {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: item.summary.nextSection == nil ? "checkmark.seal.fill" : "book.closed.fill")
+                        .font(.headline)
+                        .foregroundStyle(Brand.redSoft)
+                        .frame(width: 34, height: 34)
+                        .background(Brand.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.course.title)
+                            .font(.system(.headline, design: .serif, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let nextSection = item.summary.nextSection {
+                            Text("Module \(nextSection.moduleNumber) · \(nextSection.moduleTitle)")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                            Text(nextSection.blockTitle)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        } else {
+                            Text("All course sections complete")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Brand.redSoft)
+                        }
+                    }
+                    Spacer(minLength: 4)
+                }
+
+                ProgressView(value: item.summary.fraction)
+                    .tint(Brand.red)
+                    .accessibilityHidden(true)
+
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("\(item.summary.completedRequiredSections) of \(item.summary.totalRequiredSections) required sections")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text("\(item.summary.percentage)%")
+                        .font(.caption.weight(.bold))
+                        .monospacedDigit()
+                        .foregroundStyle(Brand.redSoft)
+                    Spacer(minLength: 8)
+                    Label(actionTitle, systemImage: "arrow.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Brand.redSoft)
+                }
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .glassSurface(cornerRadius: 15, interactive: true)
+        }
+        .buttonStyle(PressableScaleButtonStyle(scale: 0.985))
+        .accessibilityLabel("\(actionTitle) \(item.course.title)")
+        .accessibilityValue("\(item.summary.completedRequiredSections) of \(item.summary.totalRequiredSections) required sections complete, \(item.summary.percentage) percent")
+        .accessibilityHint(item.summary.nextSection.map { "Opens \($0.blockTitle) in module \($0.moduleNumber)" } ?? "Opens the completed course")
+        .accessibilityIdentifier("study.course-progress.course.\(item.course.id)")
     }
 }
 

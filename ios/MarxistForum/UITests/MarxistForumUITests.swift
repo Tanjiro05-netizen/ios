@@ -37,11 +37,41 @@ final class MarxistForumUITests: XCTestCase {
         )
         XCTAssertTrue(identified("study.course.section.PHI111-M01-S01.content", in: app).exists)
 
+        let learningGoals = identified("study.course.section.PHI111-M01-S01.learning-goals", in: app)
+        scrollUntilExists(learningGoals, in: app, maximumSwipes: 12)
+        XCTAssertTrue(learningGoals.exists)
+
+        let notes = identified("study.course.section.PHI111-M01-S01.workspace.notes", in: app)
+        scrollUntilExists(notes, in: app, maximumSwipes: 28)
+        XCTAssertTrue(notes.exists)
+        XCTAssertTrue(identified("study.course.section.PHI111-M01-S01.workspace.reflection", in: app).exists)
+        XCTAssertTrue(identified("study.course.section.PHI111-M01-S01.workspace.summary", in: app).exists)
+        XCTAssertTrue(identified("study.course.section.PHI111-M01-S01.workspace.confidence", in: app).exists)
+
+        notes.tap()
+        notes.typeText("The category develops through its own contradiction.")
+        app.navigationBars.buttons.firstMatch.tap()
+
         app.terminate()
         app.launch()
         XCTAssertTrue(app.buttons["Study"].waitForExistence(timeout: 15))
         app.buttons["Study"].tap()
         XCTAssertTrue(app.navigationBars["Study Center"].waitForExistence(timeout: 15))
+
+        openCourse(named: "Hegelian Dialectics I: Being, Essence, Concept", in: app)
+        let continueLearning = app.buttons["Continue learning"]
+        scrollUntilExists(continueLearning, in: app)
+        XCTAssertTrue(continueLearning.exists)
+        continueLearning.tap()
+        XCTAssertTrue(
+            identified("study.course.section.PHI111-M01-S01.header", in: app)
+                .waitForExistence(timeout: 15)
+        )
+
+        let restoredNotes = identified("study.course.section.PHI111-M01-S01.workspace.notes", in: app)
+        scrollUntilExists(restoredNotes, in: app, maximumSwipes: 28)
+        XCTAssertTrue(restoredNotes.exists)
+        XCTAssertTrue((restoredNotes.value as? String)?.contains("The category develops through its own contradiction.") == true)
     }
 
     @MainActor

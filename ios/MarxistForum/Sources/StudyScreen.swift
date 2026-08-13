@@ -203,6 +203,42 @@ private enum StudyLayout {
     static let bottomClearance: CGFloat = 112
 }
 
+struct StudyCourseProgressSummary {
+    let fraction: Double
+    let completedRequiredSections: Int
+    let totalRequiredSections: Int
+    let nextSection: StudyLearningProgress.SectionDestination?
+
+    init(course: StudyCourse, progress: StudyCourseProgressRecord?) {
+        let completedLessons = Set(progress?.completedLessonIDs ?? [])
+        let completedBlocks = Set(progress?.completedRequiredBlockIDs ?? [])
+        let requiredSections = StudyLearningProgress.sectionDestinations(for: course).filter(\.isRequired)
+
+        fraction = StudyLearningProgress.fraction(
+            for: course,
+            completedLessonIDs: completedLessons,
+            completedRequiredBlockIDs: completedBlocks
+        )
+        completedRequiredSections = requiredSections.lazy.filter {
+            StudyLearningProgress.isSectionCompleted(
+                $0,
+                completedLessonIDs: completedLessons,
+                completedRequiredBlockIDs: completedBlocks
+            )
+        }.count
+        totalRequiredSections = requiredSections.count
+        nextSection = StudyLearningProgress.nextSection(
+            for: course,
+            completedLessonIDs: completedLessons,
+            completedRequiredBlockIDs: completedBlocks
+        )
+    }
+
+    var percentage: Int {
+        Int((fraction * 100).rounded())
+    }
+}
+
 struct StudyScreen: View {
     @Environment(RouterPath.self) private var router
     @Environment(StudyCourseLibrary.self) private var library
@@ -269,12 +305,23 @@ struct StudyScreen: View {
                     message: "Build a foundation before moving into specialised study."
                 )
                 if let course = recommendedCourse {
+                    let record = progress(for: course)
+                    let summary = StudyCourseProgressSummary(course: course, progress: record)
                     StudyLiveCourseCard(
                         course: course,
-                        fraction: fraction(for: course),
-                        isEnrolled: progress(for: course) != nil
+                        progress: summary,
+                        isEnrolled: record != nil
                     ) {
-                        router.navigate(to: .studyCourse(id: course.id))
+                        if record != nil, let nextSection = summary.nextSection {
+                            router.navigate(to: .studyCourseSection(
+                                courseID: course.id,
+                                moduleID: nextSection.moduleID,
+                                lessonID: nextSection.lessonID,
+                                blockID: nextSection.blockID
+                            ))
+                        } else {
+                            router.navigate(to: .studyCourse(id: course.id))
+                        }
                     }
                 } else {
                     ContentUnavailableView("Courses unavailable", systemImage: "rectangle.stack.badge.exclamationmark")
@@ -499,9 +546,13 @@ private struct StudySectionHeader: View {
 
 private struct StudyLiveCourseCard: View {
     let course: StudyCourse
-    let fraction: Double
+    let progress: StudyCourseProgressSummary
     let isEnrolled: Bool
     let action: () -> Void
+
+    private var actionTitle: String {
+        isEnrolled && progress.nextSection != nil ? "Resume" : "View course"
+    }
 
     var body: some View {
         Button(action: action) {
@@ -527,24 +578,62 @@ private struct StudyLiveCourseCard: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack(spacing: 10) {
-                    Label("\(course.modules.count) modules · \(course.estimatedHours) hours", systemImage: "list.bullet")
+                VStack(alignment: .leading, spacing: 5) {
+                    if let nextSection = progress.nextSection {
+                        Text(isEnrolled ? "NEXT SECTION" : "START WITH")
+                            .font(.caption2.weight(.bold))
+                            .tracking(0.7)
+                            .foregroundStyle(Brand.redSoft)
+                        Text("Module \(nextSection.moduleNumber) · \(nextSection.moduleTitle)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                        Text(nextSection.blockTitle)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else if isEnrolled {
+                        Label("All course sections complete", systemImage: "checkmark.seal.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Brand.redSoft)
+                    }
+                }
+
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    if progress.totalRequiredSections > 0 {
+                        Text("\(progress.completedRequiredSections) of \(progress.totalRequiredSections) required sections")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Label("\(course.modules.count) modules · \(course.estimatedHours) hours", systemImage: "list.bullet")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("\(progress.percentage)%")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                        .foregroundStyle(Brand.redSoft)
                     Spacer()
-                    Label(isEnrolled ? "Continue" : "View course", systemImage: "arrow.right")
+                    Label(actionTitle, systemImage: "arrow.right")
                         .labelStyle(StudyTrailingIconLabelStyle())
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Brand.redSoft)
                 }
-                ProgressView(value: fraction).tint(Brand.red)
+                ProgressView(value: progress.fraction)
+                    .tint(Brand.red)
+                    .accessibilityLabel("Course progress")
+                    .accessibilityValue("\(progress.percentage) percent")
+                    .accessibilityIdentifier("study.recommended-course.progress.\(course.id)")
             }
             .padding(17)
             .frame(maxWidth: .infinity, alignment: .leading)
             .studyPaperSurface(cornerRadius: 18, emphasized: true)
         }
         .buttonStyle(PressableScaleButtonStyle(scale: 0.98))
-        .accessibilityHint("Opens \(course.title)")
+        .accessibilityLabel("\(actionTitle) \(course.title)")
+        .accessibilityValue("\(progress.completedRequiredSections) of \(progress.totalRequiredSections) required sections complete, \(progress.percentage) percent")
+        .accessibilityHint(progress.nextSection.map { "Opens \($0.blockTitle) in module \($0.moduleNumber)" } ?? "Opens the course overview")
+        .accessibilityIdentifier("study.recommended-course.\(course.id)")
     }
 }
 

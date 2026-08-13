@@ -93,6 +93,7 @@ struct MarxistForumApp: App {
                     StudyCourseProgressRecord.self,
                     StudyLearningEventRecord.self,
                     StudySavedContentRecord.self,
+                    StudySectionWorkRecord.self,
                     StudyAssignmentSubmissionRecord.self,
                     StudyRubricMarkRecord.self,
                     StudyExamSubmissionRecord.self,

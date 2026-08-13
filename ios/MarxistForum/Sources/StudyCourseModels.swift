@@ -157,6 +157,9 @@ struct StudyLesson: Codable, Identifiable, Sendable {
     let summary: String
     let estimatedMinutes: Int
     let blocks: [StudyLessonBlock]
+    var objectives: [String]? = nil
+    var essentialQuestions: [String]? = nil
+    var reflectionPrompts: [String]? = nil
 }
 
 enum StudyLessonBlockKind: String, Codable, Sendable {
