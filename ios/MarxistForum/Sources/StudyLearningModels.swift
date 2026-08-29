@@ -416,6 +416,24 @@ enum StudyLocalDataEraser {
         let achievements = try modelContext.fetch(FetchDescriptor<StudyAchievementRecord>(
             predicate: #Predicate { $0.subjectID == subjectID }
         ))
+        let scienceEntitlements = try modelContext.fetch(FetchDescriptor<StudyScienceEntitlementRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
+        let scienceProgress = try modelContext.fetch(FetchDescriptor<StudyScienceProgressRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
+        let scienceAttempts = try modelContext.fetch(FetchDescriptor<StudyScienceActivityAttemptRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
+        let scienceDrafts = try modelContext.fetch(FetchDescriptor<StudyScienceDraftRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
+        let scienceArtifacts = try modelContext.fetch(FetchDescriptor<StudyScienceArtifactRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
+        let scienceOutbox = try modelContext.fetch(FetchDescriptor<StudyScienceOutboxRecord>(
+            predicate: #Predicate { $0.subjectID == subjectID }
+        ))
 
         courseProgress.forEach(modelContext.delete)
         learningEvents.forEach(modelContext.delete)
@@ -426,6 +444,15 @@ enum StudyLocalDataEraser {
         examMarks.forEach(modelContext.delete)
         examSubmissions.forEach(modelContext.delete)
         achievements.forEach(modelContext.delete)
+        scienceEntitlements.forEach(modelContext.delete)
+        scienceProgress.forEach(modelContext.delete)
+        scienceAttempts.forEach(modelContext.delete)
+        scienceDrafts.forEach(modelContext.delete)
+        scienceArtifacts.forEach {
+            StudyScienceArtifactStorage.remove(relativePath: $0.localFilename)
+            modelContext.delete($0)
+        }
+        scienceOutbox.forEach(modelContext.delete)
         try modelContext.save()
     }
 }

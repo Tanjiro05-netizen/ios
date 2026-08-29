@@ -186,6 +186,9 @@ serve(async (req) => {
     await deleteRows(admin, 'push_tokens', 'user_id', user.id)
     await deleteRows(admin, 'reading_progress', 'user_id', user.id)
     await deleteRows(admin, 'reading_quotes', 'user_id', user.id)
+    await deleteRows(admin, 'study_science_progress_events', 'user_id', user.id)
+    await deleteRows(admin, 'study_science_attempts', 'user_id', user.id)
+    await deleteRows(admin, 'study_science_memberships', 'user_id', user.id)
 
     await deleteRows(admin, 'article_submissions', 'user_id', user.id)
     await nullifyRows(admin, 'analysis_cross_references', 'created_by', user.id)

@@ -4,6 +4,7 @@ import SwiftUI
 
 struct StudyCoursesScreen: View {
     @Environment(StudyCourseLibrary.self) private var library
+    @Environment(StudyScienceSyncCoordinator.self) private var scienceSync
     @Environment(RouterPath.self) private var router
 
     var body: some View {
@@ -63,6 +64,8 @@ struct StudyCourseDetailScreen: View {
     @Query private var examSubmissions: [StudyExamSubmissionRecord]
     @Query private var examMarks: [StudyExamQuestionMarkRecord]
     @Query private var learningEvents: [StudyLearningEventRecord]
+    @Query private var scienceEntitlements: [StudyScienceEntitlementRecord]
+    @Query private var scienceProgressRecords: [StudyScienceProgressRecord]
     @State private var enrollmentError: String?
     @State private var selectedSection: CourseHomeSection = .home
     @State private var expandedModuleIDs: Set<String> = []
@@ -109,7 +112,11 @@ struct StudyCourseDetailScreen: View {
     var body: some View {
         Group {
             if let course {
-                courseContent(course)
+                if permitsAccess(to: course) {
+                    courseContent(course)
+                } else {
+                    StudyScienceCourseAccessGate(course: course)
+                }
             } else {
                 ContentUnavailableView("Course unavailable", systemImage: "rectangle.stack.badge.exclamationmark")
             }
@@ -136,11 +143,17 @@ struct StudyCourseDetailScreen: View {
     private func courseContent(_ course: StudyCourse) -> some View {
         let completedLessons = Set(progress?.completedLessonIDs ?? [])
         let completedBlocks = Set(progress?.completedRequiredBlockIDs ?? [])
-        let fraction = StudyLearningProgress.fraction(
+        let readingFraction = StudyLearningProgress.fraction(
             for: course,
             completedLessonIDs: completedLessons,
             completedRequiredBlockIDs: completedBlocks
         )
+        let explicitCompletion = explicitCompletionSnapshot(
+            for: course,
+            completedLessons: completedLessons,
+            completedBlocks: completedBlocks
+        )
+        let fraction = explicitCompletion?.fraction ?? readingFraction
         let courseAssignments = (course.assignmentIDs ?? []).compactMap(library.assignment(id:))
         let learningPaths = (course.learningPathIDs ?? []).compactMap(library.learningPath(id:))
         let finalAssessment = course.finalAssessmentID.flatMap(library.assessment(id:))
@@ -159,6 +172,8 @@ struct StudyCourseDetailScreen: View {
             )
         }.count
         let remainingRequiredSectionCount = max(requiredSections.count - completedRequiredSectionCount, 0)
+        let displayedCompletedRequirementCount = explicitCompletion?.completedCount ?? completedRequiredSectionCount
+        let displayedRequirementCount = explicitCompletion?.requiredCount ?? requiredSections.count
         let gradebook = StudyCourseGradebook.make(
             course: course,
             assignments: courseAssignments,
@@ -208,7 +223,7 @@ struct StudyCourseDetailScreen: View {
                         }
                         .tint(Brand.red)
 
-                        Text("\(completedRequiredSectionCount) of \(requiredSections.count) required sections complete")
+                        Text("\(displayedCompletedRequirementCount) of \(displayedRequirementCount) course requirements complete")
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(.secondary)
                             .accessibilityIdentifier("study.course.\(course.id).required-section-count")
@@ -262,8 +277,8 @@ struct StudyCourseDetailScreen: View {
                         gradebook: gradebook,
                         learning: learning,
                         learningPaths: learningPaths,
-                        completedRequiredSectionCount: completedRequiredSectionCount,
-                        requiredSectionCount: requiredSections.count,
+                        completedRequiredSectionCount: displayedCompletedRequirementCount,
+                        requiredSectionCount: displayedRequirementCount,
                         remainingRequiredSectionCount: remainingRequiredSectionCount
                     )
                 case .content:
@@ -494,9 +509,69 @@ struct StudyCourseDetailScreen: View {
         switch status {
         case .preview: "STRUCTURE PREVIEW"
         case .draftNeedsReview: "DRAFT · REVIEW PENDING"
+        case .publicBeta: "PUBLIC BETA"
         case .published: "PUBLISHED"
         case .archived: "ARCHIVED"
         }
+    }
+
+    private func permitsAccess(to course: StudyCourse) -> Bool {
+        switch course.accessRequirement ?? .open {
+        case .open:
+            return true
+        case .accountRequired:
+            return auth.userId != nil
+        case .inviteOnly:
+            guard let subjectID = auth.userId else { return false }
+            return scienceEntitlements.contains {
+                $0.recordID == StudyScienceEntitlementRecord.makeRecordID(
+                    subjectID: subjectID,
+                    courseID: course.id
+                ) && $0.permitsOfflineAccess()
+            }
+        }
+    }
+
+    private func explicitCompletionSnapshot(
+        for course: StudyCourse,
+        completedLessons: Set<String>,
+        completedBlocks: Set<String>
+    ) -> StudyScienceCompletionSnapshot? {
+        guard let policy = course.completionPolicy else { return nil }
+        let progressByID = Dictionary(
+            uniqueKeysWithValues: scienceProgressRecords
+                .filter {
+                    $0.subjectID == subjectID
+                        && $0.courseID == course.id
+                        && $0.courseVersion == course.contentVersion
+                }
+                .map { ($0.itemID, $0) }
+        )
+        let groups = policy.requiredGroupIDs.compactMap(library.completionGroup(id:))
+        return StudyScienceCompletionSnapshot(requirements: groups.map { group in
+            let minimumSatisfied = group.rule == .all ? group.requirementIDs.count : 1
+            let satisfyingCount = group.requirementIDs.lazy.filter { requirementID in
+                if completedBlocks.contains(requirementID) || completedLessons.contains(requirementID) {
+                    return group.minimumScore == nil
+                }
+                guard let record = progressByID[requirementID], record.isCompleted else { return false }
+                guard let minimumScore = group.minimumScore else { return true }
+                let meetsScore = (record.bestScore ?? 0) >= minimumScore
+                if library.assessment(id: requirementID)?.sciencePassPolicy != nil {
+                    return meetsScore && record.completionPath == "passed"
+                }
+                return meetsScore
+            }.count
+            let scoreDetail = group.minimumScore.map {
+                " · \(Int(($0 * 100).rounded()))% required"
+            } ?? ""
+            return StudyScienceCompletionSnapshot.Requirement(
+                id: group.id,
+                title: group.title,
+                isSatisfied: satisfyingCount >= minimumSatisfied,
+                detail: "\(min(satisfyingCount, minimumSatisfied))/\(minimumSatisfied) complete\(scoreDetail)"
+            )
+        })
     }
 
     private func beginOrContinue(
@@ -544,6 +619,149 @@ struct StudyCourseDetailScreen: View {
             ))
         }
         try? modelContext.save()
+    }
+}
+
+private struct StudyScienceCourseAccessGate: View {
+    let course: StudyCourse
+
+    @Environment(AuthStore.self) private var auth
+    @Environment(StudyScienceStore.self) private var scienceStore
+    @Environment(StudyScienceSyncCoordinator.self) private var scienceSync
+    @Environment(\.modelContext) private var modelContext
+    @State private var inviteCode = ""
+    @State private var presentedError: String?
+    @State private var isRedeeming = false
+
+    private var normalizedInviteCode: String {
+        inviteCode.uppercased().filter { $0.isLetter || $0.isNumber }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                StudyAcademicHeader(
+                    eyebrow: "PUBLIC BETA · INVITE ACCESS",
+                    title: course.title,
+                    message: "The existing Study Center remains available. This experimental physics course uses an account so completed labs and attempts can be kept separate and synchronized safely.",
+                    systemImage: "atom"
+                )
+
+                if auth.userId == nil {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("An account is required for PHY111", systemImage: "person.crop.circle.badge.checkmark")
+                            .font(.headline)
+                        Text("Create an account or sign in, then return here to redeem your PHY111 beta invitation. Guest philosophy study is unaffected.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Button {
+                            Task { await auth.signOut() }
+                        } label: {
+                            Label("Sign in or create an account", systemImage: "person.crop.circle")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .studyPrimaryActionStyle()
+                        .accessibilityIdentifier("study.science.access.sign-in")
+                    }
+                    .padding(18)
+                    .studyPaperSurface(cornerRadius: 18, emphasized: true)
+                } else {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Redeem your course invitation", systemImage: "ticket")
+                            .font(.headline)
+                        Text("The code is checked online once. After approval, this bundled course remains available offline until a later successful access check revokes it.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+
+                        TextField("PHY111 invitation code", text: $inviteCode)
+                            .textContentType(.oneTimeCode)
+                            .textInputAutocapitalization(.characters)
+                            .autocorrectionDisabled()
+                            .textFieldStyle(.roundedBorder)
+                            .accessibilityIdentifier("study.science.access.invite-code")
+
+                        Button {
+                            redeemInvite()
+                        } label: {
+                            if isRedeeming {
+                                Label("Checking invitation…", systemImage: "hourglass")
+                                    .frame(maxWidth: .infinity)
+                            } else {
+                                Label("Unlock PHY111", systemImage: "lock.open")
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .studyPrimaryActionStyle()
+                        .disabled(normalizedInviteCode.count < 20 || isRedeeming)
+                        .accessibilityIdentifier("study.science.access.redeem")
+
+                        Button {
+                            Task {
+                                await scienceSync.synchronize(
+                                    courseVersion: course.contentVersion,
+                                    auth: auth,
+                                    scienceStore: scienceStore,
+                                    modelContext: modelContext
+                                )
+                            }
+                        } label: {
+                            Label(
+                                scienceSync.isSynchronizing ? "Checking access…" : "Check existing access",
+                                systemImage: "arrow.clockwise"
+                            )
+                            .frame(maxWidth: .infinity)
+                        }
+                        .studySecondaryActionStyle()
+                        .disabled(scienceSync.isSynchronizing)
+
+                        if let message = scienceSync.lastError {
+                            Label(message, systemImage: "wifi.exclamationmark")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(18)
+                    .studyPaperSurface(cornerRadius: 18, emphasized: true)
+                }
+
+                Label(
+                    "This beta contains formative learning activities, not a secure examination or formal credential.",
+                    systemImage: "info.circle"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(16)
+                .studyPaperSurface(cornerRadius: 14)
+            }
+            .padding(16)
+            .padding(.bottom, 36)
+        }
+        .alert("Invitation unavailable", isPresented: Binding(
+            get: { presentedError != nil },
+            set: { if !$0 { presentedError = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(presentedError ?? "Please try again.")
+        }
+    }
+
+    private func redeemInvite() {
+        isRedeeming = true
+        Task {
+            defer { isRedeeming = false }
+            do {
+                try await scienceSync.redeemInvite(
+                    code: normalizedInviteCode,
+                    courseVersion: course.contentVersion,
+                    auth: auth,
+                    scienceStore: scienceStore,
+                    modelContext: modelContext
+                )
+            } catch {
+                presentedError = error.localizedDescription
+            }
+        }
     }
 }
 
@@ -741,6 +959,8 @@ struct StudyCourseSectionScreen: View {
     @Query private var progressRecords: [StudyCourseProgressRecord]
     @Query private var learningEvents: [StudyLearningEventRecord]
     @Query private var sectionWorkRecords: [StudySectionWorkRecord]
+    @Query private var scienceProgressRecords: [StudyScienceProgressRecord]
+    @Query private var scienceAttempts: [StudyScienceActivityAttemptRecord]
     @State private var launchingAssessmentID: String?
     @State private var presentedError: String?
     @State private var notesMarkdown = ""
@@ -819,12 +1039,18 @@ struct StudyCourseSectionScreen: View {
                                 .accessibilityIdentifier("study.course.section.\(sectionBlock.id).content")
                         }
 
+                        if let sourcePageRange = sectionBlock.sourcePageRange {
+                            sourcePageButton(sourcePageRange)
+                        }
+
                         ForEach(attachedBlocks) { block in
                             StudyLessonBlockView(
                                 block: block,
                                 exerciseSet: block.referencedContentID.flatMap(library.exerciseSet(id:)),
                                 isWorking: launchingAssessmentID == block.referencedContentID,
-                                open: open
+                                lockedReason: scienceLockReason(for: block),
+                                open: open,
+                                viewSource: openSource
                             )
                             .id(block.id)
                             .accessibilityIdentifier("study.course.block.\(block.id)")
@@ -1035,12 +1261,24 @@ struct StudyCourseSectionScreen: View {
         case .readingGuide:
             if let id = block.referencedContentID { router.navigate(to: .studyReadingGuide(id: id)) }
         case .video:
-            router.navigate(to: .studyCollection(kind: .videos))
+            if let id = block.referencedContentID, library.video(id: id) != nil, courseID == "PHY111" {
+                router.navigate(to: .studyScienceVideo(courseID: courseID, videoID: id))
+            } else {
+                router.navigate(to: .studyCollection(kind: .videos))
+            }
+        case .interactiveActivity:
+            if let id = block.referencedContentID {
+                router.navigate(to: .studyScienceActivity(courseID: courseID, activityID: id))
+            }
         case .exercise, .lessonContent:
             break
         case .lessonCheck, .moduleQuiz:
             guard let id = block.referencedContentID,
                   let blueprint = library.assessment(id: id) else { return }
+            if !(blueprint.scienceAssessmentItemIDs ?? []).isEmpty {
+                router.navigate(to: .studyScienceAssessment(courseID: courseID, assessmentID: id))
+                return
+            }
             launchingAssessmentID = id
             Task {
                 defer { launchingAssessmentID = nil }
@@ -1066,6 +1304,53 @@ struct StudyCourseSectionScreen: View {
                 openURL(url)
             }
         }
+    }
+
+    private func scienceLockReason(for block: StudyLessonBlock) -> String? {
+        guard courseID == "PHY111", let course, let contentID = block.referencedContentID else { return nil }
+        let exactProgress = scienceProgressRecords.filter {
+            $0.subjectID == subjectID
+                && $0.courseID == course.id
+                && $0.courseVersion == course.contentVersion
+        }
+        let exactAttempts = scienceAttempts.filter {
+            $0.subjectID == subjectID
+                && $0.courseID == course.id
+                && $0.courseVersion == course.contentVersion
+        }
+        return StudyScienceCourseUnlockPolicy.lockReason(
+            for: contentID,
+            course: course,
+            completedLessonIDs: completedLessons,
+            completedRequiredBlockIDs: completedBlocks,
+            scienceProgress: exactProgress,
+            attempts: exactAttempts
+        )
+    }
+
+    private func openSource(_ range: StudySourcePageRange) {
+        router.navigate(to: .studyCourseSource(
+            courseID: courseID,
+            resourceName: range.resourceName,
+            resourceFirstSourcePage: range.resourceFirstSourcePage ?? 1,
+            firstPage: range.firstPage,
+            lastPage: range.lastPage
+        ))
+    }
+
+    private func sourcePageButton(_ range: StudySourcePageRange) -> some View {
+        Button {
+            openSource(range)
+        } label: {
+            Label(
+                range.firstPage == range.lastPage
+                    ? "View original course page \(range.firstPage)"
+                    : "View original course pages \(range.firstPage)–\(range.lastPage)",
+                systemImage: "doc.text.magnifyingglass"
+            )
+            .frame(maxWidth: .infinity)
+        }
+        .studySecondaryActionStyle()
     }
 
     private func completeAndContinue(
@@ -2159,7 +2444,7 @@ private struct StudyCanonicalGuideRow: View {
     }
 }
 
-private struct StudyAcademicHeader: View {
+struct StudyAcademicHeader: View {
     let eyebrow: String
     let title: String
     let message: String
@@ -2912,7 +3197,9 @@ private struct StudyLessonBlockView: View {
     let block: StudyLessonBlock
     let exerciseSet: StudyExerciseSet?
     let isWorking: Bool
+    let lockedReason: String?
     let open: (StudyLessonBlock) -> Void
+    let viewSource: (StudySourcePageRange) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -2921,9 +3208,15 @@ private struct StudyLessonBlockView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Brand.redSoft)
                 Spacer()
-                Text(block.requirement.rawValue.uppercased())
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(.secondary)
+                if lockedReason != nil {
+                    Label("LOCKED", systemImage: "lock.fill")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(block.requirement.rawValue.uppercased())
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.secondary)
+                }
             }
             if block.kind != .exercise {
                 Text(block.title).font(.system(.headline, design: .serif, weight: .semibold))
@@ -2933,6 +3226,19 @@ private struct StudyLessonBlockView: View {
             }
             if let markdown = block.bodyMarkdown, !markdown.isEmpty {
                 StudyMarkdownDocument(markdown: markdown)
+            }
+            if let range = block.sourcePageRange {
+                Button {
+                    viewSource(range)
+                } label: {
+                    Label(
+                        range.firstPage == range.lastPage
+                            ? "Source page \(range.firstPage)"
+                            : "Source pages \(range.firstPage)–\(range.lastPage)",
+                        systemImage: "doc.text.magnifyingglass"
+                    )
+                }
+                .studySecondaryActionStyle()
             }
             if block.kind == .exercise {
                 if let exerciseSet, !exerciseSet.exercises.isEmpty {
@@ -2948,11 +3254,18 @@ private struct StudyLessonBlockView: View {
                         .foregroundStyle(.secondary)
                 }
             } else if block.kind != .lessonContent {
+                if let lockedReason {
+                    Text(lockedReason)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Button {
                     open(block)
                 } label: {
                     if isWorking {
                         Label("Preparing…", systemImage: "hourglass")
+                    } else if lockedReason != nil {
+                        Label("View requirement", systemImage: "lock")
                     } else {
                         Text("Open")
                     }
@@ -3051,6 +3364,7 @@ private extension StudyLessonBlockKind {
         case .readingGuide: "Reading Guide"
         case .video: "Optional video"
         case .exercise: "Exercise"
+        case .interactiveActivity: "Interactive activity"
         case .lessonCheck: "Lesson check"
         case .moduleQuiz: "Module quiz"
         }
@@ -3064,6 +3378,7 @@ private extension StudyLessonBlockKind {
         case .readingGuide: "book.pages"
         case .video: "play.rectangle"
         case .exercise: "pencil.and.list.clipboard"
+        case .interactiveActivity: "atom"
         case .lessonCheck: "checkmark.circle"
         case .moduleQuiz: "checkmark.seal"
         }

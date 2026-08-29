@@ -7,6 +7,7 @@ enum StudyCourseType: String, Codable, CaseIterable, Identifiable, Sendable {
     case seminar
     case examPreparation
     case videoSupported
+    case laboratoryScience
 
     var id: String { rawValue }
 
@@ -17,6 +18,7 @@ enum StudyCourseType: String, Codable, CaseIterable, Identifiable, Sendable {
         case .seminar: "Seminar"
         case .examPreparation: "Exam preparation"
         case .videoSupported: "Video supported"
+        case .laboratoryScience: "Laboratory science"
         }
     }
 }
@@ -38,6 +40,7 @@ enum StudyPublicationStatus: String, Codable, Sendable {
     case draftNeedsReview
     case published
     case archived
+    case publicBeta
 }
 
 enum StudyCourseMode: String, Codable, Sendable {
@@ -93,6 +96,11 @@ struct StudyCoursePackage: Codable, Identifiable, Sendable {
     var learningPaths: [StudyLearningPath]? = nil
     var assets: [StudyCourseAsset]? = nil
     var restrictedResources: [StudyRestrictedCourseResource]? = nil
+    var interactiveActivities: [StudyInteractiveActivity]? = nil
+    var scienceAssessmentItems: [StudyScienceAssessmentItem]? = nil
+    var datasets: [StudyDataset]? = nil
+    var toolProfiles: [StudyToolProfile]? = nil
+    var completionGroups: [StudyCompletionRequirementGroup]? = nil
 
     var id: String { "\(packageID)@\(contentVersion)" }
 }
@@ -137,6 +145,9 @@ struct StudyCourse: Codable, Identifiable, Sendable {
     var courseSourceMarkdown: String? = nil
     var assignmentHandbookMarkdown: String? = nil
     var formativeSolutionsMarkdown: String? = nil
+    var plannedModuleCount: Int? = nil
+    var accessRequirement: StudyCourseAccessRequirement? = nil
+    var completionPolicy: StudyCourseCompletionPolicy? = nil
 }
 
 struct StudyCourseModule: Codable, Identifiable, Sendable {
@@ -171,6 +182,7 @@ enum StudyLessonBlockKind: String, Codable, Sendable {
     case exercise
     case lessonCheck
     case moduleQuiz
+    case interactiveActivity
 }
 
 struct StudyLessonBlock: Codable, Identifiable, Sendable {
@@ -181,6 +193,7 @@ struct StudyLessonBlock: Codable, Identifiable, Sendable {
     let requirement: StudyContentRequirement
     let referencedContentID: String?
     let bodyMarkdown: String?
+    var sourcePageRange: StudySourcePageRange? = nil
 }
 
 struct StudyGuide: Codable, Identifiable, Sendable {
@@ -253,6 +266,8 @@ struct StudyEducationalVideo: Codable, Identifiable, Sendable {
     let captionLanguages: [String]
     let transcriptMarkdown: String?
     let mediaURL: URL?
+    var completionActivityID: String? = nil
+    var fallbackMarkdown: String? = nil
 }
 
 enum StudyExerciseKind: String, Codable, Sendable {
@@ -298,6 +313,7 @@ enum StudyCourseAssessmentKind: String, Codable, Sendable {
     case courseFinal
     case mockExam
     case fullScaleExam
+    case masteryTest
 }
 
 struct StudyCourseAssessmentBlueprint: Codable, Identifiable, Sendable {
@@ -324,20 +340,27 @@ struct StudyCourseAssessmentBlueprint: Codable, Identifiable, Sendable {
     var sourceMarkdown: String? = nil
     var candidateInstructionsMarkdown: String? = nil
     var candidateDeclarationMarkdown: String? = nil
+    var scienceAssessmentItemIDs: [String]? = nil
+    var toolProfileID: String? = nil
+    var sciencePassPolicy: StudyScienceAssessmentPassPolicy? = nil
+    var feedbackPolicy: StudyFeedbackPolicy? = nil
+    var unlimitedRetries: Bool? = nil
+    var unlockGroupIDs: [String]? = nil
 
     func sessionPlan(courseID: String, moduleID: String? = nil, lessonID: String? = nil) -> StudySessionPlan {
         let sessionKind: StudySessionKind = switch kind {
         case .courseFinal, .mockExam, .fullScaleExam: .practiceExam
-        case .lessonCheck, .moduleQuiz, .practiceTest: .domainPractice
+        case .lessonCheck, .moduleQuiz, .practiceTest, .masteryTest: .domainPractice
         }
         return StudySessionPlan(
             id: id,
             kind: sessionKind,
             title: title,
-            requestedItemCount: questionIDs.isEmpty ? requestedQuestionCount : questionIDs.count,
+            requestedItemCount: scienceAssessmentItemIDs?.count
+                ?? (questionIDs.isEmpty ? requestedQuestionCount : questionIDs.count),
             domain: nil,
             requestedQuestionIDs: questionIDs,
-            feedbackPolicy: sessionKind == .practiceExam ? .afterSubmission : .immediate,
+            feedbackPolicy: feedbackPolicy ?? (sessionKind == .practiceExam ? .afterSubmission : .immediate),
             durationSeconds: durationSeconds,
             affectsItemMastery: false,
             context: StudyAssessmentContext(
@@ -521,6 +544,11 @@ enum StudyCoursePackageValidator {
         let learningPaths = package.learningPaths ?? []
         let assets = package.assets ?? []
         let restrictedResources = package.restrictedResources ?? []
+        let interactiveActivities = package.interactiveActivities ?? []
+        let scienceAssessmentItems = package.scienceAssessmentItems ?? []
+        let datasets = package.datasets ?? []
+        let toolProfiles = package.toolProfiles ?? []
+        let completionGroups = package.completionGroups ?? []
 
         func register(_ id: String, path: String) {
             guard !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -581,6 +609,15 @@ enum StudyCoursePackageValidator {
         for resource in restrictedResources {
             register(resource.id, path: "restrictedResources.\(resource.id)")
         }
+        for activity in interactiveActivities {
+            register(activity.id, path: "interactiveActivities.\(activity.id)")
+        }
+        for item in scienceAssessmentItems {
+            register(item.id, path: "scienceAssessmentItems.\(item.id)")
+        }
+        for dataset in datasets { register(dataset.id, path: "datasets.\(dataset.id)") }
+        for profile in toolProfiles { register(profile.id, path: "toolProfiles.\(profile.id)") }
+        for group in completionGroups { register(group.id, path: "completionGroups.\(group.id)") }
 
         let studyGuideIDs = Set(package.studyGuides.map(\.id))
         let readingGuideIDs = Set(package.readingGuides.map(\.id))
@@ -600,6 +637,23 @@ enum StudyCoursePackageValidator {
         let blockIDs = Set(package.courses.flatMap(\.modules).flatMap(\.lessons).flatMap(\.blocks).map(\.id))
         let glossaryTermIDs = Set(package.glossaryTerms.map(\.id))
         let bibliographySourceIDs = Set(package.bibliographySources.map(\.id))
+        let interactiveActivityIDs = Set(interactiveActivities.map(\.id))
+        let scienceAssessmentItemIDs = Set(scienceAssessmentItems.map(\.id))
+        let datasetIDs = Set(datasets.map(\.id))
+        let toolProfileIDs = Set(toolProfiles.map(\.id))
+        let completionGroupIDs = Set(completionGroups.map(\.id))
+
+        for video in package.videos {
+            if let completionActivityID = video.completionActivityID,
+               !interactiveActivityIDs.contains(completionActivityID) {
+                issues.append(.init(path: "videos.\(video.id).completionActivityID", message: "Video completion-activity reference does not resolve."))
+            }
+            if video.mediaURL == nil,
+               video.transcriptMarkdown?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false,
+               video.fallbackMarkdown?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty != false {
+                issues.append(.init(path: "videos.\(video.id)", message: "A video without media requires a transcript or reading fallback."))
+            }
+        }
 
         for guide in package.readingGuides {
             if let canonicalID = guide.canonicalStudyGuideID,
@@ -648,6 +702,15 @@ enum StudyCoursePackageValidator {
             }
             for questionID in assessment.questionIDs where !questionIDs.contains(questionID) {
                 issues.append(.init(path: "assessments.\(assessment.id).questionIDs", message: "Question reference \(questionID) does not resolve."))
+            }
+            for itemID in assessment.scienceAssessmentItemIDs ?? [] where !scienceAssessmentItemIDs.contains(itemID) {
+                issues.append(.init(path: "assessments.\(assessment.id).scienceAssessmentItemIDs", message: "Science assessment-item reference \(itemID) does not resolve."))
+            }
+            if let toolProfileID = assessment.toolProfileID, !toolProfileIDs.contains(toolProfileID) {
+                issues.append(.init(path: "assessments.\(assessment.id).toolProfileID", message: "Tool-profile reference does not resolve."))
+            }
+            for groupID in assessment.unlockGroupIDs ?? [] where !completionGroupIDs.contains(groupID) {
+                issues.append(.init(path: "assessments.\(assessment.id).unlockGroupIDs", message: "Unlock completion-group reference \(groupID) does not resolve."))
             }
             if let assetID = assessment.sourceAssetID, !assetIDs.contains(assetID) {
                 issues.append(.init(path: "assessments.\(assessment.id).sourceAssetID", message: "Asset reference does not resolve."))
@@ -729,6 +792,11 @@ enum StudyCoursePackageValidator {
             }
         }
         for course in package.courses {
+            if let completionPolicy = course.completionPolicy {
+                for groupID in completionPolicy.requiredGroupIDs where !completionGroupIDs.contains(groupID) {
+                    issues.append(.init(path: "courses.\(course.id).completionPolicy", message: "Completion-group reference \(groupID) does not resolve."))
+                }
+            }
             if let guideID = course.studyGuideID, !studyGuideIDs.contains(guideID) {
                 issues.append(.init(path: "courses.\(course.id).studyGuideID", message: "Study-guide reference does not resolve."))
             }
@@ -765,6 +833,7 @@ enum StudyCoursePackageValidator {
                         case .video: videoIDs
                         case .exercise: exerciseIDs
                         case .lessonCheck, .moduleQuiz: assessmentIDs
+                        case .interactiveActivity: interactiveActivityIDs
                         case .lessonContent: nil
                         }
                         if let expectedIDs,
@@ -775,6 +844,14 @@ enum StudyCoursePackageValidator {
                 }
             }
         }
+        issues.append(contentsOf: StudyScienceCoursePackageValidator.validate(
+            package,
+            activityIDs: interactiveActivityIDs,
+            assessmentIDs: assessmentIDs,
+            datasetIDs: datasetIDs,
+            toolProfileIDs: toolProfileIDs,
+            blockIDs: blockIDs
+        ))
         return issues
     }
 }
@@ -788,6 +865,7 @@ final class StudyCourseLibrary {
     private(set) var studyGuides: [StudyGuide] = []
     private(set) var readingGuides: [StudyReadingGuide] = []
     private(set) var primaryReadings: [StudyPrimaryReading] = []
+    private(set) var videos: [StudyEducationalVideo] = []
     private(set) var questions: [StudyQuestion] = []
     private(set) var assignments: [StudyAssignment] = []
     private(set) var learningPaths: [StudyLearningPath] = []
@@ -795,27 +873,44 @@ final class StudyCourseLibrary {
     private(set) var assessments: [StudyCourseAssessmentBlueprint] = []
     private(set) var exerciseSets: [StudyExerciseSet] = []
     private(set) var glossaryTerms: [StudyGlossaryTerm] = []
+    private(set) var interactiveActivities: [StudyInteractiveActivity] = []
+    private(set) var scienceAssessmentItems: [StudyScienceAssessmentItem] = []
+    private(set) var datasets: [StudyDataset] = []
+    private(set) var toolProfiles: [StudyToolProfile] = []
+    private(set) var completionGroups: [StudyCompletionRequirementGroup] = []
 
     @ObservationIgnored private var courseIndex: [String: StudyCourse] = [:]
     @ObservationIgnored private var studyGuideIndex: [String: StudyGuide] = [:]
     @ObservationIgnored private var readingGuideIndex: [String: StudyReadingGuide] = [:]
     @ObservationIgnored private var primaryReadingIndex: [String: StudyPrimaryReading] = [:]
+    @ObservationIgnored private var videoIndex: [String: StudyEducationalVideo] = [:]
     @ObservationIgnored private var assignmentIndex: [String: StudyAssignment] = [:]
     @ObservationIgnored private var learningPathIndex: [String: StudyLearningPath] = [:]
     @ObservationIgnored private var assetIndex: [String: StudyCourseAsset] = [:]
     @ObservationIgnored private var assessmentIndex: [String: StudyCourseAssessmentBlueprint] = [:]
     @ObservationIgnored private var exerciseSetIndex: [String: StudyExerciseSet] = [:]
     @ObservationIgnored private var sectionIndex: [String: [StudyLearningProgress.SectionDestination]] = [:]
+    @ObservationIgnored private var interactiveActivityIndex: [String: StudyInteractiveActivity] = [:]
+    @ObservationIgnored private var scienceAssessmentItemIndex: [String: StudyScienceAssessmentItem] = [:]
+    @ObservationIgnored private var datasetIndex: [String: StudyDataset] = [:]
+    @ObservationIgnored private var toolProfileIndex: [String: StudyToolProfile] = [:]
+    @ObservationIgnored private var completionGroupIndex: [String: StudyCompletionRequirementGroup] = [:]
 
     func course(id: String) -> StudyCourse? { courseIndex[id] }
     func studyGuide(id: String) -> StudyGuide? { studyGuideIndex[id] }
     func readingGuide(id: String) -> StudyReadingGuide? { readingGuideIndex[id] }
     func primaryReading(id: String) -> StudyPrimaryReading? { primaryReadingIndex[id] }
+    func video(id: String) -> StudyEducationalVideo? { videoIndex[id] }
     func assignment(id: String) -> StudyAssignment? { assignmentIndex[id] }
     func learningPath(id: String) -> StudyLearningPath? { learningPathIndex[id] }
     func asset(id: String) -> StudyCourseAsset? { assetIndex[id] }
     func assessment(id: String) -> StudyCourseAssessmentBlueprint? { assessmentIndex[id] }
     func exerciseSet(id: String) -> StudyExerciseSet? { exerciseSetIndex[id] }
+    func interactiveActivity(id: String) -> StudyInteractiveActivity? { interactiveActivityIndex[id] }
+    func scienceAssessmentItem(id: String) -> StudyScienceAssessmentItem? { scienceAssessmentItemIndex[id] }
+    func dataset(id: String) -> StudyDataset? { datasetIndex[id] }
+    func toolProfile(id: String) -> StudyToolProfile? { toolProfileIndex[id] }
+    func completionGroup(id: String) -> StudyCompletionRequirementGroup? { completionGroupIndex[id] }
     func sectionDestinations(courseID: String) -> [StudyLearningProgress.SectionDestination] {
         sectionIndex[courseID] ?? []
     }
@@ -886,6 +981,7 @@ final class StudyCourseLibrary {
         studyGuides = latestByVersion(packages.flatMap(\.studyGuides), id: \.id, version: \.contentVersion)
         readingGuides = latestByVersion(packages.flatMap(\.readingGuides), id: \.id, version: \.contentVersion)
         primaryReadings = firstByID(packages.flatMap(\.primaryReadings), id: \.id)
+        videos = firstByID(packages.flatMap(\.videos), id: \.id)
         questions = firstByID(packages.flatMap { $0.questions ?? [] }, id: \.id)
         assignments = firstByID(packages.flatMap { $0.assignments ?? [] }, id: \.id)
         learningPaths = firstByID(packages.flatMap { $0.learningPaths ?? [] }, id: \.id)
@@ -894,16 +990,27 @@ final class StudyCourseLibrary {
         exerciseSets = firstByID(packages.flatMap(\.exerciseSets), id: \.id)
         glossaryTerms = firstByID(packages.flatMap(\.glossaryTerms), id: \.id)
             .sorted { $0.term.localizedCaseInsensitiveCompare($1.term) == .orderedAscending }
+        interactiveActivities = firstByID(packages.flatMap { $0.interactiveActivities ?? [] }, id: \.id)
+        scienceAssessmentItems = firstByID(packages.flatMap { $0.scienceAssessmentItems ?? [] }, id: \.id)
+        datasets = firstByID(packages.flatMap { $0.datasets ?? [] }, id: \.id)
+        toolProfiles = firstByID(packages.flatMap { $0.toolProfiles ?? [] }, id: \.id)
+        completionGroups = firstByID(packages.flatMap { $0.completionGroups ?? [] }, id: \.id)
 
         courseIndex = Dictionary(uniqueKeysWithValues: courses.map { ($0.id, $0) })
         studyGuideIndex = Dictionary(uniqueKeysWithValues: studyGuides.map { ($0.id, $0) })
         readingGuideIndex = Dictionary(uniqueKeysWithValues: readingGuides.map { ($0.id, $0) })
         primaryReadingIndex = Dictionary(uniqueKeysWithValues: primaryReadings.map { ($0.id, $0) })
+        videoIndex = Dictionary(uniqueKeysWithValues: videos.map { ($0.id, $0) })
         assignmentIndex = Dictionary(uniqueKeysWithValues: assignments.map { ($0.id, $0) })
         learningPathIndex = Dictionary(uniqueKeysWithValues: learningPaths.map { ($0.id, $0) })
         assetIndex = Dictionary(uniqueKeysWithValues: assets.map { ($0.id, $0) })
         assessmentIndex = Dictionary(uniqueKeysWithValues: assessments.map { ($0.id, $0) })
         exerciseSetIndex = Dictionary(uniqueKeysWithValues: exerciseSets.map { ($0.id, $0) })
+        interactiveActivityIndex = Dictionary(uniqueKeysWithValues: interactiveActivities.map { ($0.id, $0) })
+        scienceAssessmentItemIndex = Dictionary(uniqueKeysWithValues: scienceAssessmentItems.map { ($0.id, $0) })
+        datasetIndex = Dictionary(uniqueKeysWithValues: datasets.map { ($0.id, $0) })
+        toolProfileIndex = Dictionary(uniqueKeysWithValues: toolProfiles.map { ($0.id, $0) })
+        completionGroupIndex = Dictionary(uniqueKeysWithValues: completionGroups.map { ($0.id, $0) })
         sectionIndex = Dictionary(uniqueKeysWithValues: courses.map {
             ($0.id, StudyLearningProgress.sectionDestinations(for: $0))
         })
@@ -938,6 +1045,7 @@ final class StudyCourseLibrary {
             case .preview: 1
             case .draftNeedsReview: 2
             case .published: 3
+            case .publicBeta: 3
             }
         }
         let lhsRank = rank(lhs.publicationStatus)

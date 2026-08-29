@@ -25,7 +25,7 @@ struct StudyCourseInteractiveExamScreen: View {
         switch assessment.kind {
         case .courseFinal, .mockExam, .fullScaleExam:
             return assessment
-        case .lessonCheck, .moduleQuiz, .practiceTest:
+        case .lessonCheck, .moduleQuiz, .masteryTest, .practiceTest:
             return nil
         }
     }

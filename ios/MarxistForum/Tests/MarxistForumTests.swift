@@ -38,6 +38,60 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertEqual(book.isOfficial, true)
     }
 
+    func testTextEditionDecodingMapsSectionsAndMinutes() throws {
+        let json = """
+        {
+          "id": "42",
+          "title": "Party and Class",
+          "is_official": true,
+          "text_edition": {
+            "sections": [
+              {"id": "s0", "title": "Front matter", "level": 1, "md": "Source: https://communist-left.org"},
+              {"title": "Party and Class", "level": 2, "md": "The party is not a…"}
+            ],
+            "reading_minutes": 18,
+            "source": "txt",
+            "generated_at": "2026-08-28T12:00:00Z"
+          }
+        }
+        """.data(using: .utf8)!
+
+        let book = try JSONDecoder.supabase.decode(Book.self, from: json)
+        let edition = try XCTUnwrap(book.textEdition)
+        XCTAssertEqual(edition.readingMinutes, 18)
+        XCTAssertEqual(edition.source, "txt")
+        XCTAssertEqual(edition.generatedAt, "2026-08-28T12:00:00Z")
+        XCTAssertEqual(edition.sections.count, 2)
+        XCTAssertEqual(edition.sections[0].title, "Front matter")
+        XCTAssertEqual(edition.sections[0].level, 1)
+        XCTAssertEqual(edition.sections[1].id, "s1")
+        XCTAssertEqual(edition.sections[1].title, "Party and Class")
+        XCTAssertEqual(edition.sections[1].md, "The party is not a…")
+    }
+
+    func testBookWithoutTextEditionDecodesToNil() throws {
+        let json = """
+        {
+          "id": "7",
+          "title": "Reform or Revolution",
+          "epub_filename": "epub-the-mass-strike-20260805.epub"
+        }
+        """.data(using: .utf8)!
+
+        let book = try JSONDecoder.supabase.decode(Book.self, from: json)
+        XCTAssertNil(book.textEdition)
+    }
+
+    func testTextEditionWithMissingSectionsDecodesEmpty() throws {
+        let json = """
+        {"id": "9", "title": "Notes", "text_edition": {"reading_minutes": 5}}
+        """.data(using: .utf8)!
+
+        let book = try JSONDecoder.supabase.decode(Book.self, from: json)
+        XCTAssertEqual(book.textEdition?.sections, [])
+        XCTAssertEqual(book.textEdition?.readingMinutes, 5)
+    }
+
     func testAudioChapterMath() {
         let chapters = [
             AudiobookChapter(title: "A", startSeconds: 0),
@@ -1060,6 +1114,197 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertTrue(package.courses.allSatisfy { $0.publicationStatus == .preview })
     }
 
+    func testPHY111ModuleOnePublicBetaDecodesAndValidates() throws {
+        let package = try loadPHY111CoursePackage()
+        let course = try XCTUnwrap(package.courses.first)
+        let module = try XCTUnwrap(course.modules.first)
+        let issues = StudyCoursePackageValidator.validate(package)
+
+        XCTAssertTrue(issues.isEmpty, issues.map { "\($0.path): \($0.message)" }.joined(separator: "\n"))
+        XCTAssertEqual(package.schemaVersion, 4)
+        XCTAssertEqual(package.packageID, "PHY111.course-package")
+        XCTAssertEqual(package.contentVersion, "0.1.0")
+        XCTAssertEqual(course.id, "PHY111")
+        XCTAssertEqual(course.type, .laboratoryScience)
+        XCTAssertEqual(course.publicationStatus, .publicBeta)
+        XCTAssertEqual(course.mode, .selfPaced)
+        XCTAssertEqual(course.accessRequirement, .inviteOnly)
+        XCTAssertEqual(course.plannedModuleCount, 12)
+        XCTAssertEqual(course.modules.count, 1)
+        XCTAssertEqual(module.id, "PHY111.module.01")
+        XCTAssertEqual(module.moduleQuizID, "PHY111.assessment.m01.quiz")
+        XCTAssertEqual(package.interactiveActivities?.count, 35)
+        XCTAssertEqual(package.scienceAssessmentItems?.count, 16)
+        XCTAssertEqual(package.datasets?.count, 2)
+        XCTAssertEqual(package.toolProfiles?.count, 3)
+        XCTAssertEqual(package.completionGroups?.count, 4)
+    }
+
+    func testPHY111CompletionPolicyUsesFourLockedRequirements() throws {
+        let package = try loadPHY111CoursePackage()
+        let course = try XCTUnwrap(package.courses.first)
+        let policy = try XCTUnwrap(course.completionPolicy)
+        let groups = Dictionary(uniqueKeysWithValues: try XCTUnwrap(package.completionGroups).map { ($0.id, $0) })
+        let requiredLessonBlockIDs = Set(
+            course.modules
+                .flatMap(\.lessons)
+                .flatMap(\.blocks)
+                .filter { $0.kind == .lessonContent && $0.requirement == .required }
+                .map(\.id)
+        )
+        let requiredWorkIDs = Set(groups["PHY111.completion.required-work"]?.requirementIDs ?? [])
+        let mastery = try XCTUnwrap(package.assessments.first { $0.id == "PHY111.assessment.m01.mastery" })
+
+        XCTAssertEqual(Set(policy.requiredGroupIDs), Set([
+            "PHY111.completion.required-work",
+            "PHY111.completion.motion-investigation",
+            "PHY111.completion.computation",
+            "PHY111.completion.mastery"
+        ]))
+        XCTAssertNil(groups["PHY111.completion.required-work"]?.minimumScore)
+        XCTAssertNil(groups["PHY111.completion.motion-investigation"]?.minimumScore)
+        XCTAssertEqual(groups["PHY111.completion.computation"]?.rule, .any)
+        XCTAssertEqual(groups["PHY111.completion.computation"]?.minimumScore, 0.70)
+        XCTAssertEqual(groups["PHY111.completion.mastery"]?.minimumScore, 0.70)
+        XCTAssertEqual(Set(groups["PHY111.completion.computation"]?.requirementIDs ?? []), Set([
+            "PHY111.activity.m01.lab.numerical-guided",
+            "PHY111.activity.m01.lab.python"
+        ]))
+        XCTAssertEqual(Set(groups["PHY111.completion.motion-investigation"]?.requirementIDs ?? []), Set([
+            "PHY111.activity.m01.video.motion-tracking-briefing",
+            "PHY111.activity.m01.lab.motion-tracking"
+        ]))
+        XCTAssertEqual(requiredLessonBlockIDs.count, 12)
+        XCTAssertTrue(requiredLessonBlockIDs.isSubset(of: requiredWorkIDs))
+        XCTAssertEqual(requiredWorkIDs.count, 41)
+        XCTAssertEqual(Set(mastery.unlockGroupIDs ?? []), Set([
+            "PHY111.completion.required-work",
+            "PHY111.completion.motion-investigation"
+        ]))
+        XCTAssertFalse(policy.awardsCredential)
+        XCTAssertEqual(policy.completionLabel, "Module 1 pilot complete")
+    }
+
+    func testPHY111AssessmentKeysAndPassRulesMatchSource() throws {
+        let package = try loadPHY111CoursePackage()
+        let items = Dictionary(uniqueKeysWithValues: try XCTUnwrap(package.scienceAssessmentItems).map { ($0.id, $0) })
+        let assessments = Dictionary(uniqueKeysWithValues: package.assessments.map { ($0.id, $0) })
+        let mastery = try XCTUnwrap(assessments["PHY111.assessment.m01.mastery"])
+        let quiz = try XCTUnwrap(assessments["PHY111.assessment.m01.quiz"])
+
+        XCTAssertEqual(mastery.kind, .masteryTest)
+        XCTAssertEqual(mastery.durationSeconds, 1_500)
+        XCTAssertEqual(mastery.sciencePassPolicy?.minimumCorrectCount, 5)
+        XCTAssertEqual(mastery.sciencePassPolicy?.scorableItemCount, 6)
+        XCTAssertEqual(mastery.sciencePassPolicy?.requiredConstructedResponseCount, 2)
+        XCTAssertEqual(quiz.sciencePassPolicy?.minimumCorrectCount, 5)
+        XCTAssertEqual(quiz.sciencePassPolicy?.scorableItemCount, 6)
+        XCTAssertEqual(quiz.sciencePassPolicy?.requiredConstructedResponseCount, 2)
+        XCTAssertEqual((1...6).map { items[String(format: "PHY111.item.m01.mastery.%02d", $0)]?.correctOptionIDs.first }, ["B", "B", "C", "A", "B", "B"])
+        XCTAssertEqual((1...6).map { items[String(format: "PHY111.item.m01.quiz.%02d", $0)]?.correctOptionIDs.first }, ["3", "2", "3", "3", "2", "2"])
+    }
+
+    func testPHY111SourceMappingsAddressOriginalPagesInsideExcerpt() throws {
+        let package = try loadPHY111CoursePackage()
+        let blockRanges = package.courses.flatMap(\.modules).flatMap(\.lessons).flatMap(\.blocks).compactMap(\.sourcePageRange)
+        let activityRanges = try XCTUnwrap(package.interactiveActivities).compactMap(\.sourcePageRange)
+        let itemRanges = try XCTUnwrap(package.scienceAssessmentItems).compactMap(\.sourcePageRange)
+        let datasetRanges = try XCTUnwrap(package.datasets).compactMap(\.sourcePageRange)
+        let allRanges = blockRanges + activityRanges + itemRanges + datasetRanges
+
+        XCTAssertEqual(blockRanges.count, 51)
+        XCTAssertEqual(activityRanges.count, 35)
+        XCTAssertEqual(itemRanges.count, 16)
+        XCTAssertEqual(datasetRanges.count, 2)
+        XCTAssertEqual(allRanges.count, 104)
+        XCTAssertTrue(allRanges.allSatisfy { $0.resourceName == "PHY111_Module1_Source_Pages_2_25.pdf" })
+        XCTAssertTrue(allRanges.allSatisfy { $0.resourceFirstSourcePage == 2 })
+        XCTAssertTrue(allRanges.allSatisfy { (2...25).contains($0.firstPage) && (2...25).contains($0.lastPage) })
+    }
+
+    func testPHY111VideoRequirementHasAnExplicitTranscriptFallback() throws {
+        let package = try loadPHY111CoursePackage()
+        let video = try XCTUnwrap(package.videos.first { $0.id == "PHY111.video.m01.motion-tracking-briefing" })
+        let blocks = package.courses.flatMap(\.modules).flatMap(\.lessons).flatMap(\.blocks)
+        let videoBlock = try XCTUnwrap(blocks.first { $0.id == "PHY111.block.m01.video.motion-briefing" })
+        let attestationBlock = try XCTUnwrap(blocks.first { $0.id == "PHY111.block.m01.video.motion-briefing-ack" })
+
+        XCTAssertNil(video.mediaURL)
+        XCTAssertTrue((video.transcriptMarkdown ?? "").contains("## Safe setup"))
+        XCTAssertFalse((video.fallbackMarkdown ?? "").isEmpty)
+        XCTAssertEqual(video.completionActivityID, "PHY111.activity.m01.video.motion-tracking-briefing")
+        XCTAssertEqual(videoBlock.kind, .video)
+        XCTAssertEqual(videoBlock.referencedContentID, video.id)
+        XCTAssertEqual(attestationBlock.kind, .interactiveActivity)
+        XCTAssertEqual(attestationBlock.referencedContentID, "PHY111.activity.m01.video.motion-tracking-briefing")
+        XCTAssertEqual(video.completionActivityID, attestationBlock.referencedContentID)
+        XCTAssertFalse((video.fallbackMarkdown ?? "").isEmpty)
+        let quizBlock = try XCTUnwrap(blocks.first { $0.id == "PHY111.block.m01.quiz" })
+        XCTAssertEqual(quizBlock.requirement, .recommended, "The quiz has its own pass policy but is not one of the four Module 1 completion gates.")
+    }
+
+    func testPHY111TypedActivityConfigurationsRoundTrip() throws {
+        let package = try loadPHY111CoursePackage()
+        let activities = try XCTUnwrap(package.interactiveActivities)
+        let encoded = try JSONEncoder().encode(activities)
+        let decoded = try JSONDecoder().decode([StudyInteractiveActivity].self, from: encoded)
+
+        XCTAssertEqual(decoded, activities)
+        XCTAssertTrue(decoded.allSatisfy { $0.kind == $0.configuration.kind })
+        XCTAssertEqual(Set(decoded.map(\.kind)), Set(StudyInteractiveActivityKind.allCases))
+    }
+
+    func testStudyGraphTableResponsePersistsNumericPromptsAndReadsLegacyDrafts() throws {
+        let response = StudyGraphTableResponse(
+            rows: [["0", "0"], ["1", "2"]],
+            numericValues: [
+                StudyNumericResponseValue(
+                    partID: "displacement",
+                    rawValue: "9.0",
+                    unitID: "m",
+                    significantFigures: 2
+                )
+            ]
+        )
+
+        XCTAssertEqual(
+            try JSONDecoder().decode(StudyGraphTableResponse.self, from: JSONEncoder().encode(response)),
+            response
+        )
+
+        let legacyDraft = Data(#"{"rows":[["0","0"]]}"#.utf8)
+        let decodedLegacyDraft = try JSONDecoder().decode(StudyGraphTableResponse.self, from: legacyDraft)
+        XCTAssertEqual(decodedLegacyDraft.rows, [["0", "0"]])
+        XCTAssertTrue(decodedLegacyDraft.numericValues.isEmpty)
+    }
+
+    func testPHY111AuthoredNumericAnswersUseGradableCanonicalUnits() throws {
+        let package = try loadPHY111CoursePackage()
+        var specifications: [StudyNumericAnswerSpecification] = []
+
+        for activity in try XCTUnwrap(package.interactiveActivities) {
+            switch activity.configuration {
+            case .numericQuantity(let configuration):
+                specifications.append(contentsOf: configuration.parts.map(\.answer))
+            case .graphTable(let configuration):
+                specifications.append(contentsOf: configuration.numericPrompts.map(\.answer))
+            default:
+                break
+            }
+        }
+        specifications.append(contentsOf: try XCTUnwrap(package.scienceAssessmentItems).compactMap(\.numericAnswer))
+
+        XCTAssertFalse(specifications.isEmpty)
+        for specification in specifications {
+            let grade = StudyNumericResponseGrader.grade(
+                rawValue: String(format: "%.12g", specification.canonicalValue),
+                unitID: specification.canonicalUnitID,
+                specification: specification
+            )
+            XCTAssertTrue(grade.isCorrect, "\(specification.canonicalValue) \(specification.canonicalUnitID ?? "") failed: \(grade.message)")
+        }
+    }
+
     func testLegacyCourseFinalDoesNotRequireSchemaThreeNativeExamFields() throws {
         let preview = try XCTUnwrap(StudyCoursePreview.packages.first)
         let course = try XCTUnwrap(preview.courses.first)
@@ -1688,6 +1933,12 @@ final class MarxistForumTests: XCTestCase {
             StudyExamSubmissionRecord.self,
             StudyExamQuestionMarkRecord.self,
             StudyAchievementRecord.self,
+            StudyScienceEntitlementRecord.self,
+            StudyScienceProgressRecord.self,
+            StudyScienceActivityAttemptRecord.self,
+            StudyScienceDraftRecord.self,
+            StudyScienceArtifactRecord.self,
+            StudyScienceOutboxRecord.self,
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [configuration])
@@ -1756,6 +2007,56 @@ final class MarxistForumTests: XCTestCase {
             markedBySubjectID: "examiner"
         ))
         context.insert(StudyAchievementRecord(subjectID: target, achievementID: "first", title: "First", detail: "Test"))
+        context.insert(StudyScienceEntitlementRecord(subjectID: target, courseID: "PHY111"))
+        context.insert(StudyScienceProgressRecord(
+            subjectID: target,
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            itemID: "PHY111-M1-MASTERY",
+            itemKind: "assessment",
+            isCompleted: true,
+            bestScore: 5.0 / 6.0
+        ))
+        context.insert(StudyScienceProgressRecord(
+            subjectID: survivor,
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            itemID: "PHY111-M1-MASTERY",
+            itemKind: "assessment"
+        ))
+        context.insert(StudyScienceActivityAttemptRecord(
+            subjectID: target,
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            activityID: "PHY111-M1-MASTERY",
+            activityVersion: "1",
+            activityKind: "assessment",
+            seed: 17,
+            responseJSON: Data("{}".utf8)
+        ))
+        context.insert(StudyScienceDraftRecord(
+            subjectID: target,
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            activityID: "PHY111-M1-PYTHON",
+            activityVersion: "1",
+            responseJSON: Data("{}".utf8),
+            deviceID: "test-device"
+        ))
+        context.insert(StudyScienceArtifactRecord(
+            subjectID: target,
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            activityID: "PHY111-M1-MOTION-LAB",
+            artifactKind: "video",
+            localFilename: "missing-test-artifact.mov"
+        ))
+        context.insert(StudyScienceOutboxRecord(
+            subjectID: target,
+            entityKind: "attempt",
+            entityID: "attempt-1",
+            payloadJSON: Data("{}".utf8)
+        ))
         try context.save()
 
         try StudyLocalDataEraser.erase(subjectID: target, from: context)
@@ -1772,6 +2073,123 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyExamSubmissionRecord>()).isEmpty)
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyExamQuestionMarkRecord>()).isEmpty)
         XCTAssertTrue(try context.fetch(FetchDescriptor<StudyAchievementRecord>()).isEmpty)
+        XCTAssertTrue(try context.fetch(FetchDescriptor<StudyScienceEntitlementRecord>()).isEmpty)
+        XCTAssertEqual(
+            try context.fetch(FetchDescriptor<StudyScienceProgressRecord>()).map(\.subjectID),
+            [survivor]
+        )
+        XCTAssertTrue(try context.fetch(FetchDescriptor<StudyScienceActivityAttemptRecord>()).isEmpty)
+        XCTAssertTrue(try context.fetch(FetchDescriptor<StudyScienceDraftRecord>()).isEmpty)
+        XCTAssertTrue(try context.fetch(FetchDescriptor<StudyScienceArtifactRecord>()).isEmpty)
+        XCTAssertTrue(try context.fetch(FetchDescriptor<StudyScienceOutboxRecord>()).isEmpty)
+    }
+
+    @MainActor
+    func testScienceCompletionUsesBestScoreAndAlternativePath() {
+        let store = StudyScienceStore()
+        let subject = "science-learner"
+        store.activate(subjectID: subject)
+        let progress = [
+            StudyScienceProgressRecord(
+                subjectID: subject,
+                courseID: "PHY111",
+                courseVersion: "0.1.0",
+                itemID: "PHY111-M1-MASTERY",
+                itemKind: "assessment",
+                isCompleted: true,
+                bestScore: 5.0 / 6.0
+            ),
+            StudyScienceProgressRecord(
+                subjectID: subject,
+                courseID: "PHY111",
+                courseVersion: "0.1.0",
+                itemID: "PHY111-M1-GUIDED-NUMERICAL",
+                itemKind: "numericalLab",
+                isCompleted: true
+            )
+        ]
+        let requirements = [
+            StudyScienceRequirementDescriptor(
+                id: "mastery",
+                title: "Mastery test",
+                contentIDs: ["PHY111-M1-MASTERY"],
+                minimumScore: 0.70
+            ),
+            StudyScienceRequirementDescriptor(
+                id: "computation",
+                title: "Computational mini-lab",
+                contentIDs: ["PHY111-M1-GUIDED-NUMERICAL", "PHY111-M1-PYTHON"]
+            )
+        ]
+
+        let snapshot = store.completionSnapshot(requirements: requirements, progress: progress)
+
+        XCTAssertTrue(snapshot.isComplete)
+        XCTAssertEqual(snapshot.fraction, 1)
+        XCTAssertEqual(snapshot.requirements.count, 2)
+    }
+
+    func testScienceProgressBestScoreNeverRegresses() throws {
+        let record = StudyScienceProgressRecord(
+            subjectID: "learner",
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            itemID: "PHY111-M1-MASTERY",
+            itemKind: "assessment"
+        )
+
+        record.recordCompletion(score: 5.0 / 6.0)
+        record.recordCompletion(score: 2.0 / 6.0)
+
+        XCTAssertEqual(try XCTUnwrap(record.bestScore), 5.0 / 6.0, accuracy: 0.000_001)
+        XCTAssertTrue(record.isCompleted)
+    }
+
+    @MainActor
+    func testScienceSubmissionWritesAttemptProgressAndOutboxAtomically() throws {
+        let schema = Schema([
+            StudyScienceProgressRecord.self,
+            StudyScienceActivityAttemptRecord.self,
+            StudyScienceDraftRecord.self,
+            StudyScienceOutboxRecord.self,
+        ])
+        let container = try ModelContainer(
+            for: schema,
+            configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)]
+        )
+        let context = ModelContext(container)
+        let store = StudyScienceStore()
+        store.activate(subjectID: "learner")
+        let response = Data(#"{"value":"9","unit":"m"}"#.utf8)
+        try store.saveDraft(
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            activityID: "PHY111.activity.m01.guided-1a",
+            activityVersion: "1",
+            responseJSON: response,
+            in: context
+        )
+
+        let record = try store.submit(StudyScienceAttemptSubmission(
+            subjectID: "learner",
+            courseID: "PHY111",
+            courseVersion: "0.1.0",
+            activityID: "PHY111.activity.m01.guided-1a",
+            activityVersion: "1",
+            activityKind: "numericProblem",
+            seed: 42,
+            responseJSON: response,
+            earnedPoints: 5,
+            possiblePoints: 6
+        ), in: context)
+
+        XCTAssertEqual(try XCTUnwrap(record.normalizedScore), 5.0 / 6.0, accuracy: 0.000_001)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<StudyScienceActivityAttemptRecord>()).count, 1)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<StudyScienceProgressRecord>()).first?.bestScore, 5.0 / 6.0)
+        let outbox = try context.fetch(FetchDescriptor<StudyScienceOutboxRecord>())
+        XCTAssertEqual(outbox.count, 2)
+        XCTAssertEqual(Set(outbox.map(\.entityKind)), ["attempt", "progress"])
+        XCTAssertTrue(try context.fetch(FetchDescriptor<StudyScienceDraftRecord>()).isEmpty)
     }
 
     nonisolated private static func loadBundledStudyCatalogue() async throws -> StudyQuestionCatalogue {
@@ -1803,6 +2221,16 @@ final class MarxistForumTests: XCTestCase {
             [StudyQuestion].self,
             from: JSONSerialization.data(withJSONObject: payload)
         )
+    }
+
+    private func loadPHY111CoursePackage() throws -> StudyCoursePackage {
+        let resourceURL = try XCTUnwrap(
+            Bundle.main.url(
+                forResource: "PHY111_Module1_Public_Beta.study-course",
+                withExtension: "json"
+            )
+        )
+        return try JSONDecoder().decode(StudyCoursePackage.self, from: Data(contentsOf: resourceURL))
     }
 
     private func loadDialecticsCoursePackage() throws -> StudyCoursePackage {

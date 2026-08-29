@@ -31,6 +31,19 @@ targets:
         buildPhase: resources
       - path: Resources/Marxist_Info_Dialectics_v1.study-course.json
         buildPhase: resources
+      - path: Resources/PHY111_Module1_Public_Beta.study-course.json
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Acceleration_Series.csv
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Fallback_Motion.csv
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Source_Pages_2_25.pdf
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Source_Map.json
+        buildPhase: resources
+      - path: Resources/ScienceRuntime
+        type: folder
+        buildPhase: resources
       - path: Resources/PrivacyInfo.xcprivacy
         buildPhase: resources
     dependencies:

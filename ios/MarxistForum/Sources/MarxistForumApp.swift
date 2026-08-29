@@ -75,11 +75,14 @@ struct MarxistForumApp: App {
     @State private var readingActivity = ReadingActivityStore()
     @State private var studyAssessments = StudyAssessmentStore()
     @State private var studyCourses = StudyCourseLibrary()
+    @State private var studyScience = StudyScienceStore()
+    @State private var studyScienceSync = StudyScienceSyncCoordinator()
     @State private var deepLinks = DeepLinkDispatcher.shared
 
     var body: some Scene {
         WindowGroup {
             RootView()
+                .modifier(StudyScienceSyncLifecycle())
                 .environment(auth)
                 .environment(settings)
                 .environment(downloads)
@@ -88,6 +91,8 @@ struct MarxistForumApp: App {
                 .environment(readingActivity)
                 .environment(studyAssessments)
                 .environment(studyCourses)
+                .environment(studyScience)
+                .environment(studyScienceSync)
                 .environment(deepLinks)
                 .modelContainer(for: [
                     StudyCourseProgressRecord.self,
@@ -98,7 +103,13 @@ struct MarxistForumApp: App {
                     StudyRubricMarkRecord.self,
                     StudyExamSubmissionRecord.self,
                     StudyExamQuestionMarkRecord.self,
-                    StudyAchievementRecord.self
+                    StudyAchievementRecord.self,
+                    StudyScienceEntitlementRecord.self,
+                    StudyScienceProgressRecord.self,
+                    StudyScienceActivityAttemptRecord.self,
+                    StudyScienceDraftRecord.self,
+                    StudyScienceArtifactRecord.self,
+                    StudyScienceOutboxRecord.self
                 ])
                 .preferredColorScheme(settings.settings.appearance.preferredColorScheme)
                 .task {
@@ -125,6 +136,13 @@ struct MarxistForumApp: App {
                         await studyAssessments.activate(subjectID: subjectID)
                     } else {
                         studyAssessments.clearActiveSubject()
+                    }
+                }
+                .task(id: auth.userId) {
+                    if let userID = auth.userId {
+                        studyScience.activate(subjectID: userID)
+                    } else {
+                        studyScience.deactivate()
                     }
                 }
                 .onOpenURL { url in
@@ -407,6 +425,20 @@ struct AppView: View {
                 lessonID: lessonID,
                 blockID: blockID
             )
+        case .studyCourseSource(let courseID, let resourceName, let resourceFirstSourcePage, let firstPage, let lastPage):
+            StudyCourseSourceScreen(
+                courseID: courseID,
+                resourceName: resourceName,
+                resourceFirstSourcePage: resourceFirstSourcePage,
+                firstPage: firstPage,
+                lastPage: lastPage
+            )
+        case .studyScienceActivity(let courseID, let activityID):
+            StudyScienceActivityRouteScreen(courseID: courseID, activityID: activityID)
+        case .studyScienceAssessment(let courseID, let assessmentID):
+            StudyScienceAssessmentRouteScreen(courseID: courseID, assessmentID: assessmentID)
+        case .studyScienceVideo(let courseID, let videoID):
+            StudyScienceVideoScreen(courseID: courseID, videoID: videoID)
         case .studyAssignment(let id):
             StudyAssignmentDetailScreen(assignmentID: id)
         case .studyCourseMarking(let courseID):

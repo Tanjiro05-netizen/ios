@@ -6,11 +6,25 @@ import SwiftUI
 /// lists, quotations, code, and tables that a single AttributedString loses.
 struct StudyMarkdownDocument: View {
     let markdown: String
+    /// Optional serif prose size for reading surfaces (the text-edition
+    /// reader). Nil keeps the Study Center's default system typography.
+    var bodyFontSize: CGFloat?
     private let blocks: [StudyMarkdownBlock]
 
-    init(markdown: String) {
+    init(markdown: String, bodyFontSize: CGFloat? = nil) {
         self.markdown = markdown
+        self.bodyFontSize = bodyFontSize
         self.blocks = StudyMarkdownParser.parse(markdown)
+    }
+
+    private var proseFont: Font {
+        guard let bodyFontSize else { return .body }
+        return .system(size: bodyFontSize, design: .serif)
+    }
+
+    private var proseScale: CGFloat {
+        guard let bodyFontSize else { return 1 }
+        return bodyFontSize / 17
     }
 
     var body: some View {
@@ -31,15 +45,25 @@ struct StudyMarkdownDocument: View {
                 .padding(.top, level <= 2 ? 8 : 3)
                 .accessibilityAddTraits(.isHeader)
         case .paragraph:
-            inlineText(block.text)
-                .font(.body)
-                .lineSpacing(3)
+            if StudyMarkdownParser.containsInlineMath(block.text) {
+                StudyScientificDocumentView(document: .init(blocks: [
+                    .paragraph(
+                        id: "markdown-paragraph-\(block.id)",
+                        html: StudyMarkdownParser.scientificInlineHTML(block.text)
+                    )
+                ]))
+                .accessibilityLabel(StudyMarkdownParser.plainMathDescription(block.text))
+            } else {
+                inlineText(block.text)
+                    .font(proseFont)
+                    .lineSpacing(3)
+            }
         case .unorderedList:
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(Array(block.items.enumerated()), id: \.offset) { _, item in
                     HStack(alignment: .firstTextBaseline, spacing: 9) {
                         Text("•").foregroundStyle(Brand.redSoft)
-                        inlineText(item).font(.body)
+                        inlineText(item).font(proseFont)
                     }
                 }
             }
@@ -48,9 +72,9 @@ struct StudyMarkdownDocument: View {
                 ForEach(Array(block.items.enumerated()), id: \.offset) { index, item in
                     HStack(alignment: .firstTextBaseline, spacing: 9) {
                         Text("\(index + 1).")
-                            .font(.body.monospacedDigit().weight(.semibold))
+                            .font(proseFont.monospacedDigit().weight(.semibold))
                             .foregroundStyle(Brand.redSoft)
-                        inlineText(item).font(.body)
+                        inlineText(item).font(proseFont)
                     }
                 }
             }
@@ -60,7 +84,7 @@ struct StudyMarkdownDocument: View {
                     .fill(Brand.red.opacity(0.55))
                     .frame(width: 3)
                 inlineText(block.text)
-                    .font(.body.italic())
+                    .font(proseFont.italic())
                     .foregroundStyle(.secondary)
             }
             .padding(.vertical, 3)
@@ -72,6 +96,16 @@ struct StudyMarkdownDocument: View {
                     .padding(12)
             }
             .background(Brand.controlFill, in: RoundedRectangle(cornerRadius: 10))
+        case .equation:
+            StudyScientificDocumentView(document: .init(blocks: [
+                .equation(
+                    id: "markdown-equation-\(block.id)",
+                    latex: block.text,
+                    spokenText: StudyMarkdownParser.plainMathDescription(block.text),
+                    number: nil
+                )
+            ]))
+            .accessibilityLabel(StudyMarkdownParser.plainMathDescription(block.text))
         case .table:
             StudyMarkdownTable(rows: block.rows)
         case .divider:
@@ -88,6 +122,20 @@ struct StudyMarkdownDocument: View {
     }
 
     private func headingFont(_ level: Int) -> Font {
+        guard bodyFontSize != nil else {
+            return Self.defaultHeadingFont(level)
+        }
+        let base: CGFloat
+        switch level {
+        case 1: base = 28
+        case 2: base = 22
+        case 3: base = 20
+        default: base = 17
+        }
+        return .system(size: base * proseScale, weight: .semibold, design: .serif)
+    }
+
+    private static func defaultHeadingFont(_ level: Int) -> Font {
         switch level {
         case 1: .system(.title, design: .serif, weight: .semibold)
         case 2: .system(.title2, design: .serif, weight: .semibold)
@@ -142,6 +190,7 @@ private struct StudyMarkdownBlock: Identifiable {
         case orderedList
         case quotation
         case code
+        case equation
         case table
         case divider
     }
@@ -188,6 +237,30 @@ private enum StudyMarkdownParser {
                 }
                 if index < lines.count { index += 1 }
                 append(.code, text: code.joined(separator: "\n"))
+                continue
+            }
+            if line.trimmingCharacters(in: .whitespaces).hasPrefix("$$") {
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.count > 4, trimmed.hasSuffix("$$") {
+                    append(.equation, text: String(trimmed.dropFirst(2).dropLast(2)).trimmingCharacters(in: .whitespacesAndNewlines))
+                    index += 1
+                } else {
+                    index += 1
+                    var equation: [String] = []
+                    while index < lines.count,
+                          !lines[index].trimmingCharacters(in: .whitespaces).hasSuffix("$$") {
+                        equation.append(lines[index])
+                        index += 1
+                    }
+                    if index < lines.count {
+                        let closingLine = lines[index].trimmingCharacters(in: .whitespaces)
+                        if closingLine != "$$" {
+                            equation.append(String(closingLine.dropLast(2)))
+                        }
+                        index += 1
+                    }
+                    append(.equation, text: equation.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines))
+                }
                 continue
             }
             if let match = capture(heading, in: line), match.count == 2 {
@@ -252,7 +325,9 @@ private enum StudyMarkdownParser {
 
     private static func startsBlock(_ lines: [String], at index: Int) -> Bool {
         let line = lines[index]
-        if line.hasPrefix("```") || line.trimmingCharacters(in: .whitespaces) == "---" { return true }
+        if line.hasPrefix("```")
+            || line.trimmingCharacters(in: .whitespaces) == "---"
+            || line.trimmingCharacters(in: .whitespaces).hasPrefix("$$") { return true }
         if capture(heading, in: line) != nil || capture(unordered, in: line) != nil || capture(ordered, in: line) != nil { return true }
         if line.trimmingCharacters(in: .whitespaces).hasPrefix(">") { return true }
         return index + 1 < lines.count && line.contains("|") && capture(tableDivider, in: lines[index + 1]) != nil
@@ -274,5 +349,50 @@ private enum StudyMarkdownParser {
         if value.hasSuffix("|") { value.removeLast() }
         return value.split(separator: "|", omittingEmptySubsequences: false)
             .map { $0.trimmingCharacters(in: .whitespaces) }
+    }
+
+    static func containsInlineMath(_ value: String) -> Bool {
+        var delimiterCount = 0
+        var previous: Character?
+        for character in value {
+            if character == "$", previous != "\\" { delimiterCount += 1 }
+            previous = character
+        }
+        return delimiterCount >= 2
+    }
+
+    static func scientificInlineHTML(_ value: String) -> String {
+        var result = value.replacingOccurrences(of: "\n", with: "<br>")
+        result = paired(result, marker: "**", opening: "<strong>", closing: "</strong>")
+        result = paired(result, marker: "__", opening: "<strong>", closing: "</strong>")
+        result = paired(result, marker: "`", opening: "<code>", closing: "</code>")
+        result = paired(result, marker: "*", opening: "<em>", closing: "</em>")
+        return result
+    }
+
+    static func plainMathDescription(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "$$", with: "")
+            .replacingOccurrences(of: "$", with: "")
+            .replacingOccurrences(of: "\\vec", with: "vector")
+            .replacingOccurrences(of: "\\Delta", with: "delta")
+            .replacingOccurrences(of: "\\theta", with: "theta")
+            .replacingOccurrences(of: "\\cdot", with: "times")
+            .replacingOccurrences(of: "\\times", with: "times")
+            .replacingOccurrences(of: "\\", with: " ")
+    }
+
+    private static func paired(
+        _ value: String,
+        marker: String,
+        opening: String,
+        closing: String
+    ) -> String {
+        let pieces = value.components(separatedBy: marker)
+        guard pieces.count > 2 else { return value }
+        return pieces.enumerated().map { index, piece in
+            guard index > 0 else { return piece }
+            return (index.isMultiple(of: 2) ? closing : opening) + piece
+        }.joined()
     }
 }

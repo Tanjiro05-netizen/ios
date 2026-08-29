@@ -6,6 +6,24 @@ final class MarxistForumUITests: XCTestCase {
     }
 
     @MainActor
+    func testTextEditionBookOpensFullscreenReader() throws {
+        let app = launchGuest()
+        // The title can appear in both the Continue Reading rail and the
+        // grid once progress has been saved, so resolve to the first match.
+        let book = app.staticTexts["Wage Labour and Capital"].firstMatch
+        scrollUntilExists(book, in: app, maximumSwipes: 4)
+        XCTAssertTrue(book.waitForExistence(timeout: 15))
+        book.tap()
+
+        // The fullscreen text-edition reader hides the navigation bar and
+        // shows its own sticky chrome plus the floating reading toolbar.
+        XCTAssertTrue(app.buttons["Back"].waitForExistence(timeout: 20))
+        XCTAssertTrue(app.buttons["Contents"].exists)
+        XCTAssertTrue(app.buttons["Reader settings"].exists)
+        XCTAssertTrue(app.staticTexts["Wage Labour and Capital"].firstMatch.exists)
+    }
+
+    @MainActor
     func testGuestCanBeginPHI111AndContinueOffline() throws {
         let app = launchGuest()
         openStudyCenter(in: app)

@@ -4,6 +4,7 @@ import UIKit
 
 enum AppFeatureFlags {
     static let forumEnabled = false
+    static let sciencePilotEnabled = true
     static let writtenCourseSubmissionsEnabled = false
     static let examinerGradingEnabled = false
     static let supportTipsEnabled = false
@@ -102,6 +103,61 @@ struct NotificationItem: Identifiable, Codable, Hashable {
     var sourceUser: Profile?
 }
 
+struct TextEditionSection: Identifiable, Codable, Hashable {
+    var id: String
+    var title: String?
+    var level: Int?
+    var md: String
+
+    init(id: String, title: String? = nil, level: Int? = nil, md: String = "") {
+        self.id = id
+        self.title = title
+        self.level = level
+        self.md = md
+    }
+}
+
+/// digital_library_books.text_edition — the reflowable reading edition
+/// (markdown sections produced from txt/PDF sources) that powers the
+/// fullscreen text reader, mirroring the website's text-edition reader.
+struct TextEdition: Codable, Hashable {
+    var sections: [TextEditionSection]
+    var readingMinutes: Int?
+    var source: String?
+    var generatedAt: String?
+
+    init(
+        sections: [TextEditionSection] = [],
+        readingMinutes: Int? = nil,
+        source: String? = nil,
+        generatedAt: String? = nil
+    ) {
+        self.sections = sections
+        self.readingMinutes = readingMinutes
+        self.source = source
+        self.generatedAt = generatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        struct RawSection: Codable {
+            var id: String?
+            var title: String?
+            var level: Int?
+            var md: String?
+        }
+        let rawSections = try container.decodeIfPresent([RawSection].self, forKey: .sections) ?? []
+        // Hand-built editions can omit section ids; fall back to the website's
+        // index-based scheme so anchors stay stable within an edition.
+        sections = rawSections.enumerated().map { index, raw in
+            TextEditionSection(id: raw.id ?? "s\(index)", title: raw.title, level: raw.level, md: raw.md ?? "")
+        }
+        readingMinutes = try container.decodeIfPresent(Int.self, forKey: .readingMinutes)
+        source = try container.decodeIfPresent(String.self, forKey: .source)
+        generatedAt = try container.decodeIfPresent(String.self, forKey: .generatedAt)
+    }
+}
+
 struct Book: Identifiable, Codable, Hashable {
     let id: String
     var title: String
@@ -120,6 +176,7 @@ struct Book: Identifiable, Codable, Hashable {
     var isOfficial: Bool?
     var uploadedBy: String?
     var uploader: Profile?
+    var textEdition: TextEdition? = nil
 }
 
 struct AudiobookChapter: Codable, Hashable {
@@ -662,6 +719,10 @@ enum Route: Hashable {
     case studyLesson(courseID: String, moduleID: String, lessonID: String)
     case studyCourseOrientation(courseID: String)
     case studyCourseSection(courseID: String, moduleID: String, lessonID: String, blockID: String)
+    case studyCourseSource(courseID: String, resourceName: String, resourceFirstSourcePage: Int, firstPage: Int, lastPage: Int)
+    case studyScienceActivity(courseID: String, activityID: String)
+    case studyScienceAssessment(courseID: String, assessmentID: String)
+    case studyScienceVideo(courseID: String, videoID: String)
     case studyAssignment(id: String)
     case studyCourseMarking(courseID: String)
     case studyAssignmentMarking(submissionID: String)

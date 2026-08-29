@@ -1,4 +1,5 @@
 import AVKit
+import SwiftData
 import SwiftUI
 import WebKit
 
@@ -81,12 +82,23 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
 
 struct LoginScreen: View {
     @Environment(AuthStore.self) private var auth
+    @State private var mode: LoginMode = .signIn
     @State private var email = ""
     @State private var password = ""
+    @State private var username = ""
+    @State private var accountInviteCode = ""
+
+    private enum LoginMode: String, CaseIterable, Identifiable {
+        case signIn = "Sign In"
+        case createAccount = "Create Account"
+
+        var id: String { rawValue }
+    }
 
     private var canSubmit: Bool {
         !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !password.isEmpty &&
+        (mode == .signIn || !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) &&
         !auth.isAuthenticating
     }
 
@@ -97,6 +109,21 @@ struct LoginScreen: View {
                     LoginHeader()
 
                     VStack(spacing: 10) {
+                        Picker("Account action", selection: $mode) {
+                            ForEach(LoginMode.allCases) { option in
+                                Text(option.rawValue).tag(option)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .disabled(auth.isAuthenticating)
+
+                        if mode == .createAccount {
+                            TextField("Display name", text: $username)
+                                .textContentType(.username)
+                                .textInputAutocapitalization(.words)
+                                .autocorrectionDisabled()
+                                .loginTextFieldChrome()
+                        }
                         TextField("Email", text: $email)
                             .textContentType(.emailAddress)
                             .keyboardType(.emailAddress)
@@ -104,8 +131,20 @@ struct LoginScreen: View {
                             .autocorrectionDisabled()
                             .loginTextFieldChrome()
                         SecureField("Password", text: $password)
-                            .textContentType(.password)
+                            .textContentType(mode == .createAccount ? .newPassword : .password)
                             .loginTextFieldChrome()
+                        if mode == .createAccount {
+                            TextField("Account invite code (if required)", text: $accountInviteCode)
+                                .textContentType(.oneTimeCode)
+                                .textInputAutocapitalization(.characters)
+                                .autocorrectionDisabled()
+                                .loginTextFieldChrome()
+
+                            Text("A PHY111 beta invitation is redeemed inside the course after you have signed in.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         if let error = auth.errorMessage {
                             Text(error)
                                 .font(.footnote)
@@ -120,18 +159,28 @@ struct LoginScreen: View {
                         }
                         Button {
                             Task {
-                                await auth.signIn(email: email, password: password)
+                                switch mode {
+                                case .signIn:
+                                    await auth.signIn(email: email, password: password)
+                                case .createAccount:
+                                    await auth.signUp(
+                                        email: email,
+                                        password: password,
+                                        username: username,
+                                        inviteCode: accountInviteCode
+                                    )
+                                }
                             }
                         } label: {
                             HStack(spacing: 7) {
                                 if auth.isAuthenticating {
                                     ProgressView()
                                         .controlSize(.small)
-                                    Text("Signing In…")
+                                    Text(mode == .signIn ? "Signing In…" : "Creating Account…")
                                 } else {
                                     Image(systemName: "arrow.right")
                                         .font(.caption.weight(.bold))
-                                    Text("Sign In")
+                                    Text(mode.rawValue)
                                 }
                             }
                                 .frame(maxWidth: .infinity)
@@ -811,24 +860,30 @@ struct ReaderScreen: View {
     @AppStorage("ios.reader.theme") private var readerThemeRawValue = ReaderTheme.night.rawValue
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Group {
-                if let currentChapter {
-                    EpubChapterWebView(
-                        chapterURL: currentChapter.fileURL,
-                        fontSize: fontSize,
-                        theme: readerTheme,
-                        selectedText: $selectedReaderText
-                    )
-                } else {
-                    ReaderWebView(html: readerHTML)
-                }
-            }
-            .ignoresSafeArea(edges: .bottom)
+        Group {
+            if let book, let edition = book.textEdition, book.epubFilename == nil, !edition.sections.isEmpty {
+                TextEditionReaderScreen(book: book, edition: edition)
+            } else {
+                ZStack(alignment: .bottom) {
+                    Group {
+                        if let currentChapter {
+                            EpubChapterWebView(
+                                chapterURL: currentChapter.fileURL,
+                                fontSize: fontSize,
+                                theme: readerTheme,
+                                selectedText: $selectedReaderText
+                            )
+                        } else {
+                            ReaderWebView(html: readerHTML)
+                        }
+                    }
+                    .ignoresSafeArea(edges: .bottom)
 
-            VStack(spacing: 10) {
-                if let book {
-                    readerToolbar(book: book)
+                    VStack(spacing: 10) {
+                        if let book {
+                            readerToolbar(book: book)
+                        }
+                    }
                 }
             }
         }
@@ -1022,7 +1077,12 @@ struct ReaderScreen: View {
             isLoading = false
             // Show the book immediately. EPUB download/unpacking is optional
             // enrichment and should never hold the first reader frame hostage.
-            Task { await prepareEpub(fetchedBook) }
+            // Text-edition titles need no EPUB at all.
+            let usesTextEdition = fetchedBook.epubFilename == nil
+                && !(fetchedBook.textEdition?.sections.isEmpty ?? true)
+            if !usesTextEdition {
+                Task { await prepareEpub(fetchedBook) }
+            }
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
@@ -2803,9 +2863,12 @@ struct ProfileScreen: View {
     @Environment(ReadingActivityStore.self) private var readingActivity
     @Environment(StudyAssessmentStore.self) private var studyAssessments
     @Environment(\.modelContext) private var modelContext
+    @Query private var scienceOutbox: [StudyScienceOutboxRecord]
     @State private var isDeleteConfirmationPresented = false
+    @State private var isSignOutDiscardPresented = false
     @State private var isDeletingAccount = false
     @State private var deletionError = ""
+    @State private var signOutError = ""
 
     var body: some View {
         ScrollView {
@@ -2840,7 +2903,12 @@ struct ProfileScreen: View {
                     }
                     ProfileButton(title: "Community Guidelines", systemImage: "checkmark.seal") { router.navigate(to: .legal(.guidelines)) }
                     Button(role: .destructive) {
-                        Task { await auth.signOut() }
+                        let hasQueuedScienceWork = scienceOutbox.contains { $0.subjectID == auth.userId }
+                        if hasQueuedScienceWork {
+                            isSignOutDiscardPresented = true
+                        } else {
+                            Task { await signOutAndPurgeScience() }
+                        }
                     } label: {
                         Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -2868,6 +2936,18 @@ struct ProfileScreen: View {
         .navigationTitle("Profile")
         .animation(.snappy(duration: 0.22), value: readingActivity.quotes.count)
         .background(ScreenBackground())
+        .confirmationDialog(
+            "Unsynchronized science work",
+            isPresented: $isSignOutDiscardPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Discard Local Science Work and Sign Out", role: .destructive) {
+                Task { await signOutAndPurgeScience() }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Some PHY111 work has not synchronized. Signing out now permanently removes that local work from this device.")
+        }
         .confirmationDialog(
             "Delete your account?",
             isPresented: $isDeleteConfirmationPresented,
@@ -2905,6 +2985,25 @@ struct ProfileScreen: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(deletionError)
+        }
+        .alert("Sign-out cleanup failed", isPresented: Binding(
+            get: { !signOutError.isEmpty },
+            set: { if !$0 { signOutError = "" } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(signOutError)
+        }
+    }
+
+    private func signOutAndPurgeScience() async {
+        let subjectID = auth.userId
+        await auth.signOut()
+        guard let subjectID else { return }
+        do {
+            try StudyScienceLocalDataEraser.erase(subjectID: subjectID, from: modelContext)
+        } catch {
+            signOutError = "You were signed out, but local PHY111 data could not be removed. Delete and reinstall the app before sharing this device."
         }
     }
 }
