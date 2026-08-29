@@ -1,0 +1,1945 @@
+{
+  "schemaVersion": 4,
+  "packageID": "PHY111.course-package",
+  "contentVersion": "0.1.0",
+  "locale": "en",
+  "minimumAppVersion": "1.0",
+  "courses": [
+    {
+      "id": "PHY111",
+      "contentVersion": "0.1.0",
+      "title": "PHY111 - Introductory Physics I",
+      "subtitle": "Mechanics, Fluids, Oscillations, Waves, Sound, and Gravitation",
+      "summary": "A calculus-based undergraduate physics course built around explicit models, representations, experiments, computation, error diagnosis, and cumulative mastery. This public beta releases Module 1 of the planned twelve-module course.",
+      "type": "laboratoryScience",
+      "interactionIntensity": "intensive",
+      "mode": "selfPaced",
+      "publicationStatus": "publicBeta",
+      "estimatedHours": 400,
+      "prerequisites": [
+        "Algebra",
+        "Trigonometry",
+        "Vectors",
+        "Scientific notation",
+        "Differential calculus",
+        "Introductory integral calculus"
+      ],
+      "outcomes": [
+        "Distinguish position, displacement, distance, velocity, and acceleration.",
+        "Resolve vectors into components and choose a useful coordinate system.",
+        "Construct a free-body diagram without adding fictitious or duplicate forces.",
+        "Apply Newton's three laws to one- and two-dimensional motion.",
+        "Translate a verbal situation into equations, solve them, and test the result."
+      ],
+      "contributors": [
+        { "name": "Marxist.info University Programme", "role": "Course editor" }
+      ],
+      "assessmentSummary": "Formative concept checks, guided exercises, tutorials, an investigation, computational work, a problem set, a 25-minute mastery test, and a module quiz. No credential is awarded in this beta.",
+      "modules": [
+        {
+          "id": "PHY111.module.01",
+          "title": "Module 1 - Newtonian Description of Motion and Force",
+          "summary": "Coordinates, vectors, free-body diagrams, and Newton's laws.",
+          "estimatedMinutes": 2100,
+          "moduleQuizID": "PHY111.assessment.m01.quiz",
+          "sourceVersion": "PHY111 Enhanced Interactive Course v2.1",
+          "sourceStatus": "faithfulNativePublicBeta",
+          "lessons": [
+            {
+              "id": "PHY111.lesson.orientation",
+              "title": "Course record and learning cycle",
+              "summary": "Understand the course standard, learning cycle, error categories, and formative assessment model.",
+              "estimatedMinutes": 25,
+              "objectives": [
+                "Explain the scientific standard used throughout the course.",
+                "Use the eight-stage module learning cycle.",
+                "Classify model, representation, mathematical, and interpretation errors."
+              ],
+              "essentialQuestions": ["What makes a numerical result scientifically traceable?"],
+              "reflectionPrompts": ["Which error category currently causes you the most difficulty?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.course-record",
+                  "kind": "lessonContent",
+                  "title": "Publication and Course Record",
+                  "summary": "The scope, standard, workload, and additions in version 2.1.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "This edition expands the existing PHY111 coursebook while retaining its twelve-module scientific sequence. The original course already contains 24 guided exercises, 36 worked examples, twelve module quizzes, a study guide, and a formative key. Version 2.1 adds a substantial interactive layer designed around prediction, representation, derivation, experimental evidence, computation, error diagnosis, and cumulative mastery.\n\n**Level:** Calculus-based undergraduate foundation\n\n**Recommended workload:** 350-450 hours including exposition, derivations, tutorials, problem sets, laboratory or simulation work, computational activities, formal coursework, and revision.\n\n**Primary scope source:** Robert G. Brown, *Introductory Physics I: Elementary Mechanics*, Duke University Physics Department.\n\n**Scientific standard:** Every numerical result must be traceable to an explicit model, units, assumptions, and a check; computation is a method, not a substitute for modelling.\n\n### What Version 2.1 adds\n\n- 24 expanded tutorial workshops\n- 24 additional worked-example studios\n- 12 experimental or simulation investigations\n- 12 computational mini-labs\n- 12 error-diagnosis tasks\n- 120 additional unguided problems\n- 12 additional mastery tests\n- Four cumulative progress examinations\n- Six formal assessed projects\n- A new three-hour final examination\n- A calculator-ready exam formula sheet\n- An expanded instructor solutions and marking guide",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 2, "lastPage": 2 }
+                },
+                {
+                  "id": "PHY111.block.learning-cycle",
+                  "kind": "lessonContent",
+                  "title": "From Motion to Field - Expanded Learning Cycle",
+                  "summary": "The cumulative eight-stage module cycle and four error categories.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "The course is cumulative. Each new method is introduced as a response to a limitation in the previous description: kinematics becomes dynamics; particle dynamics becomes system conservation; translation becomes rotation; discrete bodies become continuous matter; oscillation becomes wave propagation; and local force models become a gravitational field description.\n\n### The module learning cycle\n\n1. **Orient.** Read the module question and outcomes. Attempt the short diagnostic from memory.\n2. **Build.** Study definitions and derivations. Reproduce each important derivation without looking.\n3. **Represent.** Draw graphs, vectors, free-body diagrams, energy diagrams, or field sketches before algebra.\n4. **Solve.** Cover worked solutions and solve first. Compare method, not only the final number.\n5. **Tutorial.** Complete the expanded workshop prompts in order: prediction -> representation -> derivation -> calculation -> interpretation.\n6. **Investigate.** Perform the experiment, simulation, or computational activity and compare evidence with the ideal model.\n7. **Stress-test.** Debug a deliberately flawed solution and solve the less-scaffolded problem set.\n8. **Assess.** Take the module mastery test closed-notes, then review errors by category.\n\n### Error categories\n\n- **Model error:** Wrong system, frame, approximation, omitted interaction, or unjustified conservation law.\n- **Representation error:** Graph, vector, sign convention, free-body diagram, or geometry does not match the physical situation.\n- **Mathematical error:** Algebra, calculus, trigonometry, numerical integration, or unit conversion mistake.\n- **Interpretation error:** Number is calculated correctly but physical meaning, direction, limiting case, or uncertainty is wrong.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 3, "lastPage": 3 }
+                },
+                {
+                  "id": "PHY111.block.assessment-model",
+                  "kind": "lessonContent",
+                  "title": "Knowledge Testing in a Physics Course",
+                  "summary": "Concept checks, covered worked examples, tutorials, experiments, error diagnosis, and mastery tests.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "**Concept checks.** Short qualitative prompts interrupt passive reading and force a prediction before calculation.\n\n**Worked-example cover method.** Read only the problem, hide the solution, solve independently, then compare the modelling path line by line.\n\n**Tutorial workshops.** Structured multi-step problems require diagrams, symbolic derivation, limiting cases, and explanation.\n\n**Experiments and simulations.** Students must confront measurement uncertainty, non-ideal behaviour, numerical error, and the gap between model and evidence.\n\n**Error diagnosis.** Deliberately flawed solutions test whether the learner can locate the first invalid inference instead of merely spotting a wrong answer.\n\n**Mastery tests.** Closed-note module tests and cumulative progress exams require retrieval under time pressure.\n\n### Formal weighting\n\nFormative work in the coursebook is ungraded. Six formal assignments contribute 60 percent of the course result. The cumulative final examination contributes 40 percent. Four progress examinations are provided for timed practice and diagnostic use but do not alter the formal weighting unless an institution adopts a different scheme. The public beta implements Module 1 as formative practice only and does not award a formal course result.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 4, "lastPage": 4 }
+                },
+                {
+                  "id": "PHY111.block.orientation-ack",
+                  "kind": "interactiveActivity",
+                  "title": "Scientific standard acknowledgement",
+                  "summary": "Confirm the rule used for every numerical result.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.orientation.scientific-standard",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 2, "lastPage": 4 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.foundations",
+              "title": "Part 0 - Mathematical and Experimental Foundations",
+              "summary": "A recommended readiness reference for units, vectors, calculus, graphs, computation, measurement, and uncertainty.",
+              "estimatedMinutes": 90,
+              "objectives": [
+                "Check dimensions and estimate orders of magnitude.",
+                "Use vector components and calculus as physical operations.",
+                "Report numerical work and measurements with validation and uncertainty."
+              ],
+              "essentialQuestions": ["How do mathematical operations encode physical meaning?"],
+              "reflectionPrompts": ["Which foundation should you review before continuing?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.foundations",
+                  "kind": "lessonContent",
+                  "title": "Mathematical and Experimental Foundations",
+                  "summary": "Sections 0.1-0.6 from the course mathematical bootcamp.",
+                  "requirement": "recommended",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "### 0.1 Units, dimensions, and order of magnitude\n\nA physical equation must be dimensionally homogeneous. Unit checking is not cosmetic: it is one of the fastest ways to discover a missing factor of time, length, mass, or angle. Before evaluating a formula, write dimensions symbolically and estimate the expected order of magnitude.\n\n### 0.2 Vectors and components\n\nA vector is independent of coordinates; its components depend on the chosen basis. Resolve vectors only after choosing axes that simplify the geometry. Dot products encode projection and work; cross products encode oriented area, torque, and angular momentum.\n\n$$\\vec A\\cdot\\vec B=AB\\cos\\theta,\\qquad |\\vec A\\times\\vec B|=AB\\sin\\theta$$\n\n### 0.3 Derivatives and integrals as physical operations\n\nThe derivative gives a local rate of change; the integral accumulates a rate over an interval. Kinematics therefore provides the first recurring calculus chain: $x(t) \\rightarrow v(t) \\rightarrow a(t)$ by differentiation and $a(t) \\rightarrow \\Delta v \\rightarrow \\Delta x$ by integration.\n\n### 0.4 Graphs as equations you can see\n\nSlope and area are physical information. A graph should display axes, units, sign, scale, and uncertainty where applicable. Before using a calculator, sketch the expected graph shape from the physics.\n\n### 0.5 Numerical computation\n\nNumerical work is appropriate when an equation cannot be solved conveniently in closed form, when data are sampled, or when a model is being simulated. A computational result is incomplete without initial conditions, parameter values, units, algorithm, step size or tolerance, and a validation test against a known limit.\n\n**Minimum numerical validation:** Run at least one case with a known analytic answer, repeat with a smaller time step, and verify conserved quantities when the model predicts conservation.\n\n### 0.6 Measurement and uncertainty\n\nMeasurements are estimates, not exact mathematical objects. Distinguish instrument resolution, random scatter, systematic calibration error, and model error. Report enough significant figures to reflect the evidence rather than the calculator display.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 5, "lastPage": 6 }
+                },
+                {
+                  "id": "PHY111.block.foundation-dimensions",
+                  "kind": "interactiveActivity",
+                  "title": "Foundation practice: dimensions",
+                  "summary": "Check dimensions of common mechanical quantities.",
+                  "requirement": "recommended",
+                  "referencedContentID": "PHY111.activity.foundation.dimensions",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 5, "lastPage": 5 }
+                },
+                {
+                  "id": "PHY111.block.foundation-uncertainty",
+                  "kind": "interactiveActivity",
+                  "title": "Foundation practice: uncertainty",
+                  "summary": "Estimate speed and fractional uncertainty.",
+                  "requirement": "recommended",
+                  "referencedContentID": "PHY111.activity.foundation.uncertainty",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 6, "lastPage": 6 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.1.1",
+              "title": "1.1 Models, coordinates, and the language of motion",
+              "summary": "Controlled abstraction, coordinates, displacement, distance, velocity, and speed.",
+              "estimatedMinutes": 120,
+              "objectives": ["Choose a model and coordinate system.", "Distinguish distance from displacement.", "Distinguish average speed from average velocity."],
+              "essentialQuestions": ["How does physics turn motion into a quantitative model?"],
+              "reflectionPrompts": ["Which sign conventions did you choose, and why?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.launch-and-1.1",
+                  "kind": "lessonContent",
+                  "title": "Module launch and Section 1.1",
+                  "summary": "The Module 1 question, outcomes, free-body-diagram standard, and motion language.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "## Module 1 - Newtonian Description of Motion and Force\n\n*Coordinates, vectors, free-body diagrams, and Newton's laws*\n\n> How does physics turn motion into a quantitative model?\n\nA free-body diagram isolates one object and displays only the external forces acting on it.\n\n### 1.1 Models, coordinates, and the language of motion\n\nPhysics begins by replacing an overwhelmingly detailed event with a deliberately limited model. A moving car can be treated as a particle when its size and rotation do not matter; Earth can be treated as a uniform gravitational field when the height change is small compared with Earth's radius. A good model is not a photograph of reality. It is a controlled abstraction that preserves the features needed to answer a question.\n\nA coordinate system gives numerical meaning to location. In one dimension, a signed coordinate $x$ distinguishes positions on opposite sides of an origin. In two or three dimensions, a position vector identifies a point relative to the chosen origin. The origin and positive directions are choices, not properties of nature, so changing them may change the signs of components without changing the physical event.\n\nDisplacement is the change in position and therefore depends only on the endpoints. Distance is the length of the path and is never negative. Average velocity is displacement divided by elapsed time; average speed is distance divided by elapsed time. This distinction is already a test of disciplined modeling: a runner who returns to the start has traveled a nonzero distance but has zero displacement.\n\n$$\\Delta x=x_f-x_i,\\qquad \\bar v=\\frac{\\Delta x}{\\Delta t},\\qquad \\bar a=\\frac{\\Delta v}{\\Delta t}$$",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 7, "lastPage": 9 }
+                },
+                {
+                  "id": "PHY111.block.m01.check.1.1",
+                  "kind": "interactiveActivity",
+                  "title": "Concept check 1.1",
+                  "summary": "Coordinates, distance, and reversed axes.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.check.1.1",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 9, "lastPage": 9 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.round-trip",
+                  "kind": "interactiveActivity",
+                  "title": "Worked example: A round trip with unequal speeds",
+                  "summary": "Attempt average velocity and average speed before revealing the solution.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.round-trip",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 10, "lastPage": 10 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.1.2",
+              "title": "1.2 Instantaneous velocity, acceleration, and constant-acceleration kinematics",
+              "summary": "Slopes, areas, signs, and the limited domain of constant-acceleration equations.",
+              "estimatedMinutes": 120,
+              "objectives": ["Interpret derivatives and areas on motion graphs.", "Apply constant-acceleration equations only when valid.", "Use velocity and acceleration signs correctly."],
+              "essentialQuestions": ["Why are constant-acceleration equations special cases rather than independent laws?"],
+              "reflectionPrompts": ["How can an object have zero velocity and nonzero acceleration?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.1.2",
+                  "kind": "lessonContent",
+                  "title": "Instantaneous motion and constant acceleration",
+                  "summary": "The graphical and calculus foundations of kinematics.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "The instantaneous velocity is the limiting slope of the position-time graph as the time interval shrinks. Acceleration is the limiting slope of the velocity-time graph. These graphical meanings are more fundamental than any memorized kinematic formula: the slope of $x(t)$ is $v(t)$, and the area under $v(t)$ is displacement.\n\nFor constant acceleration, velocity changes linearly with time and position changes quadratically. The familiar kinematic equations are not separate laws of nature; they are consequences of the definitions of velocity and acceleration under the special assumption that acceleration is constant. They must not be used uncritically when acceleration depends on time, position, or velocity.\n\nSigns carry physical meaning. A negative velocity means motion in the negative coordinate direction. A negative acceleration means the velocity is changing toward the negative direction; it does not automatically mean that an object is slowing down. An object speeds up when velocity and acceleration have the same sign and slows down when their signs differ.\n\n$$v_f=v_i+at$$\n\n$$\\Delta x=v_it+\\tfrac12at^2$$\n\n$$v_f^2=v_i^2+2a\\Delta x$$",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 11, "lastPage": 11 }
+                },
+                {
+                  "id": "PHY111.block.m01.check.1.2",
+                  "kind": "interactiveActivity",
+                  "title": "Concept check 1.2",
+                  "summary": "Zero velocity with acceleration, and area under a velocity-time graph.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.check.1.2",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 11, "lastPage": 11 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.braking",
+                  "kind": "interactiveActivity",
+                  "title": "Worked example: Braking to rest",
+                  "summary": "Find stopping time and distance before revealing the solution.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.braking",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 12, "lastPage": 12 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.1.3",
+              "title": "1.3 Vectors, components, and projectile motion",
+              "summary": "Decompose vectors and connect independent horizontal and vertical projectile motion.",
+              "estimatedMinutes": 120,
+              "objectives": ["Resolve a vector into components.", "Model ideal projectile motion.", "State the assumptions behind a parabolic trajectory."],
+              "essentialQuestions": ["How can one two-dimensional motion become two coupled one-dimensional descriptions?"],
+              "reflectionPrompts": ["Which projectile assumptions are least realistic in your chosen situation?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.1.3",
+                  "kind": "lessonContent",
+                  "title": "Vectors, components, and projectile motion",
+                  "summary": "Coordinate projections and the ideal no-drag projectile model.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "A vector has magnitude and direction. It can be represented geometrically by an arrow or algebraically by components. Components are not independent physical objects; they are the projections of one vector onto chosen axes. Because perpendicular components can be treated separately and recombined, vector decomposition converts many two-dimensional problems into paired one-dimensional problems.\n\nProjectile motion near Earth is the motion of an object after launch when air resistance is neglected. Horizontal acceleration is zero, while vertical acceleration is approximately constant and downward. The horizontal and vertical motions share the same time but otherwise evolve independently. This is why a horizontally launched object and a simultaneously dropped object reach level ground at the same time, provided they begin at the same height.\n\nThe trajectory is parabolic only under the ideal assumptions of constant downward acceleration, flat ground, and no drag. Real projectiles deviate because gravity varies slightly, air exerts forces, and Earth rotates, but the ideal model is powerful because it isolates the dominant structure.\n\n$$A_x=A\\cos\\theta,\\qquad A_y=A\\sin\\theta$$\n\n$$x(t)=x_0+v_0\\cos\\theta\\,t$$\n\n$$y(t)=y_0+v_0\\sin\\theta\\,t-\\tfrac12gt^2$$",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 13, "lastPage": 13 }
+                },
+                {
+                  "id": "PHY111.block.m01.check.1.3",
+                  "kind": "interactiveActivity",
+                  "title": "Concept check 1.3",
+                  "summary": "Horizontal velocity and complementary launch angles.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.check.1.3",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 13, "lastPage": 13 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.projectile",
+                  "kind": "interactiveActivity",
+                  "title": "Worked example: Launch from level ground",
+                  "summary": "Find flight time and range before revealing the solution.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.projectile",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 14, "lastPage": 14 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.1.4",
+              "title": "1.4 Newton's laws and free-body diagrams",
+              "summary": "Inertial frames, momentum, net force, interactions, and system isolation.",
+              "estimatedMinutes": 150,
+              "objectives": ["Identify an inertial frame.", "Construct a valid free-body diagram.", "Distinguish third-law partners from balanced forces."],
+              "essentialQuestions": ["Why is a free-body diagram the bridge between a situation and an equation?"],
+              "reflectionPrompts": ["What source produces each force in your diagram?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.1.4",
+                  "kind": "lessonContent",
+                  "title": "Newton's laws and free-body diagrams",
+                  "summary": "The three laws and their correct system-level interpretation.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "Newton's first law identifies inertial reference frames: frames in which an object with zero net force maintains constant velocity. The law is not merely the special case $F=0$ of the second law; it specifies the kind of frame in which the standard form of the second law is valid.\n\nNewton's second law states that the vector sum of external forces on an object equals the time rate of change of its momentum. For constant mass this becomes $\\sum \\vec F=m\\vec a$. The acceleration points in the direction of the net force, not necessarily in the direction of the velocity. A free-body diagram is the bridge between the physical situation and this equation.\n\nNewton's third law concerns interactions: if object A exerts a force on B, B simultaneously exerts an equal-magnitude, opposite-direction force on A. Third-law partners act on different objects and therefore never cancel on one object's free-body diagram. Weight and normal force are often equal in magnitude, but they are not a third-law pair.\n\n$$\\sum\\vec F=\\frac{d\\vec p}{dt},\\qquad \\sum\\vec F=m\\vec a,\\qquad \\vec F_{A\\to B}=-\\vec F_{B\\to A}$$",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 15, "lastPage": 15 }
+                },
+                {
+                  "id": "PHY111.block.m01.check.1.4",
+                  "kind": "interactiveActivity",
+                  "title": "Concept check 1.4",
+                  "summary": "Force sources and third-law partners.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.check.1.4",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 15, "lastPage": 15 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.two-blocks",
+                  "kind": "interactiveActivity",
+                  "title": "Worked example: Two blocks pulled together",
+                  "summary": "Find acceleration and cord tension by changing the selected system.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.two-blocks",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 15, "lastPage": 15 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.1.5",
+              "title": "1.5 Common forces and a repeatable solution method",
+              "summary": "Weight, normal force, tension, springs, and a reusable modelling sequence.",
+              "estimatedMinutes": 150,
+              "objectives": ["Identify common forces and their sources.", "Apply a repeatable Newtonian solution sequence.", "Check units, signs, limiting cases, and magnitude."],
+              "essentialQuestions": ["What must be checked after a force problem is solved?"],
+              "reflectionPrompts": ["When can a normal force differ from weight?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.1.5",
+                  "kind": "lessonContent",
+                  "title": "Common forces and a repeatable solution method",
+                  "summary": "Force models and the complete Newtonian workflow.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "Near Earth, weight is the gravitational force $mg$. A normal force is a contact force perpendicular to a surface; it is not automatically equal to weight. Tension is the force transmitted by an ideal light cord and acts away from the object along the cord. Spring force is approximately proportional and opposite to displacement from equilibrium. Friction and drag require additional models developed in Module 2.\n\nA reliable Newtonian solution follows a fixed sequence: define the system; choose axes; draw the free-body diagram; translate the diagram into component equations; solve symbolically when possible; then inspect units, signs, limiting cases, and magnitude. Skipping the diagram often produces missing forces or forces assigned to the wrong object.\n\nThe final numerical value is not the whole answer. A negative result may indicate a direction opposite to the assumed positive axis rather than an error. An impossible limiting case, wrong unit, or acceleration wildly inconsistent with the available force signals a model or algebra mistake.\n\n$$W=mg,\\qquad F_s=-kx$$",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 16, "lastPage": 16 }
+                },
+                {
+                  "id": "PHY111.block.m01.check.1.5",
+                  "kind": "interactiveActivity",
+                  "title": "Concept check 1.5",
+                  "summary": "Normal force and post-solution checks.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.check.1.5",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 16, "lastPage": 16 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.elevator",
+                  "kind": "interactiveActivity",
+                  "title": "Worked example: Apparent weight in an elevator",
+                  "summary": "Find the scale reading before revealing the solution.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.elevator",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 16, "lastPage": 16 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.guided",
+              "title": "Guided Exercises 1A and 1B",
+              "summary": "Reconstruct motion from a graph and practise system-specific free-body diagrams.",
+              "estimatedMinutes": 180,
+              "objectives": ["Use signed graph area and slope.", "Construct four separate free-body diagrams.", "Identify third-law partners outside each diagram."],
+              "essentialQuestions": ["How must one representation constrain another?"],
+              "reflectionPrompts": ["Which required move prevented your first mistake?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.guided-intro",
+                  "kind": "lessonContent",
+                  "title": "Guided Exercises",
+                  "summary": "Diagrams, assumptions, units, and interpretation are part of every solution.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "Complete the reconstruction before consulting the separate instructor guide. Diagrams, assumptions, units, and interpretation are part of the solution.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 17, "lastPage": 18 }
+                },
+                {
+                  "id": "PHY111.block.m01.guided.1A",
+                  "kind": "interactiveActivity",
+                  "title": "Exercise 1A - Motion reconstruction",
+                  "summary": "Graph velocity, calculate displacement, locate the turn, and sketch position.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.guided.1A",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 17, "lastPage": 17 }
+                },
+                {
+                  "id": "PHY111.block.m01.guided.1B",
+                  "kind": "interactiveActivity",
+                  "title": "Exercise 1B - Free-body diagram clinic",
+                  "summary": "Draw a separate free-body diagram for four named systems.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.guided.1B",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 18, "lastPage": 18 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.studio",
+              "title": "Module 1 - Interactive Deepening",
+              "summary": "Derivation practice, worked-example studios, tutorials, and error diagnosis.",
+              "estimatedMinutes": 360,
+              "objectives": ["Move between physical representations.", "Derive kinematic and constraint relationships.", "Locate and repair the first invalid inference."],
+              "essentialQuestions": ["How do modelling decisions determine which mathematics is valid?"],
+              "reflectionPrompts": ["Which representation exposed the structure most clearly?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.deepening",
+                  "kind": "lessonContent",
+                  "title": "From descriptions to dynamical models",
+                  "summary": "The modelling chain, calculus kinematics, free-body diagrams, and circular motion.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "**Purpose.** This studio extends the core exposition with derivation practice, worked examples, tutorials, an investigation, computational modelling, error diagnosis, an unguided problem set, and a mastery test. Attempt every prompt before consulting the solutions volume.\n\nIntroductory mechanics becomes reliable when every problem is treated as a chain of modelling decisions rather than a hunt for a matching formula. First define the system, time interval, reference frame, and approximation. Then choose coordinates and representations. Only after this should equations be written. The same physical event can be represented by a position graph, a velocity graph, a vector diagram, a free-body diagram, or a differential equation; each representation exposes different information.\n\nKinematics is most general when written with derivatives and integrals. Velocity is $v_x=dx/dt$ and acceleration is $a_x=dv_x/dt=d^2x/dt^2$. Constant-acceleration equations are therefore special integrated cases, not independent laws. For non-constant acceleration the graph, integral, or differential equation is the correct tool. This distinction prevents one of the most common errors in first-semester physics: using a constant-acceleration identity when the force depends on position or velocity.\n\nNewtonian dynamics adds an interaction model. The statement $\\sum\\vec F_{ext}=d\\vec p/dt$ becomes $\\sum\\vec F=m\\vec a$ only for constant mass in an inertial frame. A free-body diagram is a model of interactions acting on the selected system, not a picture of everything present in the scene. The diagram must contain forces, not velocities, accelerations, energy arrows, or invented labels such as centripetal force unless a real interaction supplies that inward force.\n\nCircular motion is a particularly useful test of understanding. Constant speed does not imply zero acceleration because velocity is a vector. For uniform circular motion the acceleration magnitude is $a_c=v^2/r=\\omega^2r$ and points toward the centre. The inward net force may be tension, gravity, friction, a normal force, or a combination. Treating centripetal force as an extra force double-counts the dynamics.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 19, "lastPage": 19 }
+                },
+                {
+                  "id": "PHY111.block.m01.derivation-board",
+                  "kind": "interactiveActivity",
+                  "title": "Derivation board",
+                  "summary": "Reproduce the calculus kinematics and circular-motion relationships.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.derivation-board",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 19, "lastPage": 19 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.non-uniform",
+                  "kind": "interactiveActivity",
+                  "title": "Worked studio: Non-uniform acceleration",
+                  "summary": "Differentiate and integrate a velocity law.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.non-uniform-acceleration",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 20, "lastPage": 20 }
+                },
+                {
+                  "id": "PHY111.block.m01.worked.curve",
+                  "kind": "interactiveActivity",
+                  "title": "Worked studio: Horizontal curve and friction",
+                  "summary": "Identify friction as the interaction supplying inward force.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.worked.horizontal-curve",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 20, "lastPage": 20 }
+                },
+                {
+                  "id": "PHY111.block.m01.tutorial.A",
+                  "kind": "interactiveActivity",
+                  "title": "Tutorial A - Graph reconstruction clinic",
+                  "summary": "Predict and connect position, velocity, and acceleration graphs.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.tutorial.A",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 21, "lastPage": 21 }
+                },
+                {
+                  "id": "PHY111.block.m01.tutorial.B",
+                  "kind": "interactiveActivity",
+                  "title": "Tutorial B - Constraint and force model",
+                  "summary": "Build separate diagrams and derive the coupled acceleration and tension.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.tutorial.B",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 21, "lastPage": 21 }
+                },
+                {
+                  "id": "PHY111.block.m01.debug.circular",
+                  "kind": "interactiveActivity",
+                  "title": "Debug the solution",
+                  "summary": "Repair a flawed circular-motion argument from its first invalid step.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.debug.circular-motion",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 21, "lastPage": 21 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.investigation",
+              "title": "Experimental and computational investigation",
+              "summary": "Track real motion and integrate measured acceleration numerically.",
+              "estimatedMinutes": 360,
+              "objectives": ["Calibrate and analyse position-time observations.", "Explain uncertainty and numerical differentiation noise.", "Validate a numerical trajectory against an analytic case."],
+              "essentialQuestions": ["Where does the ideal model agree with evidence, and where does it fail?"],
+              "reflectionPrompts": ["Which uncertainty dominates your result?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.investigation-intro",
+                  "kind": "lessonContent",
+                  "title": "Experimental and computational investigation",
+                  "summary": "Minimum evidence and reproducibility standards.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "The investigation requires raw observations or simulation settings; a model equation; a graph; an uncertainty or numerical-error statement; comparison between prediction and result; and a brief limitations paragraph. Computational work must state initial conditions, parameter values, units, algorithm or code, step size where relevant, and a numerical or limiting-case validation.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+                },
+                {
+                  "id": "PHY111.block.m01.video.motion-briefing",
+                  "kind": "video",
+                  "title": "Motion-tracking lab briefing",
+                  "summary": "The source contains no external course-video URL; use the complete native transcript briefing.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.video.m01.motion-tracking-briefing",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+                },
+                {
+                  "id": "PHY111.block.m01.video.motion-briefing-ack",
+                  "kind": "interactiveActivity",
+                  "title": "Motion-tracking briefing check",
+                  "summary": "Confirm the safe setup, calibration, evidence, and uncertainty requirements.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.video.motion-tracking-briefing",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+                },
+                {
+                  "id": "PHY111.block.m01.lab.motion",
+                  "kind": "interactiveActivity",
+                  "title": "Investigation - Video motion tracking",
+                  "summary": "Capture or import safe one-dimensional motion, or use the bundled fallback observations.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.lab.motion-tracking",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+                },
+                {
+                  "id": "PHY111.block.m01.lab.guided",
+                  "kind": "interactiveActivity",
+                  "title": "Computational mini-lab - Guided numerical kinematics",
+                  "summary": "Update velocity and position from a sampled acceleration series.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.lab.numerical-guided",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+                },
+                {
+                  "id": "PHY111.block.m01.lab.python",
+                  "kind": "interactiveActivity",
+                  "title": "Computational mini-lab - Python notebook",
+                  "summary": "Complete the same numerical evidence path with editable local Python.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.activity.m01.lab.python",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.problem-set",
+              "title": "Module 1 problem set",
+              "summary": "Ten less-scaffolded problems requiring representations, units, and checks.",
+              "estimatedMinutes": 360,
+              "objectives": ["Solve less-scaffolded motion and force problems.", "Derive and explain rather than merely substitute.", "Perform a dimensional or physical check."],
+              "essentialQuestions": ["Can you select the correct model without scaffolding?"],
+              "reflectionPrompts": ["Categorize your first error in each problem."],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.problem-set-intro",
+                  "kind": "lessonContent",
+                  "title": "Problem set",
+                  "summary": "Instructions for all ten problems.",
+                  "requirement": "required",
+                  "referencedContentID": null,
+                  "bodyMarkdown": "These problems are deliberately less scaffolded than the guided exercises. Draw a representation before calculation; solve symbolically when practical; carry units; and perform at least one check.",
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.01", "kind": "interactiveActivity", "title": "Problem 1", "summary": "Polynomial position law.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.01", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.02", "kind": "interactiveActivity", "title": "Problem 2", "summary": "Average velocity and speed.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.02", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.03", "kind": "interactiveActivity", "title": "Problem 3", "summary": "Projectile flight.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.03", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.04", "kind": "interactiveActivity", "title": "Problem 4", "summary": "Angled pull on a crate.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.04", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.05", "kind": "interactiveActivity", "title": "Problem 5", "summary": "Connected blocks.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.05", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.06", "kind": "interactiveActivity", "title": "Problem 6", "summary": "Horizontal circular motion.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.06", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.07", "kind": "interactiveActivity", "title": "Problem 7", "summary": "Constant-acceleration derivation.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.07", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.08", "kind": "interactiveActivity", "title": "Problem 8", "summary": "Third-law explanation and diagram.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.08", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.09", "kind": "interactiveActivity", "title": "Problem 9", "summary": "Elevator acceleration.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.09", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                },
+                {
+                  "id": "PHY111.block.m01.problem.10", "kind": "interactiveActivity", "title": "Problem 10", "summary": "Dimensional check of projectile range.", "requirement": "required", "referencedContentID": "PHY111.activity.m01.problem.10", "bodyMarkdown": null, "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+                }
+              ]
+            },
+            {
+              "id": "PHY111.lesson.m01.assess",
+              "title": "Module mastery and quiz",
+              "summary": "Two closed-note formative assessments with six objective and two constructed items each.",
+              "estimatedMinutes": 55,
+              "objectives": ["Retrieve Module 1 concepts under time pressure.", "Explain modelling and force principles in words.", "Review errors by category before retrying."],
+              "essentialQuestions": ["Can you apply the model without consulting notes?"],
+              "reflectionPrompts": ["Which error category should guide your retry?"],
+              "blocks": [
+                {
+                  "id": "PHY111.block.m01.mastery",
+                  "kind": "lessonCheck",
+                  "title": "Module mastery test",
+                  "summary": "Closed notes; suggested time 25 minutes; scientific calculator permitted.",
+                  "requirement": "required",
+                  "referencedContentID": "PHY111.assessment.m01.mastery",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+                },
+                {
+                  "id": "PHY111.block.m01.quiz",
+                  "kind": "moduleQuiz",
+                  "title": "Module Quiz",
+                  "summary": "Answer without notes; constructed equations require explanation.",
+                  "requirement": "recommended",
+                  "referencedContentID": "PHY111.assessment.m01.quiz",
+                  "bodyMarkdown": null,
+                  "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "level": "Calculus-based undergraduate foundation",
+      "primarySubject": "Physics",
+      "contentMode": "nativeInteractiveScience",
+      "programmePosition": "Foundation course",
+      "estimatedWorkload": "350-450 hours for the planned twelve-module course",
+      "deliveryDescription": "Self-paced, invite-only public beta with local experiments and computation.",
+      "overviewMarkdown": "This public beta contains the complete native learning sequence for Module 1 and a recommended foundations reference. Modules 2-12 remain planned and are not represented as completed content.",
+      "assetIDs": ["PHY111.asset.module1-source"],
+      "academicReviewStatus": "faithfulNativeBetaRequiresFinalAcademicReview",
+      "rightsStatus": "Course-owned source excerpt bundled for enrolled pilot learners",
+      "sourceTextStatus": "Converted from PHY111 Enhanced Interactive Course v2.1 pages 2-25",
+      "plannedModuleCount": 12,
+      "accessRequirement": "inviteOnly",
+      "completionPolicy": {
+        "completionLabel": "Module 1 pilot complete",
+        "awardsCredential": false,
+        "requiredGroupIDs": [
+          "PHY111.completion.required-work",
+          "PHY111.completion.motion-investigation",
+          "PHY111.completion.computation",
+          "PHY111.completion.mastery"
+        ]
+      }
+    }
+  ],
+  "studyGuides": [],
+  "readingGuides": [],
+  "primaryReadings": [],
+  "readingLists": [],
+  "videos": [
+    {
+      "id": "PHY111.video.m01.motion-tracking-briefing",
+      "title": "Motion-tracking lab briefing",
+      "summary": "A transcript-first briefing derived from the Module 1 investigation. The released source pages provide no HTTPS media URL, so no external or invented video is substituted.",
+      "durationSeconds": 240,
+      "language": "en",
+      "captionLanguages": ["en"],
+      "transcriptMarkdown": "## Safe setup\n\nRecord only a safe one-dimensional motion. Keep the phone stationary and the motion parallel to the image plane. Do not film traffic, heights, fast projectiles, or any setup that places a person or device at risk. You may use the bundled observations instead of a camera.\n\n## Calibration and timing\n\nPlace a ruler or known-length object in the plane of motion. Mark two calibration points and enter their real separation. Use the video's actual frame timestamps rather than assuming a nominal frame rate.\n\n## Observations and analysis\n\nExtract at least 20 position-time points. Estimate velocity with central differences at interior points, then estimate acceleration. Compare the numerical derivative with a stated model.\n\n## Minimum evidence\n\nRetain the observations or fallback settings, model equation, graph, scale and timing uncertainty, comparison between prediction and result, explanation of how differentiation amplifies noise, and a brief limitations paragraph.",
+      "mediaURL": null,
+      "completionActivityID": "PHY111.activity.m01.video.motion-tracking-briefing",
+      "fallbackMarkdown": "Read the complete native transcript, then acknowledge the safety, calibration, evidence, and uncertainty requirements. No HTTPS course-video URL is present in the released source pages."
+    }
+  ],
+  "exerciseSets": [],
+  "assessments": [
+    {
+      "id": "PHY111.assessment.m01.mastery",
+      "title": "Module 1 Mastery Test",
+      "kind": "masteryTest",
+      "questionIDs": [],
+      "requestedQuestionCount": 8,
+      "durationSeconds": 1500,
+      "gradeRole": "formative",
+      "writtenSections": [],
+      "totalPoints": 8,
+      "courseID": "PHY111",
+      "moduleID": "PHY111.module.01",
+      "recommendedTimeMinimumMinutes": 25,
+      "recommendedTimeMaximumMinutes": 25,
+      "permittedMaterials": "Closed notes. Scientific calculator permitted.",
+      "scienceAssessmentItemIDs": [
+        "PHY111.item.m01.mastery.01",
+        "PHY111.item.m01.mastery.02",
+        "PHY111.item.m01.mastery.03",
+        "PHY111.item.m01.mastery.04",
+        "PHY111.item.m01.mastery.05",
+        "PHY111.item.m01.mastery.06",
+        "PHY111.item.m01.mastery.07",
+        "PHY111.item.m01.mastery.08"
+      ],
+      "toolProfileID": "PHY111.tool.assessment",
+      "sciencePassPolicy": {
+        "scorableItemCount": 6,
+        "minimumCorrectCount": 5,
+        "requiredConstructedResponseCount": 2,
+        "displayThreshold": "5 of 6 objective items correct, with both constructed responses present"
+      },
+      "feedbackPolicy": "afterSubmission",
+      "unlimitedRetries": true,
+      "unlockGroupIDs": ["PHY111.completion.required-work", "PHY111.completion.motion-investigation"]
+    },
+    {
+      "id": "PHY111.assessment.m01.quiz",
+      "title": "Module 1 Quiz",
+      "kind": "moduleQuiz",
+      "questionIDs": [],
+      "requestedQuestionCount": 8,
+      "durationSeconds": null,
+      "gradeRole": "formative",
+      "writtenSections": [],
+      "totalPoints": 8,
+      "courseID": "PHY111",
+      "moduleID": "PHY111.module.01",
+      "permittedMaterials": "Answer without notes. Scientific calculator permitted.",
+      "scienceAssessmentItemIDs": [
+        "PHY111.item.m01.quiz.01",
+        "PHY111.item.m01.quiz.02",
+        "PHY111.item.m01.quiz.03",
+        "PHY111.item.m01.quiz.04",
+        "PHY111.item.m01.quiz.05",
+        "PHY111.item.m01.quiz.06",
+        "PHY111.item.m01.quiz.07",
+        "PHY111.item.m01.quiz.08"
+      ],
+      "toolProfileID": "PHY111.tool.assessment",
+      "sciencePassPolicy": {
+        "scorableItemCount": 6,
+        "minimumCorrectCount": 5,
+        "requiredConstructedResponseCount": 2,
+        "displayThreshold": "5 of 6 objective items correct, with both constructed responses present"
+      },
+      "feedbackPolicy": "afterSubmission",
+      "unlimitedRetries": true
+    }
+  ],
+  "glossaryTerms": [
+    { "id": "PHY111.term.acceleration", "term": "acceleration", "definitionMarkdown": "The time rate of change of velocity; in one dimension, $a_x=dv_x/dt$.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.velocity"] },
+    { "id": "PHY111.term.coordinate-system", "term": "coordinate system", "definitionMarkdown": "A chosen origin, axes, and positive directions used to assign numerical components to positions and vectors.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.vector"] },
+    { "id": "PHY111.term.displacement", "term": "displacement", "definitionMarkdown": "The signed change in position, $\\Delta x=x_f-x_i$; it depends only on the endpoints.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.velocity"] },
+    { "id": "PHY111.term.free-body-diagram", "term": "free-body diagram", "definitionMarkdown": "A model that isolates one selected system and displays only the external forces acting on it.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.net-force", "PHY111.term.system"] },
+    { "id": "PHY111.term.inertial-frame", "term": "inertial reference frame", "definitionMarkdown": "A frame in which an object with zero net force maintains constant velocity and Newton's second law has its standard form.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.net-force"] },
+    { "id": "PHY111.term.net-force", "term": "net force", "definitionMarkdown": "The vector sum of the external forces acting on the selected system.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.free-body-diagram"] },
+    { "id": "PHY111.term.normal-force", "term": "normal force", "definitionMarkdown": "A contact force perpendicular to a surface; it is not automatically equal to weight.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.weight"] },
+    { "id": "PHY111.term.projectile-motion", "term": "projectile motion", "definitionMarkdown": "Motion after launch under an ideal model with zero horizontal acceleration and approximately constant downward vertical acceleration.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.vector"] },
+    { "id": "PHY111.term.system", "term": "system", "definitionMarkdown": "The object or collection of objects deliberately selected for analysis.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.free-body-diagram"] },
+    { "id": "PHY111.term.vector", "term": "vector", "definitionMarkdown": "A coordinate-independent physical quantity with magnitude and direction whose components depend on the chosen basis.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.coordinate-system"] },
+    { "id": "PHY111.term.velocity", "term": "velocity", "definitionMarkdown": "The time rate of change of position; average velocity is displacement divided by elapsed time.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.acceleration", "PHY111.term.displacement"] },
+    { "id": "PHY111.term.weight", "term": "weight", "definitionMarkdown": "The gravitational force on an object; near Earth's surface its magnitude is $mg$.", "sourceIDs": ["PHY111"], "relatedTermIDs": ["PHY111.term.normal-force"] }
+  ],
+  "bibliographySources": [
+    {
+      "id": "PHY111.source.brown-introductory-physics-1",
+      "citation": "Robert G. Brown, Introductory Physics I: Elementary Mechanics, Duke University Physics Department.",
+      "url": null,
+      "note": "Primary scope source identified in the PHY111 v2.1 course record."
+    }
+  ],
+  "assets": [
+    {
+      "id": "PHY111.asset.module1-source",
+      "courseID": "PHY111",
+      "title": "PHY111 Module 1 Source Pages 2-25",
+      "kind": "coursebook",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "isDownloadable": false,
+      "sourceStatus": "verbatimRestrictedExcerpt",
+      "mimeType": "application/pdf",
+      "sha256": "6d8865bdbbdc33fb4922998a76cd660e1fccf986e01e20299ad34d8c305b3d5c",
+      "byteCount": 1384750,
+      "availability": "immediate",
+      "containsAnswerMaterial": false
+    }
+  ],
+  "interactiveActivities": [
+    {
+      "id": "PHY111.activity.orientation.scientific-standard",
+      "activityVersion": "1",
+      "title": "Scientific standard acknowledgement",
+      "summary": "Confirm the evidence standard that applies to every numerical result.",
+      "kind": "acknowledgement",
+      "requirement": "required",
+      "estimatedMinutes": 2,
+      "configuration": {
+        "kind": "acknowledgement",
+        "details": {
+          "statementMarkdown": "Every numerical result must be traceable to an explicit model, units, assumptions, and a check; computation is a method, not a substitute for modelling.",
+          "acknowledgementLabel": "I will show the model, units, assumptions, and at least one check."
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "ack", "title": "Scientific standard acknowledged", "kind": "acknowledgement", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 2, "lastPage": 2 }
+    },
+    {
+      "id": "PHY111.activity.foundation.dimensions",
+      "activityVersion": "1",
+      "title": "Dimensions practice",
+      "summary": "Show the dimensions of energy, power, and v²/g.",
+      "kind": "constructedResponse",
+      "requirement": "recommended",
+      "estimatedMinutes": 15,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": [
+            "Show that the dimensions of energy are M L² T⁻².",
+            "Show that the dimensions of power are M L² T⁻³.",
+            "Show that v²/g has dimensions of length."
+          ],
+          "minimumResponseCharacters": 12,
+          "selfReviewPrompts": ["Every term uses base dimensions.", "The final dimension matches the requested physical quantity."]
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "derivations", "title": "Three dimensional checks", "kind": "text", "minimumCount": 3 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 5, "lastPage": 5 }
+    },
+    {
+      "id": "PHY111.activity.foundation.uncertainty",
+      "activityVersion": "1",
+      "title": "Measurement and uncertainty practice",
+      "summary": "Estimate speed and its first-order fractional uncertainty.",
+      "kind": "numericQuantity",
+      "requirement": "recommended",
+      "estimatedMinutes": 15,
+      "instructionsMarkdown": "A length is 1.245 ± 0.005 m and a time is 0.82 ± 0.01 s. Estimate speed and its fractional uncertainty using a first-order propagation rule.",
+      "configuration": {
+        "kind": "numericQuantity",
+        "details": {
+          "parts": [
+            {
+              "id": "speed",
+              "label": "Speed",
+              "promptMarkdown": "Calculate the central speed estimate.",
+              "answer": { "canonicalValue": 1.518292683, "canonicalUnitID": "m/s", "acceptedUnitIDs": ["m/s"], "relativeTolerance": 0.01, "requiresUnit": true, "minimumSignificantFigures": 2 }
+            },
+            {
+              "id": "fractional-uncertainty",
+              "label": "Fractional uncertainty",
+              "promptMarkdown": "Add the first-order fractional contributions δL/L and δt/t.",
+              "answer": { "canonicalValue": 0.016211749, "canonicalUnitID": "1", "acceptedUnitIDs": ["1"], "absoluteTolerance": 0.001, "requiresUnit": false }
+            }
+          ],
+          "responseInstructionsMarkdown": "Retain enough intermediate figures to show the uncertainty estimate; do not report all calculator digits as physical precision."
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "values", "title": "Speed and fractional uncertainty", "kind": "numericValue", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 6, "lastPage": 6 }
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.1",
+      "activityVersion": "1",
+      "title": "Concept check 1.1",
+      "summary": "Coordinates, distance, and reversed axes.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 8,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": ["Why can a coordinate be negative while a distance cannot?", "Which quantities change if the positive axis is reversed?"],
+          "minimumResponseCharacters": 12,
+          "selfReviewPrompts": ["I distinguished a coordinate from a path length.", "I distinguished vector components from scalar quantities."]
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "responses", "title": "Two concept responses", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 9, "lastPage": 9 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.round-trip",
+      "activityVersion": "1",
+      "title": "A round trip with unequal speeds",
+      "summary": "Attempt the problem before revealing the complete source solution.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 15,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "A student walks 120 m east in 80 s and then 120 m west in 120 s. Find average velocity and average speed.",
+          "solutionMarkdown": "1. Choose east as positive. The total displacement is +120 m - 120 m = 0.\n2. The elapsed time is 200 s, so the average velocity is 0/200 = 0 m s⁻¹.\n3. The total distance is 240 m, so average speed is 240/200 = 1.20 m s⁻¹.",
+          "resultMarkdown": "Average velocity = 0; average speed = 1.20 m s⁻¹.",
+          "interpretationMarkdown": "The same journey can have zero average velocity and a positive average speed because velocity records net change, while speed records accumulated path length.",
+          "minimumAttemptCharacters": 10
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 10, "lastPage": 10 }
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.2",
+      "activityVersion": "1",
+      "title": "Concept check 1.2",
+      "summary": "Instantaneous motion and graph area.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 8,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": ["Can velocity be zero while acceleration is nonzero? Give an example.", "What feature of a velocity-time graph gives displacement?"],
+          "minimumResponseCharacters": 12,
+          "selfReviewPrompts": ["My example identifies an instant rather than an interval.", "I used signed area rather than only geometric area."]
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "responses", "title": "Two concept responses", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 11, "lastPage": 11 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.braking",
+      "activityVersion": "1",
+      "title": "Braking to rest",
+      "summary": "Attempt the stopping problem before revealing the source solution.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 15,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "A bicycle travels at 8.0 m s⁻¹ and brakes with constant acceleration -2.0 m s⁻². Find the stopping time and distance.",
+          "solutionMarkdown": "1. Set v_f=0. From v_f=v_i+at, t=(0-8.0)/(-2.0)=4.0 s.\n2. Use Δx=v_it+½at²=8.0(4.0)+½(-2.0)(4.0)².\n3. The displacement is 32-16=16 m.",
+          "resultMarkdown": "Stopping time = 4.0 s; stopping distance = 16 m.",
+          "interpretationMarkdown": "Doubling the initial speed while keeping the same braking acceleration would quadruple the braking distance.",
+          "minimumAttemptCharacters": 10
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 12, "lastPage": 12 }
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.3",
+      "activityVersion": "1",
+      "title": "Concept check 1.3",
+      "summary": "Projectile components and range symmetry.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 8,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": ["Why is the horizontal velocity constant in the ideal projectile model?", "Which launch angles give the same range on level ground when drag is absent?"],
+          "minimumResponseCharacters": 12,
+          "selfReviewPrompts": ["I identified the zero-horizontal-force assumption.", "I related complementary angles through sin(2θ)."]
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "responses", "title": "Two concept responses", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 13, "lastPage": 13 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.projectile",
+      "activityVersion": "1",
+      "title": "Launch from level ground",
+      "summary": "Attempt the projectile problem before revealing the source solution.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 18,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "A ball is launched at 20 m s⁻¹ at 30° above horizontal. Neglect air resistance and take g=9.8 m s⁻². Find flight time and range.",
+          "solutionMarkdown": "1. Resolve the initial velocity: v₀x=20 cos30°=17.3 m s⁻¹; v₀y=20 sin30°=10.0 m s⁻¹.\n2. At landing y-y₀=0, so 0=v₀yt-½gt². The nonzero solution is t=2v₀y/g=2.04 s.\n3. Range R=v₀xt=17.3(2.04)=35.3 m.",
+          "resultMarkdown": "Flight time ≈ 2.04 s; range ≈ 35.3 m.",
+          "interpretationMarkdown": "The vertical component determines how long the projectile remains aloft; the horizontal component converts that time into range.",
+          "minimumAttemptCharacters": 10
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 14, "lastPage": 14 }
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.4",
+      "activityVersion": "1",
+      "title": "Concept check 1.4",
+      "summary": "Force sources and third-law partners.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 8,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": ["Why must every force on a free-body diagram have an identifiable source?", "Why do third-law forces not cancel in the equation for a single object?"],
+          "minimumResponseCharacters": 12,
+          "selfReviewPrompts": ["Every force is tied to an interaction.", "I stated that third-law partners act on different objects."]
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "responses", "title": "Two concept responses", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 15, "lastPage": 15 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.two-blocks",
+      "activityVersion": "1",
+      "title": "Two blocks pulled together",
+      "summary": "Attempt the connected-system problem before revealing the source solution.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 18,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "Blocks of 2.0 kg and 3.0 kg are connected by a light cord on a frictionless table. A 20 N horizontal force pulls the 3.0 kg block. Find the acceleration and cord tension.",
+          "solutionMarkdown": "1. Treat both blocks as one system: a=F/(m₁+m₂)=20/5.0=4.0 m s⁻².\n2. Isolate the 2.0 kg block. Its only horizontal force is the tension T.\n3. Apply T=m₁a=2.0(4.0)=8.0 N.",
+          "resultMarkdown": "Acceleration = 4.0 m s⁻²; tension = 8.0 N.",
+          "interpretationMarkdown": "Choosing the entire system first eliminates the internal tension; isolating one block afterward reveals it.",
+          "minimumAttemptCharacters": 10
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 15, "lastPage": 15 }
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.5",
+      "activityVersion": "1",
+      "title": "Concept check 1.5",
+      "summary": "Normal force and solution checks.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 8,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": ["When can a normal force be smaller than, equal to, or larger than weight?", "What checks should be performed after solving a force problem?"],
+          "minimumResponseCharacters": 12,
+          "selfReviewPrompts": ["I related the normal force to contact constraints, not a fixed rule.", "I checked units, signs, limiting cases, and physical magnitude."]
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "responses", "title": "Two concept responses", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 16, "lastPage": 16 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.elevator",
+      "activityVersion": "1",
+      "title": "Apparent weight in an elevator",
+      "summary": "Attempt the force problem before revealing the source solution.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 15,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "A 70 kg person stands on a scale in an elevator accelerating upward at 1.5 m s⁻². What does the scale read?",
+          "solutionMarkdown": "1. For the person, choose upward positive. Forces are normal force N upward and weight mg downward.\n2. Newton's second law gives N-mg=ma.\n3. Thus N=m(g+a)=70(9.8+1.5)=791 N.",
+          "resultMarkdown": "Scale reading = 7.9 × 10² N.",
+          "interpretationMarkdown": "The scale measures the normal force, not gravity directly. Upward acceleration makes the apparent weight exceed mg.",
+          "minimumAttemptCharacters": 10
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 16, "lastPage": 16 }
+    },
+    {
+      "id": "PHY111.activity.m01.guided.1A",
+      "activityVersion": "1",
+      "title": "Exercise 1A - Motion reconstruction",
+      "summary": "Connect velocity, signed area, turning time, and position-graph slope.",
+      "kind": "graphTable",
+      "requirement": "required",
+      "estimatedMinutes": 45,
+      "instructionsMarkdown": "A particle's velocity is +4 m s⁻¹ from 0-3 s, decreases linearly to -2 m s⁻¹ from 3-6 s, and remains -2 m s⁻¹ from 6-9 s. Draw the velocity-time graph, calculate total displacement, identify turning time, and sketch a compatible position-time graph.",
+      "configuration": {
+        "kind": "graphTable",
+        "details": {
+          "promptMarkdown": "Use signed area under the velocity graph. Locate the instant at which velocity crosses zero. Make the position graph's slope match the velocity in each interval.",
+          "columns": [
+            { "id": "time", "title": "Time", "unitID": "s", "isEditable": false },
+            { "id": "velocity", "title": "Velocity", "unitID": "m/s", "isEditable": false },
+            { "id": "position", "title": "Compatible position", "unitID": "m", "isEditable": true }
+          ],
+          "initialRows": [["0", "4", ""], ["3", "4", ""], ["5", "0", ""], ["6", "-2", ""], ["9", "-2", ""]],
+          "series": [
+            { "id": "velocity-time", "title": "Velocity-time", "xColumnID": "time", "yColumnID": "velocity" },
+            { "id": "position-time", "title": "Position-time", "xColumnID": "time", "yColumnID": "position" }
+          ],
+          "minimumRows": 5,
+          "responsePrompts": ["Explain how the position graph's slope matches each velocity interval."],
+          "numericPrompts": [
+            { "id": "displacement", "label": "Total displacement", "promptMarkdown": "Calculate the signed area from 0 to 9 s.", "answer": { "canonicalValue": 9, "canonicalUnitID": "m", "acceptedUnitIDs": ["m"], "absoluteTolerance": 0.05, "requiresUnit": true } },
+            { "id": "turning-time", "label": "Turning time", "promptMarkdown": "Identify when velocity crosses zero.", "answer": { "canonicalValue": 5, "canonicalUnitID": "s", "acceptedUnitIDs": ["s"], "absoluteTolerance": 0.02, "requiresUnit": true } }
+          ]
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [
+        { "id": "graph", "title": "Velocity and position graphs", "kind": "graph", "minimumCount": 2 },
+        { "id": "values", "title": "Displacement and turning time", "kind": "numericValue", "minimumCount": 2 },
+        { "id": "explanation", "title": "Slope explanation", "kind": "text", "minimumCount": 1 }
+      ],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 17, "lastPage": 17 }
+    },
+    {
+      "id": "PHY111.activity.m01.guided.1B",
+      "activityVersion": "1",
+      "title": "Exercise 1B - Free-body diagram clinic",
+      "summary": "Draw a separate free-body diagram for each named system.",
+      "kind": "freeBodyDiagram",
+      "requirement": "required",
+      "estimatedMinutes": 60,
+      "configuration": {
+        "kind": "freeBodyDiagram",
+        "details": {
+          "scenarios": [
+            { "id": "book", "title": "Book on a table", "situationMarkdown": "Draw the forces acting on the book and label each source.", "namedSystem": "book", "minimumForceCount": 2 },
+            { "id": "sled", "title": "Sled pulled by an angled rope", "situationMarkdown": "Draw the forces acting on the sled and label each source.", "namedSystem": "sled", "minimumForceCount": 4 },
+            { "id": "falling-ball", "title": "Falling ball with drag", "situationMarkdown": "Draw the forces acting on the ball and label each source.", "namedSystem": "ball", "minimumForceCount": 2 },
+            { "id": "pulley-block", "title": "Two-block pulley system", "situationMarkdown": "Choose and circle one block, then draw only the forces acting on that block.", "namedSystem": "selected block", "minimumForceCount": 2 }
+          ],
+          "selfReviewPrompts": [
+            "I circled the system before drawing forces.",
+            "I included only forces acting on that system.",
+            "I identified every force source and described third-law partners outside the diagram.",
+            "I did not add velocity arrows or 'centripetal force' as extra forces."
+          ]
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "diagrams", "title": "Four system-specific diagrams", "kind": "diagram", "minimumCount": 4 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 18, "lastPage": 18 }
+    },
+    {
+      "id": "PHY111.activity.m01.derivation-board",
+      "activityVersion": "1",
+      "title": "Derivation board",
+      "summary": "Reproduce the calculus structure of kinematics and uniform circular motion.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 35,
+      "configuration": {
+        "kind": "constructedResponse",
+        "details": {
+          "prompts": [
+            "From the definitions vₓ=dx/dt and aₓ=dvₓ/dt, write the definite integrals for Δx and Δv between tᵢ and t_f.",
+            "Explain geometrically why a velocity vector of constant magnitude in uniform circular motion has inward acceleration of magnitude v²/r=ω²r."
+          ],
+          "minimumResponseCharacters": 20,
+          "selfReviewPrompts": ["My integration limits are explicit.", "My circular-motion explanation changes direction without changing speed."]
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "derivations", "title": "Two derivation responses", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 19, "lastPage": 19 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.non-uniform-acceleration",
+      "activityVersion": "1",
+      "title": "Non-uniform acceleration from a velocity law",
+      "summary": "Differentiate and integrate rather than applying constant-acceleration identities.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "A cart has velocity v(t)=2.0+0.80t² m/s. Find acceleration at 3.0 s and displacement from 0 to 3.0 s.",
+          "solutionMarkdown": "1. Differentiate: a(t)=1.60t, so a(3)=4.8 m/s².\n2. Integrate velocity: Δx=∫₀³(2+0.8t²)dt=2t+(0.8/3)t³ evaluated from 0 to 3.\n3. The displacement is 13.2 m.",
+          "resultMarkdown": "a(3.0 s)=4.8 m/s²; Δx=13.2 m.",
+          "interpretationMarkdown": "The calculation uses the definitions directly; no constant-acceleration formula is valid because acceleration changes with time.",
+          "minimumAttemptCharacters": 12
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent calculus attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 20, "lastPage": 20 }
+    },
+    {
+      "id": "PHY111.activity.m01.worked.horizontal-curve",
+      "activityVersion": "1",
+      "title": "Horizontal curve and friction",
+      "summary": "Use friction as the real interaction supplying the inward force.",
+      "kind": "workedExample",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "configuration": {
+        "kind": "workedExample",
+        "details": {
+          "problemMarkdown": "A 900 kg car moves at 15 m/s around a flat curve of radius 50 m. What minimum static-friction coefficient prevents slipping?",
+          "solutionMarkdown": "1. Required inward force is mv²/r.\n2. The maximum static friction is μ_smg.\n3. Set μ_smg≥mv²/r, giving μ_s≥v²/(rg)=0.459.",
+          "resultMarkdown": "Minimum μ_s=0.459.",
+          "interpretationMarkdown": "Mass cancels. The friction is not an additional centripetal force; it is the interaction that provides the inward net force.",
+          "minimumAttemptCharacters": 12
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "attempt", "title": "Independent force-model attempt", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 20, "lastPage": 20 }
+    },
+    {
+      "id": "PHY111.activity.m01.tutorial.A",
+      "activityVersion": "1",
+      "title": "Tutorial A - Graph reconstruction clinic",
+      "summary": "Work from prediction through three linked motion representations.",
+      "kind": "graphTable",
+      "requirement": "required",
+      "estimatedMinutes": 50,
+      "configuration": {
+        "kind": "graphTable",
+        "details": {
+          "promptMarkdown": "Work in the order shown. Do not skip the prediction or representation stages: sketch an x-t graph with three intervals (increasing concave up, decreasing linear, horizontal); produce qualitative v-t and a-t graphs; mark zero velocity and positive acceleration; explain what is invariant under a shift of position origin.",
+          "columns": [
+            { "id": "time", "title": "Qualitative time", "unitID": "s", "isEditable": true },
+            { "id": "position", "title": "Position", "unitID": "m", "isEditable": true },
+            { "id": "velocity", "title": "Velocity", "unitID": "m/s", "isEditable": true },
+            { "id": "acceleration", "title": "Acceleration", "unitID": "m/s^2", "isEditable": true }
+          ],
+          "initialRows": [],
+          "series": [
+            { "id": "x-t", "title": "Position-time", "xColumnID": "time", "yColumnID": "position" },
+            { "id": "v-t", "title": "Velocity-time", "xColumnID": "time", "yColumnID": "velocity" },
+            { "id": "a-t", "title": "Acceleration-time", "xColumnID": "time", "yColumnID": "acceleration" }
+          ],
+          "minimumRows": 6,
+          "responsePrompts": ["Mark every instant at which velocity is zero and every interval of positive acceleration.", "Explain which features are invariant if the origin of position is shifted."],
+          "numericPrompts": []
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "graphs", "title": "Three linked graphs", "kind": "graph", "minimumCount": 3 }, { "id": "explanations", "title": "Marks and invariance explanation", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 21, "lastPage": 21 }
+    },
+    {
+      "id": "PHY111.activity.m01.tutorial.B",
+      "activityVersion": "1",
+      "title": "Tutorial B - Constraint and force model",
+      "summary": "Build two diagrams, choose the constraint direction, and derive acceleration and tension.",
+      "kind": "freeBodyDiagram",
+      "requirement": "required",
+      "estimatedMinutes": 60,
+      "configuration": {
+        "kind": "freeBodyDiagram",
+        "details": {
+          "scenarios": [
+            { "id": "table-block", "title": "Block on the horizontal table", "situationMarkdown": "The table block is connected over a frictionless pulley to a hanging block. Draw its separate free-body diagram and use the explanation to derive the constraint equation, acceleration, and tension for masses m₁ and m₂.", "namedSystem": "table block m₁", "minimumForceCount": 3 },
+            { "id": "hanging-block", "title": "Hanging block", "situationMarkdown": "Draw the hanging block's separate free-body diagram using a coordinate direction consistent with the rope constraint. Then explain exactly where kinetic friction changes the derivation.", "namedSystem": "hanging block m₂", "minimumForceCount": 2 }
+          ],
+          "selfReviewPrompts": ["The two acceleration coordinates obey one explicit rope constraint.", "The frictionless symbolic result is shown before kinetic friction is added.", "I identified the exact component equation changed by kinetic friction."]
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "diagrams", "title": "Two free-body diagrams", "kind": "diagram", "minimumCount": 2 }, { "id": "derivation", "title": "Constraint, acceleration, tension, and friction explanation", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 21, "lastPage": 21 }
+    },
+    {
+      "id": "PHY111.activity.m01.debug.circular-motion",
+      "activityVersion": "1",
+      "title": "Debug the circular-motion solution",
+      "summary": "Locate the first invalid inference and repair the force model.",
+      "kind": "errorDiagnosis",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "configuration": {
+        "kind": "errorDiagnosis",
+        "details": {
+          "flawedSolutionMarkdown": "The car moves at constant speed, so acceleration is zero. Therefore the inward friction force on a circular road must also be zero.",
+          "requiredResponsePrompts": ["Identify the first invalid step.", "State the violated principle or assumption.", "Repair the solution from that point onward and write the correct inward force equation."],
+          "selfReviewMarkdown": "A complete repair distinguishes constant speed from constant velocity and writes an inward acceleration v²/r supplied by a real interaction such as friction."
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "diagnosis", "title": "First invalid step, violated principle, and repaired equation", "kind": "text", "minimumCount": 3 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 21, "lastPage": 21 }
+    },
+    {
+      "id": "PHY111.activity.m01.video.motion-tracking-briefing",
+      "activityVersion": "1",
+      "title": "Motion-tracking briefing acknowledgement",
+      "summary": "Confirm the safety, calibration, evidence, and uncertainty rules from the native transcript fallback.",
+      "kind": "acknowledgement",
+      "requirement": "required",
+      "estimatedMinutes": 4,
+      "configuration": {
+        "kind": "acknowledgement",
+        "details": {
+          "statementMarkdown": "I will use a safe one-dimensional setup or the bundled fallback, calibrate distance, use actual timing, extract at least 20 observations, retain the model and graph, and explain uncertainty, derivative noise, agreement, and limitations.",
+          "acknowledgementLabel": "I understand the investigation briefing."
+        }
+      },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "ack", "title": "Briefing acknowledged", "kind": "acknowledgement", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+    },
+    {
+      "id": "PHY111.activity.m01.lab.motion-tracking",
+      "activityVersion": "1",
+      "title": "Investigation - Video motion tracking",
+      "summary": "Calibrate and analyse a safe one-dimensional motion or the bundled fallback observations.",
+      "kind": "motionTrackingLab",
+      "requirement": "required",
+      "estimatedMinutes": 120,
+      "instructionsMarkdown": "Record a safe one-dimensional motion with a phone at known frame rate. Calibrate distance with a ruler or known object, extract at least 20 position-time points, estimate velocity by central differences, estimate acceleration, and compare the numerical derivative with a model.",
+      "configuration": {
+        "kind": "motionTrackingLab",
+        "details": {
+          "safetyMarkdown": "Keep the phone stationary and away from traffic, heights, fast projectiles, and any setup that could endanger a person or device. Use the bundled data whenever capture is unavailable or unsafe.",
+          "fallbackDatasetID": "PHY111.dataset.motion.fallback",
+          "minimumSampleCount": 20,
+          "maximumSampleCount": 500,
+          "maximumVideoDurationSeconds": 30,
+          "derivativeMethod": "Central differences at interior samples; omit endpoints unless a clearly labelled one-sided estimate is used.",
+          "requiredReportFields": ["modelEquation", "scaleUncertainty", "timingUncertainty", "noiseAmplification", "predictionComparison", "limitations"]
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": ["PHY111.dataset.motion.fallback"],
+      "evidenceRequirements": [
+        { "id": "observations", "title": "At least 20 calibrated position-time observations", "kind": "table", "minimumCount": 20 },
+        { "id": "graphs", "title": "Position, velocity, and acceleration evidence", "kind": "graph", "minimumCount": 2 },
+        { "id": "report", "title": "Model, uncertainty, comparison, noise, and limitations", "kind": "text", "minimumCount": 6 }
+      ],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+    },
+    {
+      "id": "PHY111.activity.m01.lab.numerical-guided",
+      "activityVersion": "1",
+      "title": "Computational mini-lab - Guided numerical kinematics",
+      "summary": "Integrate sampled acceleration in a structured table and quantify time-step error.",
+      "kind": "numericalKinematics",
+      "requirement": "required",
+      "estimatedMinutes": 70,
+      "configuration": {
+        "kind": "numericalKinematics",
+        "details": {
+          "accelerationDatasetID": "PHY111.dataset.acceleration.constant",
+          "initialPosition": 0,
+          "initialVelocity": 0.6,
+          "defaultTimeStep": 0.1,
+          "positionUpdateMarkdown": "xₙ₊₁=xₙ+vₙΔt",
+          "velocityUpdateMarkdown": "vₙ₊₁=vₙ+aₙΔt",
+          "requiredValidationSteps": ["State initial conditions, parameters, units, algorithm, and step size.", "Compare with x(t)=x₀+v₀t+½at² and v(t)=v₀+at.", "Quantify the final-time error.", "Repeat with a smaller time step.", "Explain the limiting-case result and why the position update has first-order time-step error."]
+        }
+      },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": ["PHY111.dataset.acceleration.constant"],
+      "evidenceRequirements": [{ "id": "table", "title": "t, a, v, x update table", "kind": "table", "minimumCount": 10 }, { "id": "graph", "title": "Numerical and analytic trajectories", "kind": "graph", "minimumCount": 1 }, { "id": "validation", "title": "Analytic, smaller-step, and limiting-case validation", "kind": "validation", "minimumCount": 3 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+    },
+    {
+      "id": "PHY111.activity.m01.lab.python",
+      "activityVersion": "1",
+      "title": "Computational mini-lab - Local Python",
+      "summary": "Produce the same reproducible numerical evidence with editable offline Python.",
+      "kind": "pythonNotebook",
+      "requirement": "required",
+      "estimatedMinutes": 70,
+      "configuration": {
+        "kind": "pythonNotebook",
+        "details": {
+          "runtimeManifestID": "PHY111.runtime.pyodide.v1",
+          "templateSource": "import numpy as np\nimport matplotlib.pyplot as plt\n\n# Initial conditions and parameters (SI units)\ndt = 0.1\nt = np.arange(0.0, 2.0 + dt, dt)\na = np.full_like(t, 0.8)\nx = np.zeros_like(t)\nv = np.zeros_like(t)\nx[0] = 0.0\nv[0] = 0.6\n\n# TODO: implement v[n+1] = v[n] + a[n] * dt\n# and x[n+1] = x[n] + v[n] * dt\nfor n in range(len(t) - 1):\n    pass\n\n# Analytic validation for constant acceleration\nx_exact = x[0] + v[0] * t + 0.5 * a[0] * t**2\nv_exact = v[0] + a[0] * t\nfinal_error = abs(x[-1] - x_exact[-1])\nprint({'dt': dt, 'final_position_error_m': float(final_error)})\n\nplt.plot(t, x, label='numerical')\nplt.plot(t, x_exact, '--', label='analytic')\nplt.xlabel('time / s')\nplt.ylabel('position / m')\nplt.legend()",
+          "visibleTests": [
+            { "id": "finite", "title": "All trajectory values are finite", "expression": "bool(np.all(np.isfinite(x)) and np.all(np.isfinite(v)))", "expectedDescription": "True" },
+            { "id": "moves", "title": "The trajectory advances", "expression": "bool(x[-1] > x[0] and v[-1] > v[0])", "expectedDescription": "True" },
+            { "id": "error", "title": "Final position error is quantified", "expression": "bool(np.isfinite(final_error) and final_error >= 0)", "expectedDescription": "True" }
+          ],
+          "maximumSourceBytes": 65536,
+          "maximumOutputBytes": 65536,
+          "timeoutSeconds": 5,
+          "requiredEvidenceFields": ["initialConditions", "parametersAndUnits", "algorithm", "timeStep", "analyticComparison", "smallerStepComparison", "limitingCase", "errorExplanation"]
+        }
+      },
+      "toolProfileID": "PHY111.tool.python",
+      "datasetIDs": ["PHY111.dataset.acceleration.constant"],
+      "evidenceRequirements": [{ "id": "code", "title": "Editable numerical algorithm", "kind": "code", "minimumCount": 1 }, { "id": "tests", "title": "Visible validation checks", "kind": "validation", "minimumCount": 3 }, { "id": "report", "title": "Reproducibility and time-step evidence", "kind": "text", "minimumCount": 8 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.01",
+      "activityVersion": "1",
+      "title": "Problem 1 - Polynomial motion",
+      "summary": "Differentiate a position law and evaluate at 2 s.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "instructionsMarkdown": "A particle moves as x(t)=4-3t+2t² m. Find velocity and acceleration at 2 s.",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [
+          { "id": "velocity", "label": "Velocity at 2 s", "promptMarkdown": "Differentiate x(t), then evaluate.", "answer": { "canonicalValue": 5, "canonicalUnitID": "m/s", "acceptedUnitIDs": ["m/s"], "absoluteTolerance": 0.05, "requiresUnit": true } },
+          { "id": "acceleration", "label": "Acceleration at 2 s", "promptMarkdown": "Differentiate velocity, then evaluate.", "answer": { "canonicalValue": 4, "canonicalUnitID": "m/s^2", "acceptedUnitIDs": ["m/s^2"], "absoluteTolerance": 0.05, "requiresUnit": true } }
+        ],
+        "responseInstructionsMarkdown": "Show the differentiated expressions and at least one dimensional check in your working."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answers", "title": "Velocity and acceleration", "kind": "numericValue", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.02",
+      "activityVersion": "1",
+      "title": "Problem 2 - Runner's average motion",
+      "summary": "Distinguish displacement from distance in a two-leg journey.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "instructionsMarkdown": "A runner travels 300 m east in 60 s and 100 m west in 20 s. Find average velocity and average speed.",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [
+          { "id": "average-velocity", "label": "Average velocity", "promptMarkdown": "Take east as positive.", "answer": { "canonicalValue": 2.5, "canonicalUnitID": "m/s", "acceptedUnitIDs": ["m/s"], "absoluteTolerance": 0.02, "requiresUnit": true, "feedbackMarkdown": "The displacement is +200 m over 80 s." } },
+          { "id": "average-speed", "label": "Average speed", "promptMarkdown": "Use total path length.", "answer": { "canonicalValue": 5, "canonicalUnitID": "m/s", "acceptedUnitIDs": ["m/s"], "absoluteTolerance": 0.02, "requiresUnit": true, "feedbackMarkdown": "The distance is 400 m over 80 s." } }
+        ],
+        "responseInstructionsMarkdown": "State your positive direction and distinguish displacement from distance."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answers", "title": "Average velocity and speed", "kind": "numericValue", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.03",
+      "activityVersion": "1",
+      "title": "Problem 3 - Projectile flight",
+      "summary": "Resolve an initial velocity and calculate three projectile quantities.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 30,
+      "instructionsMarkdown": "A projectile leaves level ground at 22 m/s and 35 degrees. Neglect drag. Find time of flight, maximum height, and range. Use g=9.8 m/s².",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [
+          { "id": "flight-time", "label": "Time of flight", "promptMarkdown": "Use the nonzero root of the vertical position equation.", "answer": { "canonicalValue": 2.575241143, "canonicalUnitID": "s", "acceptedUnitIDs": ["s"], "relativeTolerance": 0.01, "requiresUnit": true, "minimumSignificantFigures": 3 } },
+          { "id": "maximum-height", "label": "Maximum height", "promptMarkdown": "Use zero vertical velocity at the top.", "answer": { "canonicalValue": 8.124037006, "canonicalUnitID": "m", "acceptedUnitIDs": ["m"], "relativeTolerance": 0.01, "requiresUnit": true, "minimumSignificantFigures": 3 } },
+          { "id": "range", "label": "Range", "promptMarkdown": "Combine horizontal speed with flight time.", "answer": { "canonicalValue": 46.409309027, "canonicalUnitID": "m", "acceptedUnitIDs": ["m"], "relativeTolerance": 0.01, "requiresUnit": true, "minimumSignificantFigures": 3 } }
+        ],
+        "responseInstructionsMarkdown": "Show the component model and identify all ideal-projectile assumptions."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answers", "title": "Flight time, height, and range", "kind": "numericValue", "minimumCount": 3 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.04",
+      "activityVersion": "1",
+      "title": "Problem 4 - Angled pull on a crate",
+      "summary": "Resolve the applied force and determine horizontal acceleration and normal force.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 25,
+      "instructionsMarkdown": "A 12 kg crate is pulled by a 70 N rope 25 degrees above horizontal on a frictionless floor. Find horizontal acceleration and normal force. Use g=9.8 m/s².",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [
+          { "id": "horizontal-acceleration", "label": "Horizontal acceleration", "promptMarkdown": "Use the horizontal component of the rope force.", "answer": { "canonicalValue": 5.286795424, "canonicalUnitID": "m/s^2", "acceptedUnitIDs": ["m/s^2"], "relativeTolerance": 0.01, "requiresUnit": true } },
+          { "id": "normal-force", "label": "Normal force", "promptMarkdown": "Apply zero vertical acceleration.", "answer": { "canonicalValue": 88.016721678, "canonicalUnitID": "N", "acceptedUnitIDs": ["N"], "relativeTolerance": 0.01, "requiresUnit": true } }
+        ],
+        "responseInstructionsMarkdown": "Draw the crate's free-body diagram before evaluating components."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answers", "title": "Acceleration and normal force", "kind": "numericValue", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.05",
+      "activityVersion": "1",
+      "title": "Problem 5 - Connected blocks",
+      "summary": "Change the selected system to expose acceleration and tension.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 25,
+      "instructionsMarkdown": "Two blocks 4 kg and 6 kg are connected on a frictionless table and pulled by 50 N. Find acceleration and tension when the force acts on the 6 kg block.",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [
+          { "id": "acceleration", "label": "Acceleration", "promptMarkdown": "Treat both blocks as one system.", "answer": { "canonicalValue": 5, "canonicalUnitID": "m/s^2", "acceptedUnitIDs": ["m/s^2"], "absoluteTolerance": 0.02, "requiresUnit": true } },
+          { "id": "tension", "label": "Tension", "promptMarkdown": "Then isolate the 4 kg block.", "answer": { "canonicalValue": 20, "canonicalUnitID": "N", "acceptedUnitIDs": ["N"], "absoluteTolerance": 0.1, "requiresUnit": true } }
+        ],
+        "responseInstructionsMarkdown": "Identify which force becomes internal when both blocks are the system."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answers", "title": "Acceleration and tension", "kind": "numericValue", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.06",
+      "activityVersion": "1",
+      "title": "Problem 6 - Horizontal circular motion",
+      "summary": "Find the inward force required for circular motion.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "instructionsMarkdown": "A 0.25 kg ball on a 0.80 m string moves at 5.0 m/s in a horizontal circle. Find the required inward force.",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [
+          { "id": "inward-force", "label": "Required inward force", "promptMarkdown": "Use the inward acceleration v²/r and identify the string tension as the supplying interaction.", "answer": { "canonicalValue": 7.8125, "canonicalUnitID": "N", "acceptedUnitIDs": ["N"], "relativeTolerance": 0.01, "requiresUnit": true, "minimumSignificantFigures": 2 } }
+        ],
+        "responseInstructionsMarkdown": "Do not add 'centripetal force' as a second force in addition to tension."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answer", "title": "Inward force", "kind": "numericValue", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.07",
+      "activityVersion": "1",
+      "title": "Problem 7 - Eliminate time",
+      "summary": "Derive the time-independent constant-acceleration relation.",
+      "kind": "mathExpression",
+      "requirement": "required",
+      "estimatedMinutes": 25,
+      "instructionsMarkdown": "Derive the constant-acceleration relation v_f²=v_i²+2aΔx by eliminating time.",
+      "configuration": { "kind": "mathExpression", "details": {
+        "promptMarkdown": "Enter the final relation, and retain the elimination steps in your working.",
+        "expectedMathJSON": ["Equal(Power(v_f,2),Add(Power(v_i,2),Multiply(2,a,Delta(x))))"],
+        "acceptedLaTeX": ["v_f^2=v_i^2+2a\\Delta x", "v_f^2-v_i^2=2a\\Delta x"],
+        "feedbackMarkdown": "Begin with v_f=v_i+at and Δx=v_it+½at², solve the first for t, and substitute without introducing a new physical assumption."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "derivation", "title": "Symbolic derivation", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.08",
+      "activityVersion": "1",
+      "title": "Problem 8 - Normal force and weight",
+      "summary": "Use an interaction diagram to explain why the forces are not a third-law pair.",
+      "kind": "freeBodyDiagram",
+      "requirement": "required",
+      "estimatedMinutes": 25,
+      "configuration": { "kind": "freeBodyDiagram", "details": {
+        "scenarios": [{ "id": "box", "title": "Box supported by a surface", "situationMarkdown": "Draw weight and normal force on the box, then use the explanation field to identify the separate third-law partner of each force.", "namedSystem": "box", "minimumForceCount": 2 }],
+        "selfReviewPrompts": ["Weight and normal force both act on the box.", "The weight partner acts on Earth and the normal-force partner acts on the supporting surface.", "I did not call two forces on one object a third-law pair."]
+      } },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "diagram", "title": "Free-body diagram", "kind": "diagram", "minimumCount": 1 }, { "id": "explanation", "title": "Third-law explanation", "kind": "text", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.09",
+      "activityVersion": "1",
+      "title": "Problem 9 - Elevator acceleration",
+      "summary": "Infer acceleration and direction from a scale reading.",
+      "kind": "numericQuantity",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "instructionsMarkdown": "A scale in an elevator reads 620 N for a 60 kg person. Find the elevator acceleration and direction. Use g=9.8 m/s².",
+      "configuration": { "kind": "numericQuantity", "details": {
+        "parts": [{ "id": "acceleration", "label": "Elevator acceleration", "promptMarkdown": "Take upward as positive and report the direction with the value.", "answer": { "canonicalValue": 0.533333333, "canonicalUnitID": "m/s^2", "acceptedUnitIDs": ["m/s^2"], "relativeTolerance": 0.02, "requiresUnit": true, "feedbackMarkdown": "Since the normal force exceeds mg=588 N, the acceleration is upward." } }],
+        "responseInstructionsMarkdown": "State the chosen positive axis and interpret the sign."
+      } },
+      "toolProfileID": "PHY111.tool.lesson",
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "answer", "title": "Acceleration and direction", "kind": "numericValue", "minimumCount": 1 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    },
+    {
+      "id": "PHY111.activity.m01.problem.10",
+      "activityVersion": "1",
+      "title": "Problem 10 - Dimensional check",
+      "summary": "Check the dimensions of the ideal projectile-range expression.",
+      "kind": "constructedResponse",
+      "requirement": "required",
+      "estimatedMinutes": 20,
+      "configuration": { "kind": "constructedResponse", "details": {
+        "prompts": ["Construct a dimensional check for R=v₀²sin(2θ)/g.", "State the final physical dimension and explain why the trigonometric factor is dimensionless."],
+        "minimumResponseCharacters": 15,
+        "selfReviewPrompts": ["[v₀²]=L²T⁻².", "[g]=LT⁻².", "The ratio has dimension L and sin(2θ) is dimensionless."]
+      } },
+      "datasetIDs": [],
+      "evidenceRequirements": [{ "id": "check", "title": "Dimensional derivation and final dimension", "kind": "text", "minimumCount": 2 }],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 23, "lastPage": 23 }
+    }
+  ],
+  "scienceAssessmentItems": [
+    {
+      "id": "PHY111.item.m01.mastery.01",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "The slope of a position-time graph is",
+      "points": 1,
+      "options": [
+        { "id": "A", "label": "acceleration" },
+        { "id": "B", "label": "velocity" },
+        { "id": "C", "label": "displacement" },
+        { "id": "D", "label": "force" }
+      ],
+      "correctOptionIDs": ["B"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.02",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "The area under an acceleration-time graph gives",
+      "points": 1,
+      "options": [
+        { "id": "A", "label": "position" },
+        { "id": "B", "label": "change in velocity" },
+        { "id": "C", "label": "distance" },
+        { "id": "D", "label": "force" }
+      ],
+      "correctOptionIDs": ["B"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.03",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "In uniform circular motion, acceleration points",
+      "points": 1,
+      "options": [
+        { "id": "A", "label": "tangentially" },
+        { "id": "B", "label": "outward" },
+        { "id": "C", "label": "toward the centre" },
+        { "id": "D", "label": "opposite velocity" }
+      ],
+      "correctOptionIDs": ["C"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.04",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "A free-body diagram contains",
+      "points": 1,
+      "options": [
+        { "id": "A", "label": "only external forces on the system" },
+        { "id": "B", "label": "all forces the system exerts" },
+        { "id": "C", "label": "energy arrows" },
+        { "id": "D", "label": "all nearby objects" }
+      ],
+      "correctOptionIDs": ["A"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.05",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "Newton third-law forces",
+      "points": 1,
+      "options": [
+        { "id": "A", "label": "act on one object and cancel" },
+        { "id": "B", "label": "act on different objects" },
+        { "id": "C", "label": "are always weight and normal" },
+        { "id": "D", "label": "require contact" }
+      ],
+      "correctOptionIDs": ["B"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.06",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "If velocity is negative and acceleration positive, the object is",
+      "points": 1,
+      "options": [
+        { "id": "A", "label": "always speeding up" },
+        { "id": "B", "label": "always slowing down at that instant" },
+        { "id": "C", "label": "stationary" },
+        { "id": "D", "label": "moving in a circle" }
+      ],
+      "correctOptionIDs": ["B"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.07",
+      "kind": "constructedResponse",
+      "promptMarkdown": "State the modelling steps that should occur before substituting numbers.",
+      "points": 1,
+      "options": [],
+      "correctOptionIDs": [],
+      "minimumResponseCharacters": 20,
+      "rubricMarkdown": "The response should define the system, state assumptions, choose a frame and coordinates, select a representation, and write the governing law before numerical substitution.",
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.mastery.08",
+      "kind": "constructedResponse",
+      "promptMarkdown": "Explain why constant speed can coexist with nonzero acceleration.",
+      "points": 1,
+      "options": [],
+      "correctOptionIDs": [],
+      "minimumResponseCharacters": 20,
+      "rubricMarkdown": "The response should explain that velocity is a vector and may change direction while its magnitude remains constant, as in uniform circular motion.",
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 24, "lastPage": 24 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.01",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "A runner completes one lap and stops at the starting point. Which quantity must be zero?",
+      "points": 1,
+      "options": [
+        { "id": "1", "label": "distance" },
+        { "id": "2", "label": "average speed" },
+        { "id": "3", "label": "displacement" },
+        { "id": "4", "label": "elapsed time" }
+      ],
+      "correctOptionIDs": ["3"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.02",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "An object moves in the +x direction while its acceleration is negative. It must be...",
+      "points": 1,
+      "options": [
+        { "id": "1", "label": "speeding up" },
+        { "id": "2", "label": "slowing down at that instant" },
+        { "id": "3", "label": "at rest" },
+        { "id": "4", "label": "moving in a circle" }
+      ],
+      "correctOptionIDs": ["2"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.03",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "The area under a velocity-time graph gives...",
+      "points": 1,
+      "options": [
+        { "id": "1", "label": "acceleration" },
+        { "id": "2", "label": "distance always" },
+        { "id": "3", "label": "displacement" },
+        { "id": "4", "label": "jerk" }
+      ],
+      "correctOptionIDs": ["3"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.04",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "In ideal projectile motion, which quantity is constant?",
+      "points": 1,
+      "options": [
+        { "id": "1", "label": "vertical velocity" },
+        { "id": "2", "label": "speed" },
+        { "id": "3", "label": "horizontal velocity" },
+        { "id": "4", "label": "direction of velocity" }
+      ],
+      "correctOptionIDs": ["3"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.05",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "A correct free-body diagram for one object includes...",
+      "points": 1,
+      "options": [
+        { "id": "1", "label": "all forces the object exerts" },
+        { "id": "2", "label": "all external forces on the object" },
+        { "id": "3", "label": "its velocity as a force" },
+        { "id": "4", "label": "third-law pairs on the same diagram" }
+      ],
+      "correctOptionIDs": ["2"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.06",
+      "kind": "objectiveChoice",
+      "promptMarkdown": "The normal force on a box is always equal to mg.",
+      "points": 1,
+      "options": [
+        { "id": "1", "label": "True" },
+        { "id": "2", "label": "False" }
+      ],
+      "correctOptionIDs": ["2"],
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.07",
+      "kind": "constructedResponse",
+      "promptMarkdown": "State Newton's third law without using the vague phrase 'every action has a reaction.'",
+      "points": 1,
+      "options": [],
+      "correctOptionIDs": [],
+      "minimumResponseCharacters": 20,
+      "rubricMarkdown": "The response should identify two interacting objects and state that the forces they exert on one another are simultaneous, equal in magnitude, opposite in direction, and act on different objects.",
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    },
+    {
+      "id": "PHY111.item.m01.quiz.08",
+      "kind": "constructedResponse",
+      "promptMarkdown": "Why is ΣF = ma insufficient until a system and frame have been chosen?",
+      "points": 1,
+      "options": [],
+      "correctOptionIDs": [],
+      "minimumResponseCharacters": 20,
+      "rubricMarkdown": "The response should explain that the force sum depends on which object or system is isolated and that the constant-mass equation has its standard form only in an inertial frame.",
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 25, "lastPage": 25 }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "PHY111.dataset.motion.fallback",
+      "version": "1.0.0",
+      "title": "Module 1 fallback position-time observations",
+      "summary": "Thirty-one calibrated one-dimensional position observations at 0.1-second intervals, including small deterministic measurement deviations.",
+      "resourceName": "PHY111_Module1_Fallback_Motion.csv",
+      "mimeType": "text/csv",
+      "sha256": "4680d1b040117058c821b32486317e4433ea1e8bbba90c265b1c8e034f61e88b",
+      "columns": [
+        { "id": "frame_index", "title": "Frame", "unitID": "1", "valueType": "integer" },
+        { "id": "time_s", "title": "Time", "unitID": "s", "valueType": "decimal" },
+        { "id": "position_m", "title": "Position", "unitID": "m", "valueType": "decimal" }
+      ],
+      "provenance": "Course-team generated accessibility and hardware fallback for the PHY111 Module 1 video-tracking investigation. Model: x(t)=0.60t+0.20t^2 m with bounded deterministic position deviations no larger than 0.002 m.",
+      "license": "Included course material; redistribution outside the application is not granted.",
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+    },
+    {
+      "id": "PHY111.dataset.acceleration.constant",
+      "version": "1.0.0",
+      "title": "Module 1 sampled constant-acceleration series",
+      "summary": "Twenty-one acceleration samples at 0.1-second intervals for validating numerical kinematics against an analytic solution.",
+      "resourceName": "PHY111_Module1_Acceleration_Series.csv",
+      "mimeType": "text/csv",
+      "sha256": "a4df63c28db90fea1d0cc79af89fd4242b731a7c1b599b44cf6a1e72783a60fd",
+      "columns": [
+        { "id": "sample_index", "title": "Sample", "unitID": "1", "valueType": "integer" },
+        { "id": "time_s", "title": "Time", "unitID": "s", "valueType": "decimal" },
+        { "id": "acceleration_m_s2", "title": "Acceleration", "unitID": "m/s^2", "valueType": "decimal" }
+      ],
+      "provenance": "Course-team generated constant-acceleration validation series matching the numerical kinematics task on source page 22.",
+      "license": "Included course material; redistribution outside the application is not granted.",
+      "sourcePageRange": { "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf", "resourceFirstSourcePage": 2, "firstPage": 22, "lastPage": 22 }
+    }
+  ],
+  "toolProfiles": [
+    {
+      "id": "PHY111.tool.lesson",
+      "title": "PHY111 lesson tools",
+      "capabilities": ["scientificCalculator", "constants", "unitHelper", "graphing", "dataTables", "mathInput", "formulaCard"],
+      "calculator": {
+        "allowedFunctions": ["+", "-", "*", "/", "power", "root", "sin", "cos", "tan", "asin", "acos", "atan", "log", "ln", "pi", "e", "memory"],
+        "initialAngleMode": "degrees",
+        "historyPolicy": "persistent"
+      },
+      "formulaCardMarkdown": "$$\\Delta x=x_f-x_i,\\quad \\bar v=\\Delta x/\\Delta t,\\quad \\bar a=\\Delta v/\\Delta t$$\n\n$$v_f=v_i+at,\\quad \\Delta x=v_it+\\tfrac12at^2,\\quad v_f^2=v_i^2+2a\\Delta x$$\n\n$$A_x=A\\cos\\theta,\\quad A_y=A\\sin\\theta$$\n\n$$\\sum\\vec F=d\\vec p/dt,\\quad \\sum\\vec F=m\\vec a,\\quad W=mg,\\quad F_s=-kx,\\quad a_c=v^2/r$$",
+      "networkAllowed": false
+    },
+    {
+      "id": "PHY111.tool.assessment",
+      "title": "Module 1 assessment calculator",
+      "capabilities": ["scientificCalculator", "formulaCard"],
+      "calculator": {
+        "allowedFunctions": ["+", "-", "*", "/", "power", "root", "sin", "cos", "tan", "asin", "acos", "atan", "log", "ln", "pi", "e", "memory"],
+        "initialAngleMode": "degrees",
+        "historyPolicy": "attemptScoped"
+      },
+      "formulaCardMarkdown": "$$\\Delta x=x_f-x_i,\\quad \\bar v=\\Delta x/\\Delta t,\\quad \\bar a=\\Delta v/\\Delta t$$\n\n$$v_f=v_i+at,\\quad \\Delta x=v_it+\\tfrac12at^2,\\quad v_f^2=v_i^2+2a\\Delta x$$\n\n$$A_x=A\\cos\\theta,\\quad A_y=A\\sin\\theta,\\quad \\sum\\vec F=m\\vec a,\\quad W=mg,\\quad a_c=v^2/r$$",
+      "networkAllowed": false
+    },
+    {
+      "id": "PHY111.tool.python",
+      "title": "PHY111 local Python lab",
+      "capabilities": ["python", "dataTables", "graphing"],
+      "networkAllowed": false
+    }
+  ],
+  "completionGroups": [
+    {
+      "id": "PHY111.completion.required-work",
+      "title": "Required reading and learning work",
+      "rule": "all",
+      "requirementIDs": [
+        "PHY111.block.course-record",
+        "PHY111.block.learning-cycle",
+        "PHY111.block.assessment-model",
+        "PHY111.block.m01.launch-and-1.1",
+        "PHY111.block.m01.1.2",
+        "PHY111.block.m01.1.3",
+        "PHY111.block.m01.1.4",
+        "PHY111.block.m01.1.5",
+        "PHY111.block.m01.guided-intro",
+        "PHY111.block.m01.deepening",
+        "PHY111.block.m01.investigation-intro",
+        "PHY111.block.m01.problem-set-intro",
+        "PHY111.activity.orientation.scientific-standard",
+        "PHY111.activity.m01.check.1.1",
+        "PHY111.activity.m01.worked.round-trip",
+        "PHY111.activity.m01.check.1.2",
+        "PHY111.activity.m01.worked.braking",
+        "PHY111.activity.m01.check.1.3",
+        "PHY111.activity.m01.worked.projectile",
+        "PHY111.activity.m01.check.1.4",
+        "PHY111.activity.m01.worked.two-blocks",
+        "PHY111.activity.m01.check.1.5",
+        "PHY111.activity.m01.worked.elevator",
+        "PHY111.activity.m01.guided.1A",
+        "PHY111.activity.m01.guided.1B",
+        "PHY111.activity.m01.derivation-board",
+        "PHY111.activity.m01.worked.non-uniform-acceleration",
+        "PHY111.activity.m01.worked.horizontal-curve",
+        "PHY111.activity.m01.tutorial.A",
+        "PHY111.activity.m01.tutorial.B",
+        "PHY111.activity.m01.debug.circular-motion",
+        "PHY111.activity.m01.problem.01",
+        "PHY111.activity.m01.problem.02",
+        "PHY111.activity.m01.problem.03",
+        "PHY111.activity.m01.problem.04",
+        "PHY111.activity.m01.problem.05",
+        "PHY111.activity.m01.problem.06",
+        "PHY111.activity.m01.problem.07",
+        "PHY111.activity.m01.problem.08",
+        "PHY111.activity.m01.problem.09",
+        "PHY111.activity.m01.problem.10"
+      ]
+    },
+    {
+      "id": "PHY111.completion.motion-investigation",
+      "title": "Video motion investigation or bundled fallback",
+      "rule": "all",
+      "requirementIDs": ["PHY111.activity.m01.video.motion-tracking-briefing", "PHY111.activity.m01.lab.motion-tracking"]
+    },
+    {
+      "id": "PHY111.completion.computation",
+      "title": "Guided numerical or Python computational lab",
+      "rule": "any",
+      "requirementIDs": ["PHY111.activity.m01.lab.numerical-guided", "PHY111.activity.m01.lab.python"],
+      "minimumScore": 0.70
+    },
+    {
+      "id": "PHY111.completion.mastery",
+      "title": "Module 1 mastery practice",
+      "rule": "all",
+      "requirementIDs": ["PHY111.assessment.m01.mastery"],
+      "minimumScore": 0.70
+    }
+  ]
+}

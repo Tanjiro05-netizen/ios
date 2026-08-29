@@ -7,6 +7,7 @@ enum AppGroup {
 enum AppDeepLink: Hashable {
     case library
     case audiobooks
+    case study
     case substack
     case forum
     case notifications
@@ -39,6 +40,8 @@ enum AppDeepLink: Hashable {
             self = .library
         case "audiobooks":
             self = .audiobooks
+        case "study":
+            self = .study
         case "substack":
             if let pathValue, !pathValue.isEmpty {
                 self = .substackArticle(slug: pathValue)
@@ -106,6 +109,8 @@ enum AppDeepLink: Hashable {
             components.host = "library"
         case .audiobooks:
             components.host = "audiobooks"
+        case .study:
+            components.host = "study"
         case .substack:
             components.host = "substack"
         case .forum:

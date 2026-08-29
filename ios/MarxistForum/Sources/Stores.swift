@@ -86,31 +86,47 @@ final class AuthStore {
     var errorMessage: String?
     var statusMessage: String?
 
-    private let client = SupabaseRESTClient()
+    private let client: SupabaseRESTClient
     private let forumClient = ForumClient()
-    private var appleAuthorizationCode: String?
-    private let defaults = UserDefaults.standard
-    private let keychain = KeychainStore(service: "com.marxist.forum.auth")
+    private let defaults: UserDefaults
+    private let keychain: KeychainStore
     private let sessionKey = "ios.auth.session"
-    private let appleAuthorizationCodeKey = "ios.auth.apple.authorization.code"
+    private let legacyAppleAuthorizationCodeKey = "ios.auth.apple.authorization.code"
     private let guestKey = "ios.auth.guest"
+    private var refreshTask: Task<AuthSession, Error>?
+    private var scheduledRefreshTask: Task<Void, Never>?
+
+    init(
+        client: SupabaseRESTClient = .init(),
+        defaults: UserDefaults = .standard,
+        keychainService: String = "com.marxist.forum.auth"
+    ) {
+        self.client = client
+        self.defaults = defaults
+        self.keychain = KeychainStore(service: keychainService)
+    }
 
     var accessToken: String? { session?.accessToken }
     var userId: String? { session?.user.id }
+    var studySubjectID: String? { session?.user.id ?? guestSession?.id }
     var isGuest: Bool { guestSession != nil }
     var isAuthenticated: Bool { session != nil || guestSession != nil }
     var displayName: String { profile?.username ?? session?.user.email ?? guestSession?.username ?? "Reader" }
 
     func restore() async {
         defer { isLoading = false }
+        keychain.delete(account: legacyAppleAuthorizationCodeKey)
 
         if restoreStoredSession() {
             // A saved session is enough to render the archive. Profile data is
             // non-critical and can arrive after the first frame instead of
             // keeping the entire app behind a network request.
-            PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
+            scheduleSessionRefresh()
             Task { [weak self] in
-                await self?.refreshProfile()
+                guard let self else { return }
+                _ = try? await validAccessToken()
+                PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
+                await refreshProfile()
             }
         } else if let data = defaults.data(forKey: guestKey),
                   let guest = try? JSONDecoder.supabase.decode(GuestSession.self, from: data) {
@@ -126,20 +142,17 @@ final class AuthStore {
         defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
-        appleAuthorizationCode = nil
-        keychain.delete(account: appleAuthorizationCodeKey)
         do {
             let signedIn = try await client.authSignIn(email: email, password: password)
+            cancelSessionRefresh()
             try saveSession(signedIn)
             session = signedIn
+            scheduleSessionRefresh()
             guestSession = nil
             defaults.removeObject(forKey: guestKey)
             await refreshProfile()
             PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
-            await PushRegistrationService.shared.registerIfPossible()
         } catch {
-            appleAuthorizationCode = nil
-            keychain.delete(account: appleAuthorizationCodeKey)
             errorMessage = error.localizedDescription
         }
     }
@@ -150,12 +163,14 @@ final class AuthStore {
         defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
-        appleAuthorizationCode = nil
-        keychain.delete(account: appleAuthorizationCodeKey)
         do {
             if let created = try await client.authSignUp(email: email, password: password, username: username, inviteCode: inviteCode) {
+                cancelSessionRefresh()
                 try saveSession(created)
                 session = created
+                guestSession = nil
+                defaults.removeObject(forKey: guestKey)
+                scheduleSessionRefresh()
                 await refreshProfile()
             }
             statusMessage = "Account created. Check your email if confirmation is enabled."
@@ -175,14 +190,26 @@ final class AuthStore {
         defer { isAuthenticating = false }
         errorMessage = nil
         statusMessage = nil
-        appleAuthorizationCode = authorizationCode
-        if let authorizationCode {
-            try? keychain.set(Data(authorizationCode.utf8), for: appleAuthorizationCodeKey)
+        guard let authorizationCode = authorizationCode?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !authorizationCode.isEmpty else {
+            errorMessage = "Apple did not return the account-protection code. Please try Sign in with Apple again."
+            return
         }
         do {
             let signedIn = try await client.authSignInWithApple(idToken: idToken, nonce: nonce)
+            do {
+                try await client.exchangeAppleAuthorizationCode(
+                    accessToken: signedIn.accessToken,
+                    authorizationCode: authorizationCode
+                )
+            } catch {
+                await client.authSignOut(accessToken: signedIn.accessToken)
+                throw error
+            }
+            cancelSessionRefresh()
             try saveSession(signedIn)
             session = signedIn
+            scheduleSessionRefresh()
             guestSession = nil
             defaults.removeObject(forKey: guestKey)
             if let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -192,27 +219,28 @@ final class AuthStore {
             }
             await refreshProfile()
             PushRegistrationService.shared.configure(userId: userId, accessToken: accessToken)
-            await PushRegistrationService.shared.registerIfPossible()
         } catch {
-            appleAuthorizationCode = nil
-            keychain.delete(account: appleAuthorizationCodeKey)
             errorMessage = error.localizedDescription
         }
     }
 
     func browseAsGuest() {
+        cancelSessionRefresh()
         let guest = GuestSession(id: "guest-\(UUID().uuidString)", username: Self.makeGuestName(), createdAt: ISO8601DateFormatter().string(from: Date()))
         guestSession = guest
         session = nil
         profile = Profile(id: guest.id, username: guest.username, avatarUrl: nil, website: nil, updatedAt: guest.createdAt, bio: "Browsing as guest", ideology: nil, bannerUrl: nil, role: "guest", isCertified: false, isAdmin: false, hasInviteAccess: false, inviteCodeUsed: nil)
         keychain.delete(account: sessionKey)
+        keychain.delete(account: legacyAppleAuthorizationCodeKey)
         defaults.removeObject(forKey: sessionKey)
         if let data = try? JSONEncoder.supabase.encode(guest) {
             defaults.set(data, forKey: guestKey)
         }
+        isLoading = false
     }
 
     func signOut() async {
+        cancelSessionRefresh()
         if let token = session?.accessToken {
             await client.authSignOut(accessToken: token)
         }
@@ -220,16 +248,15 @@ final class AuthStore {
         guestSession = nil
         profile = nil
         keychain.delete(account: sessionKey)
+        keychain.delete(account: legacyAppleAuthorizationCodeKey)
         defaults.removeObject(forKey: sessionKey)
         defaults.removeObject(forKey: guestKey)
-        appleAuthorizationCode = nil
-        keychain.delete(account: appleAuthorizationCodeKey)
         PushRegistrationService.shared.configure(userId: nil, accessToken: nil)
     }
 
     @discardableResult
     func deleteAccount() async -> Bool {
-        guard let accessToken else {
+        guard session != nil else {
             errorMessage = "There is no signed-in account to delete."
             return false
         }
@@ -238,16 +265,15 @@ final class AuthStore {
         statusMessage = nil
 
         do {
-            try await client.deleteAccount(
-                accessToken: accessToken,
-                appleAuthorizationCode: appleAuthorizationCode
-            )
+            try await withAuthenticatedRequest { [client] token in
+                try await client.deleteAccount(accessToken: token)
+            }
+            cancelSessionRefresh()
             session = nil
             guestSession = nil
             profile = nil
-            appleAuthorizationCode = nil
             keychain.delete(account: sessionKey)
-            keychain.delete(account: appleAuthorizationCodeKey)
+            keychain.delete(account: legacyAppleAuthorizationCodeKey)
             defaults.removeObject(forKey: sessionKey)
             defaults.removeObject(forKey: guestKey)
             defaults.removeObject(forKey: "ios.reader.continue")
@@ -272,6 +298,117 @@ final class AuthStore {
         }
     }
 
+    /// Returns a token that will remain valid long enough to begin a request.
+    /// Supabase refresh tokens rotate, so concurrent callers share one refresh
+    /// operation and the replacement pair is persisted before it is published.
+    func validAccessToken(minimumValidity: TimeInterval = 60) async throws -> String {
+        guard let current = session else { throw APIError.authenticationRequired }
+        if let expiration = current.accessTokenExpirationDate,
+           expiration.timeIntervalSinceNow > minimumValidity {
+            return current.accessToken
+        }
+        if current.accessTokenExpirationDate == nil, current.refreshToken == nil {
+            // Legacy/test sessions without parseable JWT claims can still make
+            // one request; a 401 will take the single retry path below.
+            return current.accessToken
+        }
+        return try await refreshSession(force: true).accessToken
+    }
+
+    /// Executes an authenticated operation with exactly one refresh-and-retry
+    /// when the server reports a 401. Other failures are never retried here.
+    func withAuthenticatedRequest<T>(
+        _ operation: (String) async throws -> T
+    ) async throws -> T {
+        let token = try await validAccessToken()
+        do {
+            return try await operation(token)
+        } catch let error as APIError where error.isUnauthorized {
+            let refreshed = try await refreshSession(force: true)
+            return try await operation(refreshed.accessToken)
+        }
+    }
+
+    @discardableResult
+    private func refreshSession(force: Bool) async throws -> AuthSession {
+        guard let current = session else { throw APIError.authenticationRequired }
+        if !force,
+           let expiration = current.accessTokenExpirationDate,
+           expiration.timeIntervalSinceNow > 60 {
+            return current
+        }
+        if let refreshTask {
+            return try await refreshTask.value
+        }
+        guard let refreshToken = current.refreshToken, !refreshToken.isEmpty else {
+            clearAuthenticatedSession()
+            throw APIError.authenticationRequired
+        }
+
+        let task = Task<AuthSession, Error> { [client] in
+            try await client.authRefresh(refreshToken: refreshToken)
+        }
+        refreshTask = task
+
+        do {
+            let refreshed = try await task.value.preservingRefreshToken(from: current)
+            try saveSession(refreshed)
+            session = refreshed
+            refreshTask = nil
+            scheduleSessionRefresh()
+            PushRegistrationService.shared.configure(userId: userId, accessToken: refreshed.accessToken)
+            return refreshed
+        } catch {
+            refreshTask = nil
+            if case APIError.server(let status, _) = error, status == 400 || status == 401 {
+                clearAuthenticatedSession()
+                errorMessage = APIError.authenticationRequired.localizedDescription
+            }
+            throw error
+        }
+    }
+
+    private func scheduleSessionRefresh() {
+        scheduledRefreshTask?.cancel()
+        scheduledRefreshTask = nil
+        guard let expiration = session?.accessTokenExpirationDate,
+              session?.refreshToken?.isEmpty == false else {
+            return
+        }
+
+        let delay = max(expiration.timeIntervalSinceNow - 60, 0)
+        let nanoseconds = UInt64(min(delay, 24 * 60 * 60) * 1_000_000_000)
+        scheduledRefreshTask = Task { [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: nanoseconds)
+                guard !Task.isCancelled, let self else { return }
+                scheduledRefreshTask = nil
+                _ = try await refreshSession(force: true)
+            } catch is CancellationError {
+                return
+            } catch {
+                // Keep the current session available while offline. A later
+                // authenticated request will retry the refresh once online.
+            }
+        }
+    }
+
+    private func cancelSessionRefresh() {
+        refreshTask?.cancel()
+        refreshTask = nil
+        scheduledRefreshTask?.cancel()
+        scheduledRefreshTask = nil
+    }
+
+    private func clearAuthenticatedSession() {
+        cancelSessionRefresh()
+        session = nil
+        profile = nil
+        keychain.delete(account: sessionKey)
+        defaults.removeObject(forKey: sessionKey)
+        PushRegistrationService.shared.configure(userId: nil, accessToken: nil)
+    }
+
     private func saveSession(_ session: AuthSession) throws {
         let data = try JSONEncoder.supabase.encode(session)
         try keychain.set(data, for: sessionKey)
@@ -283,10 +420,6 @@ final class AuthStore {
            let restored = try? JSONDecoder.supabase.decode(AuthSession.self, from: data) {
             session = restored
             guestSession = nil
-            if let codeData = try? keychain.data(for: appleAuthorizationCodeKey),
-               let code = String(data: codeData, encoding: .utf8) {
-                appleAuthorizationCode = code
-            }
             return true
         }
 
@@ -1394,6 +1527,11 @@ final class RouterPath {
     func navigate(to route: Route) {
         guard path.last != route else { return }
         path.append(route)
+    }
+
+    func replacePath(with routes: [Route]) {
+        path = routes
+        presentedSheet = nil
     }
 
     func reset() {

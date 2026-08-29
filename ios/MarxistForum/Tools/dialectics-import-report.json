@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 3,
+  "counts": {
+    "courses": 2,
+    "modules": 26,
+    "sections": 221,
+    "exercises": 52,
+    "quizzes": 26,
+    "moduleQuestions": 208,
+    "writtenExamQuestions": 38,
+    "questions": 246,
+    "assignments": 11,
+    "finalExamPrompts": 38,
+    "learningPaths": 1,
+    "learnerPDFs": 0,
+    "restrictedMarkingGuides": 2
+  },
+  "questionTypes": {
+    "single_choice": 104,
+    "multiple_choice": 26,
+    "matching": 26,
+    "short_response": 64,
+    "reconstruction": 26
+  },
+  "moduleQuestionTypes": {
+    "single_choice": 104,
+    "multiple_choice": 26,
+    "matching": 26,
+    "short_response": 26,
+    "reconstruction": 26
+  },
+  "courseCounts": {
+    "PHI111": {
+      "modules": 12,
+      "sections": 111,
+      "exercises": 24,
+      "quizzes": 12,
+      "moduleQuestions": 96,
+      "writtenExamQuestions": 19,
+      "questions": 115,
+      "assignments": 5,
+      "finalExamPrompts": 19,
+      "glossaryTerms": 52,
+      "bibliographySources": 30,
+      "placementMarkersRemoved": 0
+    },
+    "PHI211": {
+      "modules": 14,
+      "sections": 110,
+      "exercises": 28,
+      "quizzes": 14,
+      "moduleQuestions": 112,
+      "writtenExamQuestions": 19,
+      "questions": 131,
+      "assignments": 6,
+      "finalExamPrompts": 19,
+      "glossaryTerms": 51,
+      "bibliographySources": 27,
+      "placementMarkersRemoved": 48
+    }
+  },
+  "nativeContentValidation": {
+    "exactMarkdownFields": 9,
+    "moduleReadingGuideChunks": 26,
+    "quizTimingRanges": 26,
+    "writtenExamQuestions": 38,
+    "candidateExamMarkdownFields": 4,
+    "examSectionInstructions": 8,
+    "restrictedMarkingGuideTextIncluded": false
+  },
+  "sourceManifestAudit": {
+    "declaredFiles": 385,
+    "verifiedDeclaredFiles": 379,
+    "missingDeclaredFiles": [
+      "INTEGRATION_GUIDE.md",
+      "README.md",
+      "schemas/StudyContentModels.swift",
+      "schemas/course.schema.json",
+      "schemas/module.schema.json",
+      "schemas/quiz.schema.json"
+    ],
+    "hashOrSizeMismatches": [],
+    "unlistedFiles": [
+      ".DS_Store",
+      "CONTENT_INDEX.md",
+      "VALIDATION_REPORT.json",
+      "content-manifest.json",
+      "courses/.DS_Store"
+    ]
+  },
+  "generatedPackage": {
+    "path": "Resources/Marxist_Info_Dialectics_v1.study-course.json",
+    "sha256": "09eaa4583f9cc30b0995cda566d63e0db7d6b13b0d7887cc42eeabcd1422e619",
+    "byteCount": 1557121
+  },
+  "sourcePackage": {
+    "path": "/Users/andreaskurz/Downloads/Marxist_Info_Course_Content_Only_v1.0",
+    "packageID": "Marxist_Info_App_Content_Pack",
+    "version": "1.0.0"
+  }
+}

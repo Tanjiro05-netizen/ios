@@ -7,30 +7,76 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000AAEF00F4D10A788E4BC59 /* StudyScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D463F8555606C107FB93DB4D /* StudyScreen.swift */; };
 		002C47316C336783E468C790 /* EPUBReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC82109FAB2612E93CF32B3 /* EPUBReader.swift */; };
+		04962C78B3BD3BB9A829CBAD /* StudyComputeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4288D406331A2C8ADA0BE5 /* StudyComputeEngine.swift */; };
+		0591F32C073D580C70C57082 /* StudyAssessmentEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA113B137C813C962E28D8AC /* StudyAssessmentEngine.swift */; };
 		08EEFF71E0733225F012B31C /* ReadiumZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = ED0A684C01033433E8F0B62A /* ReadiumZIPFoundation */; };
 		0C22BAC73D197CBB93AA0A27 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D514F31E5F3F7E8DCB487FB /* Models.swift */; };
+		0DA1E49E0EF025C4BB705416 /* StudyScienceCourseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234984CB283691609AC2C896 /* StudyScienceCourseTests.swift */; };
+		125164B2C11DCE2F80883A2D /* StudyScienceScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = B073D577957A84864DEC3F51 /* StudyScienceScreens.swift */; };
+		175CFAA092F1ECDFD689AA45 /* StudyCourseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C7A1482BC8F2AA152928495 /* StudyCourseModels.swift */; };
 		1FA37F6C2B5210869C0E73B7 /* AppIntentsIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A02B9FD97CF68FA18A4C40 /* AppIntentsIntegration.swift */; };
+		2106717F248BA246CDA8598E /* StudyCourseScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0A585ADE3B97761E90ED06 /* StudyCourseScreens.swift */; };
+		2884086381226DF3CDFFEEA5 /* PHY111_Module1_Fallback_Motion.csv in Resources */ = {isa = PBXBuildFile; fileRef = E050068328040F8E88E97570 /* PHY111_Module1_Fallback_Motion.csv */; };
 		2BC7ACE90C12536F086A2CB2 /* MarxistForumApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF06395641E487346113B5B5 /* MarxistForumApp.swift */; };
+		33FF2725400CB79A7A9E3C79 /* PHY111_Module1_Source_Pages_2_25.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 70C8A5B211B5481389C98FB5 /* PHY111_Module1_Source_Pages_2_25.pdf */; };
+		3CF632EEFE089F9A533CC672 /* TextEditionReaderScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45EBE1095A2F89B41011EA58 /* TextEditionReaderScreen.swift */; };
+		42B8B06C123590C456C85837 /* StudyPyodideRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19DB518CAB0A63DC27ED2435 /* StudyPyodideRuntime.swift */; };
 		4780277F3C12A1415DFBCAFD /* substack-archive.json in Resources */ = {isa = PBXBuildFile; fileRef = 0C06F164057FD5833AE63FEA /* substack-archive.json */; };
+		47C69017D6669B57A3877857 /* StudyAssessmentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F4A4F950BBC1C4C482280C /* StudyAssessmentStore.swift */; };
+		4CC28AE860ACBE5F19ABE90F /* StudyMathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9A4E966EB0BEAD61B5670B /* StudyMathView.swift */; };
+		55B9BC5BD994D0EFB6FC2A61 /* StudyMotionTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B264209AAC109CCD02B3CC2 /* StudyMotionTracking.swift */; };
 		5797D1567BBED6BE9F415864 /* StoreKitSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */; };
+		6188C9845089D28F2AEB6384 /* MarxistForumUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A73331302DC32FFCB7742B5D /* MarxistForumUITests.swift */; };
 		68029C308CE02DEDB6A6EC04 /* Stores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A54756CB4E39D18CDE72493 /* Stores.swift */; };
+		6FCBDB86DA43375768DD5F69 /* StudyScienceSyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B542B691F32CE24AAA57DB /* StudyScienceSyncCoordinator.swift */; };
 		756D6370F7104F834C32E224 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */; };
+		768AB7326968CF33CD0DC6EA /* ScienceRuntime in Resources */ = {isa = PBXBuildFile; fileRef = 579201F02B6667B027B0D9F2 /* ScienceRuntime */; };
+		778736668C3BBF9D8F34404B /* PHY111_Module1_Source_Map.json in Resources */ = {isa = PBXBuildFile; fileRef = 065DBFD039611A2C11CF66A7 /* PHY111_Module1_Source_Map.json */; };
+		78258FDF3786B84D49116BD3 /* StudyQuizPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BFADB24467C9E2D5416F40 /* StudyQuizPlayer.swift */; };
 		78F99DE1AB455E93E9FC7915 /* SystemIntegrations.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */; };
 		7E776FFD5BDA391B192D0C1C /* SystemIntegrationShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */; };
 		8074D70F5E5E069194D493F4 /* Screens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDBA440E92118BC6DA76589 /* Screens.swift */; };
+		8225C8CFC1AF1193E3053D36 /* PHY111_Module1_Public_Beta.study-course.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2049834F1FB02CF3B0CC85 /* PHY111_Module1_Public_Beta.study-course.json */; };
+		8243F2203A4C2FC335DB9EB5 /* StudyScienceCourseRouteScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8237A26327972FEEA87E3AFC /* StudyScienceCourseRouteScreens.swift */; };
+		8AF0E8EDB2828AA26A480E55 /* Marxist_Info_Full_Question_Catalogue.json in Resources */ = {isa = PBXBuildFile; fileRef = 9FB1461B5485D2D39144F492 /* Marxist_Info_Full_Question_Catalogue.json */; };
+		919181126E6197191E025E63 /* marx-login-loop.mov in Resources */ = {isa = PBXBuildFile; fileRef = 6CFAB72D55E269A8F97A4C6A /* marx-login-loop.mov */; };
 		9402B603F006739D4F737E65 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0EEBB5981708C7187C13A9B4 /* Supabase */; };
+		99C4FD71BD530C138441E636 /* StudyScienceSyncClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30C4C1ADD276206779BD6B6 /* StudyScienceSyncClient.swift */; };
+		9BBD46BF2270A886FBB94536 /* PHY111_Module1_Acceleration_Series.csv in Resources */ = {isa = PBXBuildFile; fileRef = BCBF8A12FF124BD82321106A /* PHY111_Module1_Acceleration_Series.csv */; };
+		A0FAE2D1C46B2CEB52EBCBA4 /* Marxist_Info_Dialectics_v1.study-course.json in Resources */ = {isa = PBXBuildFile; fileRef = 472A8F90CE1AAF4BCA964188 /* Marxist_Info_Dialectics_v1.study-course.json */; };
 		A1B5DA2FABBFBD32ACD49FF4 /* MarxistForumWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8D394898CFD98875515CF2 /* MarxistForumWidgets.swift */; };
+		A2032F7B42369BCD8D89523F /* StudyAssessmentScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D463FF6A20FA9DE31CB88FC /* StudyAssessmentScreens.swift */; };
 		A2455D22B6C7A43AC7B4EA75 /* AppleSignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */; };
 		A44F0758C28F6060DC2A57AB /* MarxistForumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */; };
 		A5CCBC91E1FA3A185AE8BFE1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69A4C8482BF1675E054CDD0F /* Assets.xcassets */; };
+		AB974122EE4D0190EDD903E8 /* StudyScienceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762866A9AF5C4D6B9929467 /* StudyScienceStore.swift */; };
+		ABDAE3FC980299B0E97C2B1C /* StudyScienceBackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F543E54A2CC206FF01AE967 /* StudyScienceBackendTests.swift */; };
+		AC275C49CBF31615D290A3D9 /* StudyCourseSourceScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7C202DDD2B0B7131A58BB5 /* StudyCourseSourceScreen.swift */; };
+		B36470E8A1A61A6624EC983D /* StudyLearningModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0859CB3B133E6EAEAEB817D3 /* StudyLearningModels.swift */; };
+		B42836676D2A1968A879116B /* StudyScientificCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A496F7EF832C0E365CDA24 /* StudyScientificCalculator.swift */; };
+		C01206FF8009E3716041B699 /* StudyScienceCourseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D233B5542120416AEE9871 /* StudyScienceCourseModels.swift */; };
 		C3838B3ADE0D32620E760F53 /* SystemIntegrationShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */; };
+		CD9E5DAE39A479F90A4231E6 /* StudyScienceLearningModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C716CA6BA4675EBC5B2911 /* StudyScienceLearningModels.swift */; };
 		D1573E325C0D436C7834E435 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 866C3F4FE30B1216D52089EC /* API.swift */; };
+		D48A3064D431561AFB1DBFA5 /* StudyCourseInteractiveExamScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42A12406143C14EB4AA2BD4 /* StudyCourseInteractiveExamScreen.swift */; };
+		E304C34A0249748607A2701B /* StudyAssessmentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D7C52B96A21E3318355464 /* StudyAssessmentModels.swift */; };
+		E9231358E6520094A8C4D20E /* StudyMarkdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BDFBF7427DABAC8934E2266 /* StudyMarkdownView.swift */; };
+		EAE7E539522541D1FBEACEDE /* StudyScienceCourseValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2890F419730B71B97F20E40 /* StudyScienceCourseValidation.swift */; };
 		F47B375DB10898BF804CC342 /* MarxistForumWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4C89A9A16FBEA0185A3CA20 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66A91C45E409AE86C282264 /* Components.swift */; };
+		FE9E05AFAEB9333E0CD0CA1F /* StudyScienceActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20E523D75FEE54BA46137EA /* StudyScienceActivities.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		77E5E0E071B17DEC7212C790 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E075139F1F5A134E9B14D551 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 284A6E6EBD7318E8E6730390;
+			remoteInfo = MarxistForum;
+		};
 		7A4AF230938CF3BC7BDA9708 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E075139F1F5A134E9B14D551 /* Project object */;
@@ -62,25 +108,65 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		065DBFD039611A2C11CF66A7 /* PHY111_Module1_Source_Map.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PHY111_Module1_Source_Map.json; sourceTree = "<group>"; };
+		0859CB3B133E6EAEAEB817D3 /* StudyLearningModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyLearningModels.swift; sourceTree = "<group>"; };
 		0A54756CB4E39D18CDE72493 /* Stores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stores.swift; sourceTree = "<group>"; };
 		0C06F164057FD5833AE63FEA /* substack-archive.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "substack-archive.json"; sourceTree = "<group>"; };
 		0D514F31E5F3F7E8DCB487FB /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		0FDBA440E92118BC6DA76589 /* Screens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Screens.swift; sourceTree = "<group>"; };
+		19DB518CAB0A63DC27ED2435 /* StudyPyodideRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyPyodideRuntime.swift; sourceTree = "<group>"; };
+		1C7A1482BC8F2AA152928495 /* StudyCourseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyCourseModels.swift; sourceTree = "<group>"; };
+		234984CB283691609AC2C896 /* StudyScienceCourseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceCourseTests.swift; sourceTree = "<group>"; };
 		252AB1C171742CAD5EB3DF0D /* SystemIntegrationShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrationShared.swift; sourceTree = "<group>"; };
+		2C0A585ADE3B97761E90ED06 /* StudyCourseScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyCourseScreens.swift; sourceTree = "<group>"; };
+		3D9A4E966EB0BEAD61B5670B /* StudyMathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyMathView.swift; sourceTree = "<group>"; };
+		45EBE1095A2F89B41011EA58 /* TextEditionReaderScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditionReaderScreen.swift; sourceTree = "<group>"; };
+		472A8F90CE1AAF4BCA964188 /* Marxist_Info_Dialectics_v1.study-course.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "Marxist_Info_Dialectics_v1.study-course.json"; sourceTree = "<group>"; };
+		4A7C202DDD2B0B7131A58BB5 /* StudyCourseSourceScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyCourseSourceScreen.swift; sourceTree = "<group>"; };
+		579201F02B6667B027B0D9F2 /* ScienceRuntime */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ScienceRuntime; path = Resources/ScienceRuntime; sourceTree = SOURCE_ROOT; };
 		622D92D8C2418BCAFF4C8F32 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6702C65D7D709A3E50AC3C15 /* AppleSignIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignIn.swift; sourceTree = "<group>"; };
 		69A4C8482BF1675E054CDD0F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		69C716CA6BA4675EBC5B2911 /* StudyScienceLearningModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceLearningModels.swift; sourceTree = "<group>"; };
+		6CFAB72D55E269A8F97A4C6A /* marx-login-loop.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = "marx-login-loop.mov"; sourceTree = "<group>"; };
 		6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitSupport.swift; sourceTree = "<group>"; };
 		7006AA59E51D15F32A3DB486 /* MarxistForumTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MarxistForumTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		70C8A5B211B5481389C98FB5 /* PHY111_Module1_Source_Pages_2_25.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PHY111_Module1_Source_Pages_2_25.pdf; sourceTree = "<group>"; };
+		70D7C52B96A21E3318355464 /* StudyAssessmentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyAssessmentModels.swift; sourceTree = "<group>"; };
+		730EE1B1AA5A4949051C46A7 /* MarxistForumUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MarxistForumUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		81A02B9FD97CF68FA18A4C40 /* AppIntentsIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntentsIntegration.swift; sourceTree = "<group>"; };
+		8237A26327972FEEA87E3AFC /* StudyScienceCourseRouteScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceCourseRouteScreens.swift; sourceTree = "<group>"; };
 		866C3F4FE30B1216D52089EC /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		8D463FF6A20FA9DE31CB88FC /* StudyAssessmentScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyAssessmentScreens.swift; sourceTree = "<group>"; };
+		8F543E54A2CC206FF01AE967 /* StudyScienceBackendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceBackendTests.swift; sourceTree = "<group>"; };
+		90B542B691F32CE24AAA57DB /* StudyScienceSyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceSyncCoordinator.swift; sourceTree = "<group>"; };
+		96D233B5542120416AEE9871 /* StudyScienceCourseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceCourseModels.swift; sourceTree = "<group>"; };
+		9762866A9AF5C4D6B9929467 /* StudyScienceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceStore.swift; sourceTree = "<group>"; };
+		99BFADB24467C9E2D5416F40 /* StudyQuizPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyQuizPlayer.swift; sourceTree = "<group>"; };
+		9B264209AAC109CCD02B3CC2 /* StudyMotionTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyMotionTracking.swift; sourceTree = "<group>"; };
 		9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumTests.swift; sourceTree = "<group>"; };
+		9BDFBF7427DABAC8934E2266 /* StudyMarkdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyMarkdownView.swift; sourceTree = "<group>"; };
+		9FB1461B5485D2D39144F492 /* Marxist_Info_Full_Question_Catalogue.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Marxist_Info_Full_Question_Catalogue.json; sourceTree = "<group>"; };
+		A73331302DC32FFCB7742B5D /* MarxistForumUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumUITests.swift; sourceTree = "<group>"; };
+		AF4288D406331A2C8ADA0BE5 /* StudyComputeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyComputeEngine.swift; sourceTree = "<group>"; };
 		AF8D394898CFD98875515CF2 /* MarxistForumWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumWidgets.swift; sourceTree = "<group>"; };
-		D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MarxistForumWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		E9830FDE5093B0803DEC5D08 /* MarxistForum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MarxistForum.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B073D577957A84864DEC3F51 /* StudyScienceScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceScreens.swift; sourceTree = "<group>"; };
+		B2890F419730B71B97F20E40 /* StudyScienceCourseValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceCourseValidation.swift; sourceTree = "<group>"; };
+		B2F4A4F950BBC1C4C482280C /* StudyAssessmentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyAssessmentStore.swift; sourceTree = "<group>"; };
+		B30C4C1ADD276206779BD6B6 /* StudyScienceSyncClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceSyncClient.swift; sourceTree = "<group>"; };
+		BA2049834F1FB02CF3B0CC85 /* PHY111_Module1_Public_Beta.study-course.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "PHY111_Module1_Public_Beta.study-course.json"; sourceTree = "<group>"; };
+		BCBF8A12FF124BD82321106A /* PHY111_Module1_Acceleration_Series.csv */ = {isa = PBXFileReference; path = PHY111_Module1_Acceleration_Series.csv; sourceTree = "<group>"; };
+		D20E523D75FEE54BA46137EA /* StudyScienceActivities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScienceActivities.swift; sourceTree = "<group>"; };
+		D463F8555606C107FB93DB4D /* StudyScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScreen.swift; sourceTree = "<group>"; };
+		D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = MarxistForumWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA113B137C813C962E28D8AC /* StudyAssessmentEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyAssessmentEngine.swift; sourceTree = "<group>"; };
+		E050068328040F8E88E97570 /* PHY111_Module1_Fallback_Motion.csv */ = {isa = PBXFileReference; path = PHY111_Module1_Fallback_Motion.csv; sourceTree = "<group>"; };
+		E9830FDE5093B0803DEC5D08 /* MarxistForum.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MarxistForum.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF06395641E487346113B5B5 /* MarxistForumApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarxistForumApp.swift; sourceTree = "<group>"; };
+		F42A12406143C14EB4AA2BD4 /* StudyCourseInteractiveExamScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyCourseInteractiveExamScreen.swift; sourceTree = "<group>"; };
 		F66A91C45E409AE86C282264 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		F6A496F7EF832C0E365CDA24 /* StudyScientificCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyScientificCalculator.swift; sourceTree = "<group>"; };
 		FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemIntegrations.swift; sourceTree = "<group>"; };
 		FFC82109FAB2612E93CF32B3 /* EPUBReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPUBReader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -98,6 +184,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		42DCA315B7928EADAA2147E6 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				A73331302DC32FFCB7742B5D /* MarxistForumUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		4D43358C6E1922CA1F6AAF44 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -111,7 +205,34 @@
 				0FDBA440E92118BC6DA76589 /* Screens.swift */,
 				6E6B64AB97864EFD822D0233 /* StoreKitSupport.swift */,
 				0A54756CB4E39D18CDE72493 /* Stores.swift */,
+				DA113B137C813C962E28D8AC /* StudyAssessmentEngine.swift */,
+				70D7C52B96A21E3318355464 /* StudyAssessmentModels.swift */,
+				8D463FF6A20FA9DE31CB88FC /* StudyAssessmentScreens.swift */,
+				B2F4A4F950BBC1C4C482280C /* StudyAssessmentStore.swift */,
+				AF4288D406331A2C8ADA0BE5 /* StudyComputeEngine.swift */,
+				F42A12406143C14EB4AA2BD4 /* StudyCourseInteractiveExamScreen.swift */,
+				1C7A1482BC8F2AA152928495 /* StudyCourseModels.swift */,
+				2C0A585ADE3B97761E90ED06 /* StudyCourseScreens.swift */,
+				4A7C202DDD2B0B7131A58BB5 /* StudyCourseSourceScreen.swift */,
+				0859CB3B133E6EAEAEB817D3 /* StudyLearningModels.swift */,
+				9BDFBF7427DABAC8934E2266 /* StudyMarkdownView.swift */,
+				3D9A4E966EB0BEAD61B5670B /* StudyMathView.swift */,
+				9B264209AAC109CCD02B3CC2 /* StudyMotionTracking.swift */,
+				19DB518CAB0A63DC27ED2435 /* StudyPyodideRuntime.swift */,
+				99BFADB24467C9E2D5416F40 /* StudyQuizPlayer.swift */,
+				D20E523D75FEE54BA46137EA /* StudyScienceActivities.swift */,
+				96D233B5542120416AEE9871 /* StudyScienceCourseModels.swift */,
+				8237A26327972FEEA87E3AFC /* StudyScienceCourseRouteScreens.swift */,
+				B2890F419730B71B97F20E40 /* StudyScienceCourseValidation.swift */,
+				69C716CA6BA4675EBC5B2911 /* StudyScienceLearningModels.swift */,
+				B073D577957A84864DEC3F51 /* StudyScienceScreens.swift */,
+				9762866A9AF5C4D6B9929467 /* StudyScienceStore.swift */,
+				B30C4C1ADD276206779BD6B6 /* StudyScienceSyncClient.swift */,
+				90B542B691F32CE24AAA57DB /* StudyScienceSyncCoordinator.swift */,
+				F6A496F7EF832C0E365CDA24 /* StudyScientificCalculator.swift */,
+				D463F8555606C107FB93DB4D /* StudyScreen.swift */,
 				FBDA49071D7A7A368DB68A43 /* SystemIntegrations.swift */,
+				45EBE1095A2F89B41011EA58 /* TextEditionReaderScreen.swift */,
 				753C83E55461AFEF6DE0362D /* Shared */,
 			);
 			path = Sources;
@@ -132,6 +253,7 @@
 				F1DD069191DFA5E4672F87B5 /* Resources */,
 				4D43358C6E1922CA1F6AAF44 /* Sources */,
 				DA17FE89E0D039B210DED045 /* Tests */,
+				42DCA315B7928EADAA2147E6 /* UITests */,
 				5CF6E462CDC7F5C83D4F3583 /* WidgetExtension */,
 				FC41C1097BD24285D81FF493 /* Products */,
 			);
@@ -149,6 +271,8 @@
 			isa = PBXGroup;
 			children = (
 				9B7006434DDD34F1900070A9 /* MarxistForumTests.swift */,
+				8F543E54A2CC206FF01AE967 /* StudyScienceBackendTests.swift */,
+				234984CB283691609AC2C896 /* StudyScienceCourseTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -157,7 +281,16 @@
 			isa = PBXGroup;
 			children = (
 				69A4C8482BF1675E054CDD0F /* Assets.xcassets */,
+				6CFAB72D55E269A8F97A4C6A /* marx-login-loop.mov */,
+				472A8F90CE1AAF4BCA964188 /* Marxist_Info_Dialectics_v1.study-course.json */,
+				9FB1461B5485D2D39144F492 /* Marxist_Info_Full_Question_Catalogue.json */,
+				BCBF8A12FF124BD82321106A /* PHY111_Module1_Acceleration_Series.csv */,
+				E050068328040F8E88E97570 /* PHY111_Module1_Fallback_Motion.csv */,
+				BA2049834F1FB02CF3B0CC85 /* PHY111_Module1_Public_Beta.study-course.json */,
+				065DBFD039611A2C11CF66A7 /* PHY111_Module1_Source_Map.json */,
+				70C8A5B211B5481389C98FB5 /* PHY111_Module1_Source_Pages_2_25.pdf */,
 				62FEF58C5F6BEF725E262B07 /* PrivacyInfo.xcprivacy */,
+				579201F02B6667B027B0D9F2 /* ScienceRuntime */,
 				0C06F164057FD5833AE63FEA /* substack-archive.json */,
 			);
 			path = Resources;
@@ -168,6 +301,7 @@
 			children = (
 				E9830FDE5093B0803DEC5D08 /* MarxistForum.app */,
 				7006AA59E51D15F32A3DB486 /* MarxistForumTests.xctest */,
+				730EE1B1AA5A4949051C46A7 /* MarxistForumUITests.xctest */,
 				D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */,
 			);
 			name = Products;
@@ -234,6 +368,24 @@
 			productReference = D8EFF9F1CDC0AF67D05CF510 /* MarxistForumWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		BD5BBBF42EA7F5A71FE018F1 /* MarxistForumUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E127F774475F402796DE810C /* Build configuration list for PBXNativeTarget "MarxistForumUITests" */;
+			buildPhases = (
+				7236455EB68CA5DA7DA3FD8C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D2D88F185BE10D4335971896 /* PBXTargetDependency */,
+			);
+			name = MarxistForumUITests;
+			packageProductDependencies = (
+			);
+			productName = MarxistForumUITests;
+			productReference = 730EE1B1AA5A4949051C46A7 /* MarxistForumUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -244,10 +396,15 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					284A6E6EBD7318E8E6730390 = {
+						DevelopmentTeam = LA7GTT4246;
 						ProvisioningStyle = Automatic;
 					};
 					71EFB8D14F23B8E6339B1DB8 = {
+						DevelopmentTeam = LA7GTT4246;
 						ProvisioningStyle = Automatic;
+					};
+					BD5BBBF42EA7F5A71FE018F1 = {
+						TestTargetID = 284A6E6EBD7318E8E6730390;
 					};
 				};
 			};
@@ -272,6 +429,7 @@
 			targets = (
 				284A6E6EBD7318E8E6730390 /* MarxistForum */,
 				0CA48094654AB95505651E1C /* MarxistForumTests */,
+				BD5BBBF42EA7F5A71FE018F1 /* MarxistForumUITests */,
 				71EFB8D14F23B8E6339B1DB8 /* MarxistForumWidgets */,
 			);
 		};
@@ -283,7 +441,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				A5CCBC91E1FA3A185AE8BFE1 /* Assets.xcassets in Resources */,
+				A0FAE2D1C46B2CEB52EBCBA4 /* Marxist_Info_Dialectics_v1.study-course.json in Resources */,
+				8AF0E8EDB2828AA26A480E55 /* Marxist_Info_Full_Question_Catalogue.json in Resources */,
+				9BBD46BF2270A886FBB94536 /* PHY111_Module1_Acceleration_Series.csv in Resources */,
+				2884086381226DF3CDFFEEA5 /* PHY111_Module1_Fallback_Motion.csv in Resources */,
+				8225C8CFC1AF1193E3053D36 /* PHY111_Module1_Public_Beta.study-course.json in Resources */,
+				778736668C3BBF9D8F34404B /* PHY111_Module1_Source_Map.json in Resources */,
+				33FF2725400CB79A7A9E3C79 /* PHY111_Module1_Source_Pages_2_25.pdf in Resources */,
 				756D6370F7104F834C32E224 /* PrivacyInfo.xcprivacy in Resources */,
+				768AB7326968CF33CD0DC6EA /* ScienceRuntime in Resources */,
+				919181126E6197191E025E63 /* marx-login-loop.mov in Resources */,
 				4780277F3C12A1415DFBCAFD /* substack-archive.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -291,6 +458,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		7236455EB68CA5DA7DA3FD8C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6188C9845089D28F2AEB6384 /* MarxistForumUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		98B674C38E6F75755CF891DA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -314,8 +489,35 @@
 				8074D70F5E5E069194D493F4 /* Screens.swift in Sources */,
 				5797D1567BBED6BE9F415864 /* StoreKitSupport.swift in Sources */,
 				68029C308CE02DEDB6A6EC04 /* Stores.swift in Sources */,
+				0591F32C073D580C70C57082 /* StudyAssessmentEngine.swift in Sources */,
+				E304C34A0249748607A2701B /* StudyAssessmentModels.swift in Sources */,
+				A2032F7B42369BCD8D89523F /* StudyAssessmentScreens.swift in Sources */,
+				47C69017D6669B57A3877857 /* StudyAssessmentStore.swift in Sources */,
+				04962C78B3BD3BB9A829CBAD /* StudyComputeEngine.swift in Sources */,
+				D48A3064D431561AFB1DBFA5 /* StudyCourseInteractiveExamScreen.swift in Sources */,
+				175CFAA092F1ECDFD689AA45 /* StudyCourseModels.swift in Sources */,
+				2106717F248BA246CDA8598E /* StudyCourseScreens.swift in Sources */,
+				AC275C49CBF31615D290A3D9 /* StudyCourseSourceScreen.swift in Sources */,
+				B36470E8A1A61A6624EC983D /* StudyLearningModels.swift in Sources */,
+				E9231358E6520094A8C4D20E /* StudyMarkdownView.swift in Sources */,
+				4CC28AE860ACBE5F19ABE90F /* StudyMathView.swift in Sources */,
+				55B9BC5BD994D0EFB6FC2A61 /* StudyMotionTracking.swift in Sources */,
+				42B8B06C123590C456C85837 /* StudyPyodideRuntime.swift in Sources */,
+				78258FDF3786B84D49116BD3 /* StudyQuizPlayer.swift in Sources */,
+				FE9E05AFAEB9333E0CD0CA1F /* StudyScienceActivities.swift in Sources */,
+				C01206FF8009E3716041B699 /* StudyScienceCourseModels.swift in Sources */,
+				8243F2203A4C2FC335DB9EB5 /* StudyScienceCourseRouteScreens.swift in Sources */,
+				EAE7E539522541D1FBEACEDE /* StudyScienceCourseValidation.swift in Sources */,
+				CD9E5DAE39A479F90A4231E6 /* StudyScienceLearningModels.swift in Sources */,
+				125164B2C11DCE2F80883A2D /* StudyScienceScreens.swift in Sources */,
+				AB974122EE4D0190EDD903E8 /* StudyScienceStore.swift in Sources */,
+				99C4FD71BD530C138441E636 /* StudyScienceSyncClient.swift in Sources */,
+				6FCBDB86DA43375768DD5F69 /* StudyScienceSyncCoordinator.swift in Sources */,
+				B42836676D2A1968A879116B /* StudyScientificCalculator.swift in Sources */,
+				000AAEF00F4D10A788E4BC59 /* StudyScreen.swift in Sources */,
 				C3838B3ADE0D32620E760F53 /* SystemIntegrationShared.swift in Sources */,
 				78F99DE1AB455E93E9FC7915 /* SystemIntegrations.swift in Sources */,
+				3CF632EEFE089F9A533CC672 /* TextEditionReaderScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +526,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A44F0758C28F6060DC2A57AB /* MarxistForumTests.swift in Sources */,
+				ABDAE3FC980299B0E97C2B1C /* StudyScienceBackendTests.swift in Sources */,
+				0DA1E49E0EF025C4BB705416 /* StudyScienceCourseTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +543,11 @@
 			isa = PBXTargetDependency;
 			target = 284A6E6EBD7318E8E6730390 /* MarxistForum */;
 			targetProxy = 808D00E1F4189ECD914A730D /* PBXContainerItemProxy */;
+		};
+		D2D88F185BE10D4335971896 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 284A6E6EBD7318E8E6730390 /* MarxistForum */;
+			targetProxy = 77E5E0E071B17DEC7212C790 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -367,7 +576,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForumWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = WidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -393,7 +602,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForum.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -418,7 +627,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForum.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -498,6 +707,25 @@
 			};
 			name = Debug;
 		};
+		94387E66DD7D05611CEBF753 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MarxistForum;
+			};
+			name = Debug;
+		};
 		9BA01C0D0A9BB6EFF452896D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -522,7 +750,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Resources/Entitlements/MarxistForumWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = LA7GTT4246;
 				INFOPLIST_FILE = WidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -537,6 +765,25 @@
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		ED2DC2E54A0C88FDD28319EB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.marxist.forum.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MarxistForum;
 			};
 			name = Release;
 		};
@@ -631,6 +878,15 @@
 			buildConfigurations = (
 				640CDC935772973C687DE012 /* Debug */,
 				4E98C990545B75B017009F6A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E127F774475F402796DE810C /* Build configuration list for PBXNativeTarget "MarxistForumUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				94387E66DD7D05611CEBF753 /* Debug */,
+				ED2DC2E54A0C88FDD28319EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

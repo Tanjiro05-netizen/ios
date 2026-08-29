@@ -23,7 +23,26 @@ targets:
       - path: Sources
       - path: Resources/Assets.xcassets
         buildPhase: resources
+      - path: Resources/marx-login-loop.mov
+        buildPhase: resources
       - path: Resources/substack-archive.json
+        buildPhase: resources
+      - path: Resources/Marxist_Info_Full_Question_Catalogue.json
+        buildPhase: resources
+      - path: Resources/Marxist_Info_Dialectics_v1.study-course.json
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Public_Beta.study-course.json
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Acceleration_Series.csv
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Fallback_Motion.csv
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Source_Pages_2_25.pdf
+        buildPhase: resources
+      - path: Resources/PHY111_Module1_Source_Map.json
+        buildPhase: resources
+      - path: Resources/ScienceRuntime
+        type: folder
         buildPhase: resources
       - path: Resources/PrivacyInfo.xcprivacy
         buildPhase: resources
@@ -44,8 +63,9 @@ targets:
         SWIFT_VERSION: 6.0
         TARGETED_DEVICE_FAMILY: "1,2"
         MARKETING_VERSION: 1.0
-        CURRENT_PROJECT_VERSION: 1
+        CURRENT_PROJECT_VERSION: 2
         CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: LA7GTT4246
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
   MarxistForumWidgets:
@@ -63,8 +83,9 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Resources/Entitlements/MarxistForumWidgets.entitlements
         SWIFT_VERSION: 6.0
         MARKETING_VERSION: 1.0
-        CURRENT_PROJECT_VERSION: 1
+        CURRENT_PROJECT_VERSION: 2
         CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: LA7GTT4246
   MarxistForumTests:
     type: bundle.unit-test
     platform: iOS
@@ -78,12 +99,27 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.marxist.forum.tests
         INFOPLIST_FILE: Resources/Info.plist
         SWIFT_VERSION: 6.0
+  MarxistForumUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: UITests
+    dependencies:
+      - target: MarxistForum
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.marxist.forum.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: 6.0
 schemes:
   MarxistForum:
     build:
       targets:
         MarxistForum: all
         MarxistForumTests: [test]
+        MarxistForumUITests: [test]
     test:
       targets:
         - name: MarxistForumTests
+        - name: MarxistForumUITests

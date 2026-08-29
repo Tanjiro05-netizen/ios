@@ -35,6 +35,20 @@
                ReferencedContainer = "container:MarxistForum.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BD5BBBF42EA7F5A71FE018F1"
+               BuildableName = "MarxistForumUITests.xctest"
+               BlueprintName = "MarxistForumUITests"
+               ReferencedContainer = "container:MarxistForum.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "0CA48094654AB95505651E1C"
                BuildableName = "MarxistForumTests.xctest"
                BlueprintName = "MarxistForumTests"
+               ReferencedContainer = "container:MarxistForum.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BD5BBBF42EA7F5A71FE018F1"
+               BuildableName = "MarxistForumUITests.xctest"
+               BlueprintName = "MarxistForumUITests"
                ReferencedContainer = "container:MarxistForum.xcodeproj">
             </BuildableReference>
          </TestableReference>

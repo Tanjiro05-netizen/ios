@@ -1,0 +1,948 @@
+{
+  "mappingVersion": 1,
+  "courseID": "PHY111",
+  "contentVersion": "0.1.0",
+  "sourceDocument": "PHY111_Introductory_Physics_I_Enhanced_Interactive_Course_v2.1_Final_Course_Edition.pdf",
+  "excerptResource": "PHY111_Module1_Source_Pages_2_25.pdf",
+  "sourceFirstPage": 2,
+  "sourceLastPage": 25,
+  "indexRule": "excerpt zero-based index = original source page - resourceFirstSourcePage",
+  "entries": [
+    {
+      "id": "PHY111.activity.orientation.scientific-standard",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 2,
+      "lastPage": 2,
+      "excerptFirstIndex": 0,
+      "excerptLastIndex": 0
+    },
+    {
+      "id": "PHY111.block.course-record",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 2,
+      "lastPage": 2,
+      "excerptFirstIndex": 0,
+      "excerptLastIndex": 0
+    },
+    {
+      "id": "PHY111.block.orientation-ack",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 2,
+      "lastPage": 4,
+      "excerptFirstIndex": 0,
+      "excerptLastIndex": 2
+    },
+    {
+      "id": "PHY111.block.learning-cycle",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 3,
+      "lastPage": 3,
+      "excerptFirstIndex": 1,
+      "excerptLastIndex": 1
+    },
+    {
+      "id": "PHY111.block.assessment-model",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 4,
+      "lastPage": 4,
+      "excerptFirstIndex": 2,
+      "excerptLastIndex": 2
+    },
+    {
+      "id": "PHY111.activity.foundation.dimensions",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 5,
+      "lastPage": 5,
+      "excerptFirstIndex": 3,
+      "excerptLastIndex": 3
+    },
+    {
+      "id": "PHY111.block.foundation-dimensions",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 5,
+      "lastPage": 5,
+      "excerptFirstIndex": 3,
+      "excerptLastIndex": 3
+    },
+    {
+      "id": "PHY111.block.foundations",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 5,
+      "lastPage": 6,
+      "excerptFirstIndex": 3,
+      "excerptLastIndex": 4
+    },
+    {
+      "id": "PHY111.activity.foundation.uncertainty",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 6,
+      "lastPage": 6,
+      "excerptFirstIndex": 4,
+      "excerptLastIndex": 4
+    },
+    {
+      "id": "PHY111.block.foundation-uncertainty",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 6,
+      "lastPage": 6,
+      "excerptFirstIndex": 4,
+      "excerptLastIndex": 4
+    },
+    {
+      "id": "PHY111.block.m01.launch-and-1.1",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 7,
+      "lastPage": 9,
+      "excerptFirstIndex": 5,
+      "excerptLastIndex": 7
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.1",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 9,
+      "lastPage": 9,
+      "excerptFirstIndex": 7,
+      "excerptLastIndex": 7
+    },
+    {
+      "id": "PHY111.block.m01.check.1.1",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 9,
+      "lastPage": 9,
+      "excerptFirstIndex": 7,
+      "excerptLastIndex": 7
+    },
+    {
+      "id": "PHY111.activity.m01.worked.round-trip",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 10,
+      "lastPage": 10,
+      "excerptFirstIndex": 8,
+      "excerptLastIndex": 8
+    },
+    {
+      "id": "PHY111.block.m01.worked.round-trip",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 10,
+      "lastPage": 10,
+      "excerptFirstIndex": 8,
+      "excerptLastIndex": 8
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.2",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 11,
+      "lastPage": 11,
+      "excerptFirstIndex": 9,
+      "excerptLastIndex": 9
+    },
+    {
+      "id": "PHY111.block.m01.1.2",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 11,
+      "lastPage": 11,
+      "excerptFirstIndex": 9,
+      "excerptLastIndex": 9
+    },
+    {
+      "id": "PHY111.block.m01.check.1.2",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 11,
+      "lastPage": 11,
+      "excerptFirstIndex": 9,
+      "excerptLastIndex": 9
+    },
+    {
+      "id": "PHY111.activity.m01.worked.braking",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 12,
+      "lastPage": 12,
+      "excerptFirstIndex": 10,
+      "excerptLastIndex": 10
+    },
+    {
+      "id": "PHY111.block.m01.worked.braking",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 12,
+      "lastPage": 12,
+      "excerptFirstIndex": 10,
+      "excerptLastIndex": 10
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.3",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 13,
+      "lastPage": 13,
+      "excerptFirstIndex": 11,
+      "excerptLastIndex": 11
+    },
+    {
+      "id": "PHY111.block.m01.1.3",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 13,
+      "lastPage": 13,
+      "excerptFirstIndex": 11,
+      "excerptLastIndex": 11
+    },
+    {
+      "id": "PHY111.block.m01.check.1.3",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 13,
+      "lastPage": 13,
+      "excerptFirstIndex": 11,
+      "excerptLastIndex": 11
+    },
+    {
+      "id": "PHY111.activity.m01.worked.projectile",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 14,
+      "lastPage": 14,
+      "excerptFirstIndex": 12,
+      "excerptLastIndex": 12
+    },
+    {
+      "id": "PHY111.block.m01.worked.projectile",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 14,
+      "lastPage": 14,
+      "excerptFirstIndex": 12,
+      "excerptLastIndex": 12
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.4",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 15,
+      "lastPage": 15,
+      "excerptFirstIndex": 13,
+      "excerptLastIndex": 13
+    },
+    {
+      "id": "PHY111.activity.m01.worked.two-blocks",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 15,
+      "lastPage": 15,
+      "excerptFirstIndex": 13,
+      "excerptLastIndex": 13
+    },
+    {
+      "id": "PHY111.block.m01.1.4",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 15,
+      "lastPage": 15,
+      "excerptFirstIndex": 13,
+      "excerptLastIndex": 13
+    },
+    {
+      "id": "PHY111.block.m01.check.1.4",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 15,
+      "lastPage": 15,
+      "excerptFirstIndex": 13,
+      "excerptLastIndex": 13
+    },
+    {
+      "id": "PHY111.block.m01.worked.two-blocks",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 15,
+      "lastPage": 15,
+      "excerptFirstIndex": 13,
+      "excerptLastIndex": 13
+    },
+    {
+      "id": "PHY111.activity.m01.check.1.5",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 16,
+      "lastPage": 16,
+      "excerptFirstIndex": 14,
+      "excerptLastIndex": 14
+    },
+    {
+      "id": "PHY111.activity.m01.worked.elevator",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 16,
+      "lastPage": 16,
+      "excerptFirstIndex": 14,
+      "excerptLastIndex": 14
+    },
+    {
+      "id": "PHY111.block.m01.1.5",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 16,
+      "lastPage": 16,
+      "excerptFirstIndex": 14,
+      "excerptLastIndex": 14
+    },
+    {
+      "id": "PHY111.block.m01.check.1.5",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 16,
+      "lastPage": 16,
+      "excerptFirstIndex": 14,
+      "excerptLastIndex": 14
+    },
+    {
+      "id": "PHY111.block.m01.worked.elevator",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 16,
+      "lastPage": 16,
+      "excerptFirstIndex": 14,
+      "excerptLastIndex": 14
+    },
+    {
+      "id": "PHY111.activity.m01.guided.1A",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 17,
+      "lastPage": 17,
+      "excerptFirstIndex": 15,
+      "excerptLastIndex": 15
+    },
+    {
+      "id": "PHY111.block.m01.guided-intro",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 17,
+      "lastPage": 18,
+      "excerptFirstIndex": 15,
+      "excerptLastIndex": 16
+    },
+    {
+      "id": "PHY111.block.m01.guided.1A",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 17,
+      "lastPage": 17,
+      "excerptFirstIndex": 15,
+      "excerptLastIndex": 15
+    },
+    {
+      "id": "PHY111.activity.m01.guided.1B",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 18,
+      "lastPage": 18,
+      "excerptFirstIndex": 16,
+      "excerptLastIndex": 16
+    },
+    {
+      "id": "PHY111.block.m01.guided.1B",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 18,
+      "lastPage": 18,
+      "excerptFirstIndex": 16,
+      "excerptLastIndex": 16
+    },
+    {
+      "id": "PHY111.activity.m01.derivation-board",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 19,
+      "lastPage": 19,
+      "excerptFirstIndex": 17,
+      "excerptLastIndex": 17
+    },
+    {
+      "id": "PHY111.block.m01.deepening",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 19,
+      "lastPage": 19,
+      "excerptFirstIndex": 17,
+      "excerptLastIndex": 17
+    },
+    {
+      "id": "PHY111.block.m01.derivation-board",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 19,
+      "lastPage": 19,
+      "excerptFirstIndex": 17,
+      "excerptLastIndex": 17
+    },
+    {
+      "id": "PHY111.activity.m01.worked.horizontal-curve",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 20,
+      "lastPage": 20,
+      "excerptFirstIndex": 18,
+      "excerptLastIndex": 18
+    },
+    {
+      "id": "PHY111.activity.m01.worked.non-uniform-acceleration",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 20,
+      "lastPage": 20,
+      "excerptFirstIndex": 18,
+      "excerptLastIndex": 18
+    },
+    {
+      "id": "PHY111.block.m01.worked.curve",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 20,
+      "lastPage": 20,
+      "excerptFirstIndex": 18,
+      "excerptLastIndex": 18
+    },
+    {
+      "id": "PHY111.block.m01.worked.non-uniform",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 20,
+      "lastPage": 20,
+      "excerptFirstIndex": 18,
+      "excerptLastIndex": 18
+    },
+    {
+      "id": "PHY111.activity.m01.debug.circular-motion",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 21,
+      "lastPage": 21,
+      "excerptFirstIndex": 19,
+      "excerptLastIndex": 19
+    },
+    {
+      "id": "PHY111.activity.m01.tutorial.A",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 21,
+      "lastPage": 21,
+      "excerptFirstIndex": 19,
+      "excerptLastIndex": 19
+    },
+    {
+      "id": "PHY111.activity.m01.tutorial.B",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 21,
+      "lastPage": 21,
+      "excerptFirstIndex": 19,
+      "excerptLastIndex": 19
+    },
+    {
+      "id": "PHY111.block.m01.debug.circular",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 21,
+      "lastPage": 21,
+      "excerptFirstIndex": 19,
+      "excerptLastIndex": 19
+    },
+    {
+      "id": "PHY111.block.m01.tutorial.A",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 21,
+      "lastPage": 21,
+      "excerptFirstIndex": 19,
+      "excerptLastIndex": 19
+    },
+    {
+      "id": "PHY111.block.m01.tutorial.B",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 21,
+      "lastPage": 21,
+      "excerptFirstIndex": 19,
+      "excerptLastIndex": 19
+    },
+    {
+      "id": "PHY111.activity.m01.lab.motion-tracking",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.activity.m01.lab.numerical-guided",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.activity.m01.lab.python",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.activity.m01.video.motion-tracking-briefing",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.block.m01.investigation-intro",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.block.m01.lab.guided",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.block.m01.lab.motion",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.block.m01.lab.python",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.block.m01.video.motion-briefing",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.block.m01.video.motion-briefing-ack",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.dataset.acceleration.constant",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.dataset.motion.fallback",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 22,
+      "lastPage": 22,
+      "excerptFirstIndex": 20,
+      "excerptLastIndex": 20
+    },
+    {
+      "id": "PHY111.activity.m01.problem.01",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.02",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.03",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.04",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.05",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.06",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.07",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.08",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.09",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.activity.m01.problem.10",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem-set-intro",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.01",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.02",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.03",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.04",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.05",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.06",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.07",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.08",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.09",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.problem.10",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 23,
+      "lastPage": 23,
+      "excerptFirstIndex": 21,
+      "excerptLastIndex": 21
+    },
+    {
+      "id": "PHY111.block.m01.mastery",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.01",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.02",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.03",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.04",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.05",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.06",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.07",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.item.m01.mastery.08",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 24,
+      "lastPage": 24,
+      "excerptFirstIndex": 22,
+      "excerptLastIndex": 22
+    },
+    {
+      "id": "PHY111.block.m01.quiz",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.01",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.02",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.03",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.04",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.05",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.06",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.07",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    },
+    {
+      "id": "PHY111.item.m01.quiz.08",
+      "resourceName": "PHY111_Module1_Source_Pages_2_25.pdf",
+      "resourceFirstSourcePage": 2,
+      "firstPage": 25,
+      "lastPage": 25,
+      "excerptFirstIndex": 23,
+      "excerptLastIndex": 23
+    }
+  ]
+}

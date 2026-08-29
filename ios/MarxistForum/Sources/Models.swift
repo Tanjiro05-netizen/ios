@@ -4,6 +4,12 @@ import UIKit
 
 enum AppFeatureFlags {
     static let forumEnabled = false
+    static let sciencePilotEnabled = true
+    static let writtenCourseSubmissionsEnabled = false
+    static let examinerGradingEnabled = false
+    static let supportTipsEnabled = false
+    static let educationalVideosEnabled = false
+    static let unreviewedAssessmentContentEnabled = false
 }
 
 enum AppConstants {
@@ -13,6 +19,11 @@ enum AppConstants {
     static let substackFeedURL = URL(string: "https://acc2049.substack.com/feed")!
     static let substackAuthorName = "☭/Acc"
     static let substackAuthorProfileURL = URL(string: "https://substack.com/@leninistwarrior")!
+    static let publicSiteURL = URL(string: "https://tanjiro05-netizen.github.io/ios/")!
+    static let privacyPolicyURL = publicSiteURL.appending(path: "privacy.html")
+    static let supportURL = publicSiteURL.appending(path: "support.html")
+    static let accountAndDataURL = publicSiteURL.appending(path: "account-and-data.html")
+    static let termsURL = publicSiteURL.appending(path: "terms.html")
 }
 
 enum Brand {
@@ -92,6 +103,61 @@ struct NotificationItem: Identifiable, Codable, Hashable {
     var sourceUser: Profile?
 }
 
+struct TextEditionSection: Identifiable, Codable, Hashable {
+    var id: String
+    var title: String?
+    var level: Int?
+    var md: String
+
+    init(id: String, title: String? = nil, level: Int? = nil, md: String = "") {
+        self.id = id
+        self.title = title
+        self.level = level
+        self.md = md
+    }
+}
+
+/// digital_library_books.text_edition — the reflowable reading edition
+/// (markdown sections produced from txt/PDF sources) that powers the
+/// fullscreen text reader, mirroring the website's text-edition reader.
+struct TextEdition: Codable, Hashable {
+    var sections: [TextEditionSection]
+    var readingMinutes: Int?
+    var source: String?
+    var generatedAt: String?
+
+    init(
+        sections: [TextEditionSection] = [],
+        readingMinutes: Int? = nil,
+        source: String? = nil,
+        generatedAt: String? = nil
+    ) {
+        self.sections = sections
+        self.readingMinutes = readingMinutes
+        self.source = source
+        self.generatedAt = generatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        struct RawSection: Codable {
+            var id: String?
+            var title: String?
+            var level: Int?
+            var md: String?
+        }
+        let rawSections = try container.decodeIfPresent([RawSection].self, forKey: .sections) ?? []
+        // Hand-built editions can omit section ids; fall back to the website's
+        // index-based scheme so anchors stay stable within an edition.
+        sections = rawSections.enumerated().map { index, raw in
+            TextEditionSection(id: raw.id ?? "s\(index)", title: raw.title, level: raw.level, md: raw.md ?? "")
+        }
+        readingMinutes = try container.decodeIfPresent(Int.self, forKey: .readingMinutes)
+        source = try container.decodeIfPresent(String.self, forKey: .source)
+        generatedAt = try container.decodeIfPresent(String.self, forKey: .generatedAt)
+    }
+}
+
 struct Book: Identifiable, Codable, Hashable {
     let id: String
     var title: String
@@ -110,6 +176,7 @@ struct Book: Identifiable, Codable, Hashable {
     var isOfficial: Bool?
     var uploadedBy: String?
     var uploader: Profile?
+    var textEdition: TextEdition? = nil
 }
 
 struct AudiobookChapter: Codable, Hashable {
@@ -601,6 +668,7 @@ enum LegalKind: String, Codable, Hashable, Identifiable {
 enum AppTab: String, CaseIterable, Identifiable, Hashable {
     case library
     case audiobooks
+    case study
     case substack
     case forum
     case notifications
@@ -608,10 +676,20 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
 
     var id: String { rawValue }
 
+    static let bottomBarTabs: [AppTab] = [
+        .library,
+        .audiobooks,
+        .study,
+        .substack,
+        .forum,
+        .profile
+    ]
+
     var title: String {
         switch self {
         case .library: "Library"
         case .audiobooks: "Audio"
+        case .study: "Study"
         case .substack: "Substack"
         case .forum: "Forum"
         case .notifications: "Alerts"
@@ -623,6 +701,7 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .library: "books.vertical"
         case .audiobooks: "headphones"
+        case .study: "graduationcap"
         case .substack: "newspaper"
         case .forum: "bubble.left.and.bubble.right"
         case .notifications: "bell"
@@ -634,6 +713,36 @@ enum AppTab: String, CaseIterable, Identifiable, Hashable {
 enum Route: Hashable {
     case notifications
     case settings
+    case studyCollection(kind: StudyContentKind)
+    case studyCourse(id: String)
+    case studyCourseDocument(courseID: String, kind: StudyCourseDocumentKind)
+    case studyLesson(courseID: String, moduleID: String, lessonID: String)
+    case studyCourseOrientation(courseID: String)
+    case studyCourseSection(courseID: String, moduleID: String, lessonID: String, blockID: String)
+    case studyCourseSource(courseID: String, resourceName: String, resourceFirstSourcePage: Int, firstPage: Int, lastPage: Int)
+    case studyScienceActivity(courseID: String, activityID: String)
+    case studyScienceAssessment(courseID: String, assessmentID: String)
+    case studyScienceVideo(courseID: String, videoID: String)
+    case studyAssignment(id: String)
+    case studyCourseMarking(courseID: String)
+    case studyAssignmentMarking(submissionID: String)
+    case studyExamMarking(submissionID: String)
+    case studyCourseExam(id: String)
+    case studyGuide(id: String)
+    case studyReadingGuide(id: String)
+    case studyReadingGuideChunk(guideID: String, chunkID: String)
+    case studyDaily
+    case studyExercises
+    case studyPractice
+    case studyQuestionCatalogue
+    case studyQuiz(attemptID: UUID)
+    case studyResults(attemptID: UUID)
+    case studyReview
+    case studyDiagnostic
+    case studyProgress
+    case studyExams
+    case studyExamInstructions(examID: String)
+    case studyGlossary
     case bookReader(id: String)
     case substackArticle(slug: String)
     case threadDetail(id: String)

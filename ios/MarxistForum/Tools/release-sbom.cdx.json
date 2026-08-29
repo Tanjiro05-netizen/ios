@@ -1,0 +1,459 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:19d82351-28d7-4ba4-a843-3f46ab3c1792",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "MarxistInfo",
+      "version": "1.0+2"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Deno standard/http/server",
+      "version": "0.224.0",
+      "bom-ref": "pkg:generic/deno-std-http@0.224.0",
+      "purl": "pkg:generic/deno-std-http@0.224.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "@supabase/supabase-js",
+      "version": "2.49.4",
+      "bom-ref": "pkg:npm/%40supabase/supabase-js@2.49.4",
+      "purl": "pkg:npm/%40supabase/supabase-js@2.49.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "cryptoswift",
+      "version": "1.10.0",
+      "bom-ref": "pkg:swift/cryptoswift@1.10.0",
+      "purl": "pkg:swift/cryptoswift@1.10.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/krzyzanowskim/CryptoSwift.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "f2a627b84c1ff96f21ac2fcb623ab36142dd5512"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Zlib"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "differencekit",
+      "version": "1.3.0",
+      "bom-ref": "pkg:swift/differencekit@1.3.0",
+      "purl": "pkg:swift/differencekit@1.3.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/ra1028/DifferenceKit.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "073b9671ce2b9b5b96398611427a1f929927e428"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "fuzi",
+      "version": "4.0.0",
+      "bom-ref": "pkg:swift/fuzi@4.0.0",
+      "purl": "pkg:swift/fuzi@4.0.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/readium/Fuzi.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "347aab158ff8894966ff80469b384bb5337928cd"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "gcdwebserver",
+      "version": "4.0.1",
+      "bom-ref": "pkg:swift/gcdwebserver@4.0.1",
+      "purl": "pkg:swift/gcdwebserver@4.0.1",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/readium/GCDWebServer.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "584db89a4c3c3be27206cce6afde037b2b6e38d8"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "sqlite.swift",
+      "version": "0.16.0",
+      "bom-ref": "pkg:swift/sqlite.swift@0.16.0",
+      "purl": "pkg:swift/sqlite.swift@0.16.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/stephencelis/SQLite.swift.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "964c300fb0736699ce945c9edb56ecd62eba27a3"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "supabase-swift",
+      "version": "2.49.0",
+      "bom-ref": "pkg:swift/supabase-swift@2.49.0",
+      "purl": "pkg:swift/supabase-swift@2.49.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/supabase/supabase-swift.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "36528618a2ce8eac61c8cff878358b32ead6771e"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swift-asn1",
+      "version": "1.7.1",
+      "bom-ref": "pkg:swift/swift-asn1@1.7.1",
+      "purl": "pkg:swift/swift-asn1@1.7.1",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/apple/swift-asn1.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "a9a5efd40eaf558a2bcd48d64b1d1646be686008"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swift-clocks",
+      "version": "1.1.0",
+      "bom-ref": "pkg:swift/swift-clocks@1.1.0",
+      "purl": "pkg:swift/swift-clocks@1.1.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/pointfreeco/swift-clocks"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "72d749bf341b78851203066ab421869b783ec42a"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swift-concurrency-extras",
+      "version": "1.4.0",
+      "bom-ref": "pkg:swift/swift-concurrency-extras@1.4.0",
+      "purl": "pkg:swift/swift-concurrency-extras@1.4.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/pointfreeco/swift-concurrency-extras"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "a90e2e40a7a840a853dd29e57cbef5dbb72c9d5b"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swift-crypto",
+      "version": "4.5.0",
+      "bom-ref": "pkg:swift/swift-crypto@4.5.0",
+      "purl": "pkg:swift/swift-crypto@4.5.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/apple/swift-crypto.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "1b6b2e274e85105bfa155183145a1dcfd63331f1"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swift-http-types",
+      "version": "1.6.0",
+      "bom-ref": "pkg:swift/swift-http-types@1.6.0",
+      "purl": "pkg:swift/swift-http-types@1.6.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/apple/swift-http-types.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "db774a277f60063a32d854f2980299caf06da041"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swift-toolkit",
+      "version": "3.10.0",
+      "bom-ref": "pkg:swift/swift-toolkit@3.10.0",
+      "purl": "pkg:swift/swift-toolkit@3.10.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/readium/swift-toolkit.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "ec5f552b06a1117f3e2f50fca466058f494ae8b5"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "swiftsoup",
+      "version": "2.13.6",
+      "bom-ref": "pkg:swift/swiftsoup@2.13.6",
+      "purl": "pkg:swift/swiftsoup@2.13.6",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/scinfu/SwiftSoup.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "ead56133a693d0184d8c2db1a6d6394410cacfd6"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "xctest-dynamic-overlay",
+      "version": "1.10.1",
+      "bom-ref": "pkg:swift/xctest-dynamic-overlay@1.10.1",
+      "purl": "pkg:swift/xctest-dynamic-overlay@1.10.1",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/pointfreeco/xctest-dynamic-overlay"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "401bf70d95bfe8db2a1dc619f9e175a85c089321"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zip",
+      "version": "2.1.2",
+      "bom-ref": "pkg:swift/zip@2.1.2",
+      "purl": "pkg:swift/zip@2.1.2",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/marmelroy/Zip.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "67fa55813b9e7b3b9acee9c0ae501def28746d76"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zipfoundation",
+      "version": "3.0.1",
+      "bom-ref": "pkg:swift/zipfoundation@3.0.1",
+      "purl": "pkg:swift/zipfoundation@3.0.1",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/readium/ZIPFoundation.git"
+        }
+      ],
+      "properties": [
+        {
+          "name": "swiftpm:revision",
+          "value": "adb49c8bfe060cc187370b12fa081012a6440b86"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  ]
+}

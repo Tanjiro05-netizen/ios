@@ -6,6 +6,7 @@ enum APIError: LocalizedError {
     case invalidURL
     case server(Int, String)
     case emptyResponse
+    case authenticationRequired
 
     var errorDescription: String? {
         switch self {
@@ -15,7 +16,16 @@ enum APIError: LocalizedError {
             "Supabase request failed (\(code)): \(body)"
         case .emptyResponse:
             "Supabase returned an empty response."
+        case .authenticationRequired:
+            "Your session has expired. Please sign in again."
         }
+    }
+
+    var isUnauthorized: Bool {
+        if case .server(let code, _) = self {
+            return code == 401
+        }
+        return false
     }
 }
 
@@ -58,6 +68,36 @@ struct ReadingQuoteRemote: Codable {
     var updatedAt: String
 }
 
+extension AuthSession {
+    var accessTokenExpirationDate: Date? {
+        let components = accessToken.split(separator: ".", omittingEmptySubsequences: false)
+        guard components.count >= 2 else { return nil }
+
+        var encodedPayload = String(components[1])
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        encodedPayload.append(String(repeating: "=", count: (4 - encodedPayload.count % 4) % 4))
+
+        guard encodedPayload.count <= 16_384,
+              let payload = Data(base64Encoded: encodedPayload),
+              let object = try? JSONSerialization.jsonObject(with: payload) as? [String: Any],
+              let expiration = object["exp"] as? NSNumber,
+              expiration.doubleValue.isFinite else {
+            return nil
+        }
+        return Date(timeIntervalSince1970: expiration.doubleValue)
+    }
+
+    func preservingRefreshToken(from previous: AuthSession) -> AuthSession {
+        guard refreshToken?.isEmpty != false else { return self }
+        return AuthSession(
+            accessToken: accessToken,
+            refreshToken: previous.refreshToken,
+            user: user
+        )
+    }
+}
+
 /// Short-lived in-memory cache for archive content.  Views are recreated when
 /// switching tabs, so keeping the cache outside individual clients prevents a
 /// tab change from turning into another round-trip to Supabase.
@@ -92,10 +132,16 @@ private final class ArchiveContentCache {
 final class SupabaseRESTClient: @unchecked Sendable {
     let baseURL: URL
     let anonKey: String
+    private let urlSession: URLSession
 
-    init(baseURL: URL = AppConstants.supabaseURL, anonKey: String = AppConstants.supabaseAnonKey) {
+    init(
+        baseURL: URL = AppConstants.supabaseURL,
+        anonKey: String = AppConstants.supabaseAnonKey,
+        urlSession: URLSession = .shared
+    ) {
         self.baseURL = baseURL
         self.anonKey = anonKey
+        self.urlSession = urlSession
     }
 
     func fetchArray<T: Decodable>(
@@ -161,9 +207,37 @@ final class SupabaseRESTClient: @unchecked Sendable {
         )
     }
 
+    func rpc<T: Decodable, Body: Encodable>(
+        function: String,
+        body: Body,
+        returning: T.Type = T.self,
+        accessToken: String
+    ) async throws -> T {
+        try await request(
+            path: "/rest/v1/rpc/\(function)",
+            queryItems: [],
+            method: "POST",
+            body: body,
+            accessToken: accessToken
+        )
+    }
+
     func authSignIn(email: String, password: String) async throws -> AuthSession {
         let body = ["email": email, "password": password]
         return try await request(path: "/auth/v1/token", queryItems: [URLQueryItem(name: "grant_type", value: "password")], method: "POST", body: body)
+    }
+
+    func authRefresh(refreshToken: String) async throws -> AuthSession {
+        struct RefreshBody: Encodable {
+            var refreshToken: String
+        }
+
+        return try await request(
+            path: "/auth/v1/token",
+            queryItems: [URLQueryItem(name: "grant_type", value: "refresh_token")],
+            method: "POST",
+            body: RefreshBody(refreshToken: refreshToken)
+        )
     }
 
     func authSignUp(email: String, password: String, username: String?, inviteCode: String?) async throws -> AuthSession? {
@@ -171,6 +245,15 @@ final class SupabaseRESTClient: @unchecked Sendable {
             var email: String
             var password: String
             var data: [String: String]
+        }
+        struct SignUpResponse: Decodable {
+            var accessToken: String?
+            var refreshToken: String?
+            // GoTrue returns an access-token response (with a nested user)
+            // when autoconfirm is enabled, but a user object directly when
+            // email confirmation is required. Keeping this optional lets the
+            // same response type decode both documented shapes.
+            var user: SupabaseUser?
         }
 
         let body = SignUpBody(
@@ -181,7 +264,23 @@ final class SupabaseRESTClient: @unchecked Sendable {
                 "invite_code": inviteCode ?? ""
             ]
         )
-        return try await requestOptional(path: "/auth/v1/signup", queryItems: [], method: "POST", body: body)
+        let response: SignUpResponse = try await request(
+            path: "/auth/v1/signup",
+            queryItems: [],
+            method: "POST",
+            body: body
+        )
+        guard let accessToken = response.accessToken,
+              !accessToken.isEmpty,
+              let user = response.user else {
+            // Email confirmation can return a user without creating a session.
+            return nil
+        }
+        return AuthSession(
+            accessToken: accessToken,
+            refreshToken: response.refreshToken,
+            user: user
+        )
     }
 
     func authSignInWithApple(idToken: String, nonce: String?) async throws -> AuthSession {
@@ -208,16 +307,26 @@ final class SupabaseRESTClient: @unchecked Sendable {
         }
     }
 
-    func deleteAccount(accessToken: String, appleAuthorizationCode: String?) async throws {
+    func exchangeAppleAuthorizationCode(accessToken: String, authorizationCode: String) async throws {
         struct Body: Encodable {
-            var appleAuthorizationCode: String?
+            var authorizationCode: String
         }
 
+        let _: EmptyPayload = try await request(
+            path: "/functions/v1/apple-token-exchange",
+            queryItems: [],
+            method: "POST",
+            body: Body(authorizationCode: authorizationCode),
+            accessToken: accessToken
+        )
+    }
+
+    func deleteAccount(accessToken: String) async throws {
         let _: EmptyPayload = try await request(
             path: "/functions/v1/delete-account",
             queryItems: [],
             method: "POST",
-            body: Body(appleAuthorizationCode: appleAuthorizationCode),
+            body: Optional<EmptyPayload>.none,
             accessToken: accessToken
         )
     }
@@ -227,21 +336,6 @@ final class SupabaseRESTClient: @unchecked Sendable {
             .appending(path: "storage/v1/object/public")
             .appending(path: bucket)
             .appending(path: filename)
-    }
-
-    private func requestOptional<T: Decodable, Body: Encodable>(
-        path: String,
-        queryItems: [URLQueryItem],
-        method: String,
-        body: Body? = nil,
-        accessToken: String? = nil,
-        prefer: String? = nil
-    ) async throws -> T? {
-        do {
-            return try await request(path: path, queryItems: queryItems, method: method, body: body, accessToken: accessToken, prefer: prefer)
-        } catch APIError.emptyResponse {
-            return nil
-        }
     }
 
     private func request<T: Decodable, Body: Encodable>(
@@ -273,7 +367,7 @@ final class SupabaseRESTClient: @unchecked Sendable {
             request.httpBody = try JSONEncoder.supabase.encode(body)
         }
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await urlSession.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(statusCode) else {
             throw APIError.server(statusCode, String(data: data, encoding: .utf8) ?? "")
@@ -306,9 +400,14 @@ final class LibraryClient {
         }
 
         var items = [
-            URLQueryItem(name: "select", value: "*"),
+            // text_edition is deliberately excluded: editions are hundreds of
+            // kilobytes each, and the reader fetches them via fetchBook(id:).
+            URLQueryItem(
+                name: "select",
+                value: "id,title,author,year,description,cover_image_url,pdf_filename,epub_filename,pages,downloads,created_at,category,era,language,is_official"
+            ),
             URLQueryItem(name: "order", value: "created_at.desc"),
-            URLQueryItem(name: "limit", value: "40"),
+            URLQueryItem(name: "limit", value: "200"),
             URLQueryItem(name: "is_official", value: "eq.\(scope == .official ? "true" : "false")")
         ]
         if let category, !category.isEmpty {
@@ -321,9 +420,6 @@ final class LibraryClient {
         }
         let books: [Book] = try await client.fetchArray(table: "digital_library_books", queryItems: items)
         cache.books[key] = .init(value: books, date: Date())
-        for book in books {
-            cache.bookDetails[book.id] = .init(value: book, date: Date())
-        }
         return books
     }
 
