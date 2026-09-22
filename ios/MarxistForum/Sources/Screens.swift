@@ -861,8 +861,10 @@ struct ReaderScreen: View {
 
     var body: some View {
         Group {
-            if let book, let edition = book.textEdition, book.epubFilename == nil, !edition.sections.isEmpty {
-                TextEditionReaderScreen(book: book, edition: edition)
+            if let book, book.epubFilename == nil, hasReadableTextEdition || book.pdfFilename != nil {
+                // Text-edition titles use the fullscreen reader; titles that
+                // ship only a print PDF open straight into its PDF viewer.
+                TextEditionReaderScreen(book: book, edition: book.textEdition ?? TextEdition())
             } else {
                 ZStack(alignment: .bottom) {
                     Group {
@@ -920,6 +922,11 @@ struct ReaderScreen: View {
             return nil
         }
         return publication.chapters[currentChapterIndex]
+    }
+
+    private var hasReadableTextEdition: Bool {
+        guard let edition = book?.textEdition else { return false }
+        return !edition.sections.isEmpty
     }
 
     private var readerHTML: String {
