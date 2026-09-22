@@ -2,11 +2,11 @@ import PDFKit
 import SwiftUI
 
 /// How the text edition is presented: one continuous editorial scroll
-/// (the web edition), one-section-per-page ebook pages, or the print
-/// facsimile through the in-app PDF viewer.
+/// (the web edition), a chapter-by-chapter scrolling ebook view, or the
+/// print facsimile through the in-app PDF viewer.
 enum ReaderViewMode: String, CaseIterable, Identifiable {
     case scroll
-    case pages
+    case chapters
     case pdf
 
     var id: String { rawValue }
@@ -14,7 +14,7 @@ enum ReaderViewMode: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .scroll: "Scroll"
-        case .pages: "Pages"
+        case .chapters: "Chapters"
         case .pdf: "PDF"
         }
     }
@@ -22,7 +22,7 @@ enum ReaderViewMode: String, CaseIterable, Identifiable {
     var systemImage: String {
         switch self {
         case .scroll: "text.justify"
-        case .pages: "book"
+        case .chapters: "book"
         case .pdf: "doc.richtext"
         }
     }
@@ -32,7 +32,8 @@ enum ReaderViewMode: String, CaseIterable, Identifiable {
 /// scrolling editorial column with a sticky chapter header, a crimson
 /// progress rule and a numbered contents rail, in the manner of the
 /// website's TextEditionReader. Sections come from
-/// digital_library_books.text_edition.
+/// digital_library_books.text_edition. Titles that ship no text edition
+/// but do ship a print PDF open directly into the PDF viewer.
 struct TextEditionReaderScreen: View {
     let book: Book
     let edition: TextEdition
@@ -48,7 +49,6 @@ struct TextEditionReaderScreen: View {
     @State private var isShowingReaderSettings = false
     @State private var didRestorePosition = false
     @State private var sectionOrigins: [Int: CGFloat] = [:]
-    @State private var pageTurnIsForward = true
     @State private var scrollProxy: ScrollViewProxy?
     @State private var pdfDocument: PDFDocument?
     @State private var pdfPageCount = 0
@@ -91,28 +91,34 @@ struct TextEditionReaderScreen: View {
         )
     }
 
-    /// PDF mode is only offered for titles that actually ship a print file.
+    /// A PDF-only title (no text-edition sections) offers just the facsimile;
+    /// otherwise PDF mode is only offered when the book ships a print file.
     private var availableModes: [ReaderViewMode] {
-        book.pdfFilename == nil
-            ? [.scroll, .pages]
+        if sections.isEmpty { return [.pdf] }
+        return book.pdfFilename == nil
+            ? [.scroll, .chapters]
             : ReaderViewMode.allCases
     }
 
+    private var effectiveViewMode: ReaderViewMode {
+        availableModes.contains(viewMode) ? viewMode : availableModes[0]
+    }
+
     private var currentSectionTitle: String {
-        if viewMode == .pdf { return book.title }
+        if effectiveViewMode == .pdf { return book.title }
         guard sections.indices.contains(activeSectionIndex) else { return book.title }
         return sections[activeSectionIndex].title ?? "Section \(activeSectionIndex + 1)"
     }
 
     private var chapterCounter: String {
-        switch viewMode {
+        switch effectiveViewMode {
         case .pdf:
             var counter = "PDF edition"
             if pdfPageCount > 0 { counter = "PDF · \(pdfPageCount) pages" }
             return counter
-        case .pages:
+        case .chapters:
             return String(
-                format: "Page %02d of %02d",
+                format: "Chapter %02d of %02d",
                 min(activeSectionIndex + 1, max(sections.count, 1)),
                 max(sections.count, 1)
             )
@@ -131,9 +137,9 @@ struct TextEditionReaderScreen: View {
 
     var body: some View {
         Group {
-            switch viewMode {
+            switch effectiveViewMode {
             case .scroll: scrollReader
-            case .pages: pagedReader
+            case .chapters: chapterReader
             case .pdf: pdfReader
             }
         }
@@ -158,10 +164,15 @@ struct TextEditionReaderScreen: View {
             ReaderSettingsSheet(fontSize: $fontSize, theme: readerThemeBinding)
         }
         .onChange(of: activeSectionIndex) { _, newIndex in
-            if viewMode == .pages {
+            if effectiveViewMode == .chapters {
                 progress = Double(newIndex + 1) / Double(max(sections.count, 1))
             }
             persistProgress(to: newIndex)
+        }
+        .onAppear {
+            if viewModeRawValue != effectiveViewMode.rawValue {
+                viewModeRawValue = effectiveViewMode.rawValue
+            }
         }
     }
 
@@ -207,80 +218,86 @@ struct TextEditionReaderScreen: View {
         }
     }
 
-    // MARK: - Pages mode (ebook page turns, one section per page)
+    // MARK: - Chapters mode (ebook: one chapter at a time, scroll within)
 
-    private var pagedReader: some View {
-        ZStack {
-            if sections.indices.contains(activeSectionIndex) {
-                pagedSectionView(sections[activeSectionIndex], index: activeSectionIndex)
-                    .id(activeSectionIndex)
-                    .transition(
-                        .asymmetric(
-                            insertion: .move(edge: pageTurnIsForward ? .trailing : .leading).combined(with: .opacity),
-                            removal: .move(edge: pageTurnIsForward ? .leading : .trailing).combined(with: .opacity)
-                        )
-                    )
+    private var chapterReader: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                if sections.indices.contains(activeSectionIndex) {
+                    chapterBody(sections[activeSectionIndex], index: activeSectionIndex)
+                    chapterFooter
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .animation(.easeInOut(duration: 0.28), value: activeSectionIndex)
-        .simultaneousGesture(pageTurnDragGesture)
-        .overlay(alignment: .leading) { pageTapZone(forward: false) }
-        .overlay(alignment: .trailing) { pageTapZone(forward: true) }
+        .foregroundStyle(Color(hex: readerTheme.textHex))
         .safeAreaInset(edge: .top, spacing: 0) { stickyHeader }
         .overlay(alignment: .bottom) { toolbar }
+        // Reidentifying per chapter resets the scroll offset to the top of
+        // each chapter when the reader moves between them.
+        .id(activeSectionIndex)
         .onAppear {
             restorePosition()
             progress = Double(activeSectionIndex + 1) / Double(max(sections.count, 1))
         }
     }
 
-    private var pageTurnDragGesture: some Gesture {
-        DragGesture(minimumDistance: 24)
-            .onEnded { value in
-                let horizontal = value.translation.width
-                let vertical = value.translation.height
-                guard abs(horizontal) > 56, abs(horizontal) > abs(vertical) * 1.6 else { return }
-                turnPage(horizontal < 0 ? 1 : -1)
+    private func chapterBody(_ section: TextEditionSection, index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            if showsSectionTitle(section, index: index) {
+                Text(section.title ?? "")
+                    .font(sectionHeadingFont(section.level))
+                    .foregroundStyle(Color(hex: readerTheme.headingHex))
+                    .padding(.bottom, 4)
             }
-    }
-
-    private func pageTapZone(forward: Bool) -> some View {
-        Color.clear
-            .frame(width: 56)
-            .frame(maxHeight: .infinity)
-            .padding(.vertical, 110)
-            .contentShape(Rectangle())
-            .onTapGesture { turnPage(forward ? 1 : -1) }
-            .accessibilityHidden(true)
-    }
-
-    private func pagedSectionView(_ section: TextEditionSection, index: Int) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                if showsSectionTitle(section, index: index) {
-                    Text(section.title ?? "")
-                        .font(sectionHeadingFont(section.level))
-                        .foregroundStyle(Color(hex: readerTheme.headingHex))
-                        .padding(.bottom, 4)
-                }
-                StudyMarkdownDocument(markdown: section.md, bodyFontSize: fontSize)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 18)
-            .padding(.bottom, 120)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            StudyMarkdownDocument(markdown: section.md, bodyFontSize: fontSize)
         }
-        .foregroundStyle(Color(hex: readerTheme.textHex))
+        .padding(.horizontal, 24)
+        .padding(.top, 24)
+        .padding(.bottom, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Page \(index + 1) of \(sections.count)")
+        .accessibilityLabel("Chapter \(index + 1) of \(sections.count)")
     }
 
-    private func turnPage(_ delta: Int) {
-        let target = activeSectionIndex + delta
-        guard sections.indices.contains(target) else { return }
-        pageTurnIsForward = delta > 0
-        withAnimation(.easeInOut(duration: 0.28)) {
-            activeSectionIndex = target
+    /// End-of-chapter affordance: move on to the next chapter, or rest at
+    /// the end of the book — scrolling stays the only reading motion.
+    @ViewBuilder
+    private var chapterFooter: some View {
+        if activeSectionIndex < sections.count - 1 {
+            Button {
+                goToChapter(activeSectionIndex + 1)
+            } label: {
+                HStack(spacing: 8) {
+                    Text(sections.indices.contains(activeSectionIndex + 1)
+                         ? (sections[activeSectionIndex + 1].title ?? "Next chapter")
+                         : "Next chapter")
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(1)
+                    Image(systemName: "arrow.down")
+                        .font(.subheadline.weight(.semibold))
+                }
+                .foregroundStyle(Brand.redSoft)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .glassSurface(cornerRadius: 12, interactive: true)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 24)
+            .accessibilityLabel("Next chapter")
+        } else {
+            Text("End of \(book.title)")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 120)
+        }
+    }
+
+    private func goToChapter(_ index: Int) {
+        guard sections.indices.contains(index) else { return }
+        withAnimation(.easeInOut(duration: 0.25)) {
+            activeSectionIndex = index
         }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
@@ -315,7 +332,7 @@ struct TextEditionReaderScreen: View {
         .safeAreaInset(edge: .top, spacing: 0) { stickyHeader }
         .overlay(alignment: .bottom) { toolbar }
         .task(id: book.id) {
-            guard viewMode == .pdf, !didLoadPDF, pdfDocument == nil else { return }
+            guard effectiveViewMode == .pdf, !didLoadPDF, pdfDocument == nil else { return }
             await loadPDF()
         }
     }
@@ -430,7 +447,7 @@ struct TextEditionReaderScreen: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            if viewMode != .pdf {
+            if effectiveViewMode != .pdf {
                 Button {
                     adjustFont(-1)
                 } label: {
@@ -485,36 +502,31 @@ struct TextEditionReaderScreen: View {
 
     private var toolbar: some View {
         HStack(spacing: 10) {
-            if viewMode == .pages {
+            if effectiveViewMode == .chapters {
                 Button {
-                    turnPage(-1)
+                    goToChapter(activeSectionIndex - 1)
                 } label: {
                     Image(systemName: "chevron.left")
                         .toolbarIconChrome()
                 }
                 .glassSurface(cornerRadius: 9)
                 .disabled(activeSectionIndex == 0)
-                .accessibilityLabel("Previous page")
-
-                Text("Page \(min(activeSectionIndex + 1, max(sections.count, 1))) / \(max(sections.count, 1))")
-                    .font(.caption.monospacedDigit().weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(minWidth: 86)
+                .accessibilityLabel("Previous chapter")
 
                 Button {
-                    turnPage(1)
+                    goToChapter(activeSectionIndex + 1)
                 } label: {
                     Image(systemName: "chevron.right")
                         .toolbarIconChrome()
                 }
                 .glassSurface(cornerRadius: 9)
                 .disabled(activeSectionIndex >= sections.count - 1)
-                .accessibilityLabel("Next page")
+                .accessibilityLabel("Next chapter")
             }
 
             Spacer(minLength: 0)
 
-            if viewMode != .pdf {
+            if effectiveViewMode != .pdf {
                 Button {
                     isShowingContents = true
                 } label: {
@@ -551,8 +563,8 @@ struct TextEditionReaderScreen: View {
         .padding(.bottom, 10)
     }
 
-    /// Reading-format switcher: continuous scroll, ebook pages, or the
-    /// print PDF facsimile when the title ships one.
+    /// Reading-format switcher: continuous scroll, chapter-by-chapter
+    /// ebook reading, or the print PDF facsimile when the title ships one.
     private var viewOptionsMenu: some View {
         Menu {
             Picker("Reading format", selection: viewModeBinding) {
@@ -561,7 +573,7 @@ struct TextEditionReaderScreen: View {
                 }
             }
         } label: {
-            Image(systemName: viewMode.systemImage)
+            Image(systemName: effectiveViewMode.systemImage)
                 .font(.subheadline.weight(.semibold))
                 .frame(width: 30, height: 30)
                 .contentShape(Rectangle())
@@ -578,7 +590,7 @@ struct TextEditionReaderScreen: View {
         guard mode != viewMode, availableModes.contains(mode) else { return }
         viewModeRawValue = mode.rawValue
         switch mode {
-        case .pages:
+        case .chapters:
             progress = Double(activeSectionIndex + 1) / Double(max(sections.count, 1))
         case .pdf:
             progress = 0
@@ -628,7 +640,6 @@ struct TextEditionReaderScreen: View {
 
     private func jump(to index: Int, proxy: ScrollViewProxy?, animated: Bool = true) {
         guard sections.indices.contains(index) else { return }
-        pageTurnIsForward = index > activeSectionIndex
         activeSectionIndex = index
         guard let proxy else { return }
         let delay: UInt64 = animated ? 250 : 150
