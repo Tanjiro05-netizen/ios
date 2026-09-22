@@ -856,8 +856,16 @@ struct ReaderScreen: View {
     @State private var isShowingTOC = false
     @State private var isShowingReaderSettings = false
     @State private var selectedReaderText = ""
+    @State private var epubPageInfo: (page: Int, total: Int)?
+    @State private var epubTurnRequest: EpubPageTurnRequest?
+    @State private var epubTurnCounter = 0
     @AppStorage("ios.reader.fontSize") private var fontSize: Double = 18
     @AppStorage("ios.reader.theme") private var readerThemeRawValue = ReaderTheme.night.rawValue
+    @AppStorage("ios.reader.epubViewMode") private var epubViewModeRawValue = EpubViewMode.pages.rawValue
+
+    private var epubViewMode: EpubViewMode {
+        EpubViewMode(rawValue: epubViewModeRawValue) ?? .pages
+    }
 
     var body: some View {
         Group {
@@ -873,6 +881,11 @@ struct ReaderScreen: View {
                                 chapterURL: currentChapter.fileURL,
                                 fontSize: fontSize,
                                 theme: readerTheme,
+                                isPaginated: epubViewMode == .pages,
+                                turnRequest: epubTurnRequest,
+                                onPageInfo: { page, total in
+                                    epubPageInfo = (page, total)
+                                },
                                 selectedText: $selectedReaderText
                             )
                         } else {
@@ -971,11 +984,11 @@ struct ReaderScreen: View {
                         currentChapterIndex = max(currentChapterIndex - 1, 0)
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.headline)
-                            .frame(width: 32, height: 32)
+                            .toolbarIconChrome()
                     }
-                    .glassButtonStyle()
+                    .glassSurface(cornerRadius: 9)
                     .disabled(currentChapterIndex == 0)
+                    .accessibilityLabel("Previous chapter")
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Chapter \(currentChapterIndex + 1) of \(publication.chapters.count)")
@@ -991,11 +1004,11 @@ struct ReaderScreen: View {
                         currentChapterIndex = min(currentChapterIndex + 1, publication.chapters.count - 1)
                     } label: {
                         Image(systemName: "chevron.right")
-                            .font(.headline)
-                            .frame(width: 32, height: 32)
+                            .toolbarIconChrome()
                     }
-                    .glassButtonStyle()
+                    .glassSurface(cornerRadius: 9)
                     .disabled(currentChapterIndex >= publication.chapters.count - 1)
+                    .accessibilityLabel("Next chapter")
                 }
                 ReaderProgressLine(progress: readerProgress)
             } else if let readerStatusMessage {
@@ -1005,6 +1018,35 @@ struct ReaderScreen: View {
             }
 
             HStack(spacing: 10) {
+                if publication != nil, epubViewMode == .pages {
+                    Button {
+                        turnEpubPage(-1)
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .toolbarIconChrome()
+                    }
+                    .glassSurface(cornerRadius: 9)
+                    .disabled(epubPageInfo?.page == 1)
+                    .accessibilityLabel("Previous page")
+
+                    if let pageInfo = epubPageInfo {
+                        Text("Page \(pageInfo.page) / \(pageInfo.total)")
+                            .font(.caption.monospacedDigit().weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(minWidth: 86)
+                    }
+
+                    Button {
+                        turnEpubPage(1)
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .toolbarIconChrome()
+                    }
+                    .glassSurface(cornerRadius: 9)
+                    .disabled(epubPageInfo.map { $0.page >= $0.total } == true)
+                    .accessibilityLabel("Next page")
+                }
+
                 Button {
                     Task { await prepareEpub(book, shareWhenReady: true) }
                 } label: {
@@ -1055,6 +1097,10 @@ struct ReaderScreen: View {
                 .glassButtonStyle()
                 .accessibilityLabel("Reader settings")
 
+                if publication != nil {
+                    epubFormatMenu
+                }
+
                 Spacer(minLength: 8)
 
                 Text(readerTheme.title)
@@ -1066,6 +1112,38 @@ struct ReaderScreen: View {
         .glassSurface(cornerRadius: 14, interactive: true)
         .padding(.horizontal, 14)
         .padding(.bottom, 10)
+    }
+
+    /// Epub reading-format switcher: classic page-turning pages or a
+    /// continuous chapter scroll.
+    private var epubFormatMenu: some View {
+        Menu {
+            Picker("Reading format", selection: Binding(
+                get: { epubViewMode },
+                set: { newValue in
+                    epubViewModeRawValue = newValue.rawValue
+                    epubPageInfo = nil
+                }
+            )) {
+                ForEach(EpubViewMode.allCases) { mode in
+                    Label(mode.title, systemImage: mode.systemImage).tag(mode)
+                }
+            }
+        } label: {
+            Image(systemName: epubViewMode.systemImage)
+                .font(.subheadline.weight(.semibold))
+                .frame(width: 30, height: 30)
+                .contentShape(Rectangle())
+                .accessibilityLabel("Reading format options")
+        }
+        .glassSurface(cornerRadius: 9)
+        .accessibilityIdentifier("epub.format-menu")
+        .accessibilityLabel("Reading format options")
+    }
+
+    private func turnEpubPage(_ delta: Int) {
+        epubTurnCounter += 1
+        epubTurnRequest = EpubPageTurnRequest(id: epubTurnCounter, delta: delta)
     }
 
     private func loadBook() async {
@@ -1237,10 +1315,42 @@ struct ReaderWebView: UIViewRepresentable {
     }
 }
 
+/// A native request to turn one page of the paginated epub webview.
+struct EpubPageTurnRequest: Equatable {
+    let id: Int
+    let delta: Int
+}
+
+/// How an epub is read: classic page-turning pages or a continuous
+/// vertical scroll through each chapter.
+enum EpubViewMode: String, CaseIterable, Identifiable {
+    case scroll
+    case pages
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .scroll: "Scroll"
+        case .pages: "Pages"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .scroll: "text.justify"
+        case .pages: "book"
+        }
+    }
+}
+
 struct EpubChapterWebView: UIViewRepresentable {
     let chapterURL: URL
     let fontSize: Double
     let theme: ReaderTheme
+    var isPaginated = false
+    var turnRequest: EpubPageTurnRequest? = nil
+    var onPageInfo: (( _ page: Int, _ total: Int) -> Void)? = nil
     @Binding var selectedText: String
 
     func makeCoordinator() -> Coordinator {
@@ -1272,6 +1382,7 @@ struct EpubChapterWebView: UIViewRepresentable {
         """
         userContentController.addUserScript(WKUserScript(source: selectionScript, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
         userContentController.add(context.coordinator, name: "selectedReaderText")
+        userContentController.add(context.coordinator, name: "epubPageChanged")
         configuration.userContentController = userContentController
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
@@ -1279,31 +1390,118 @@ struct EpubChapterWebView: UIViewRepresentable {
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
         webView.scrollView.contentInsetAdjustmentBehavior = .never
+        context.coordinator.webView = webView
         return webView
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
+        context.coordinator.onPageInfo = onPageInfo
+
+        if let turnRequest,
+           turnRequest.id != context.coordinator.lastTurnRequestID {
+            context.coordinator.lastTurnRequestID = turnRequest.id
+            uiView.evaluateJavaScript("window.__readerTurn(\(turnRequest.delta))")
+        }
+
         guard context.coordinator.loadedChapterURL != chapterURL
                 || context.coordinator.loadedFontSize != fontSize
-                || context.coordinator.loadedTheme != theme else {
+                || context.coordinator.loadedTheme != theme
+                || context.coordinator.loadedIsPaginated != isPaginated else {
             return
         }
 
         context.coordinator.loadedChapterURL = chapterURL
         context.coordinator.loadedFontSize = fontSize
         context.coordinator.loadedTheme = theme
+        context.coordinator.loadedIsPaginated = isPaginated
 
         let html = (try? String(contentsOf: chapterURL, encoding: .utf8))
             ?? (try? String(contentsOf: chapterURL, encoding: .isoLatin1))
             ?? ReaderHTML.page(title: "Chapter unavailable", subtitle: chapterURL.lastPathComponent, body: "")
-        uiView.loadHTMLString(injectReaderCSS(into: html, fontSize: fontSize, theme: theme), baseURL: chapterURL.deletingLastPathComponent())
+        uiView.loadHTMLString(
+            injectReaderCSS(into: html, fontSize: fontSize, theme: theme, isPaginated: isPaginated),
+            baseURL: chapterURL.deletingLastPathComponent()
+        )
     }
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "selectedReaderText")
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "epubPageChanged")
     }
 
-    private func injectReaderCSS(into html: String, fontSize: Double, theme: ReaderTheme) -> String {
+    private func injectReaderCSS(into html: String, fontSize: Double, theme: ReaderTheme, isPaginated: Bool) -> String {
+        let paginationCSS = isPaginated
+            ? """
+            html { height: 100% !important; overflow: hidden !important; }
+            body {
+              height: 100vh !important;
+              box-sizing: border-box !important;
+              width: 100vw !important;
+              padding: 66px 22px 54px !important;
+              column-fill: auto !important;
+              -webkit-column-fill: auto !important;
+              column-width: calc(100vw - 44px) !important;
+              -webkit-column-width: calc(100vw - 44px) !important;
+              column-gap: 44px !important;
+              -webkit-column-gap: 44px !important;
+              overflow: hidden !important;
+              transition: transform 0.26s ease;
+            }
+            """
+            : ""
+        let paginationScript = isPaginated
+            ? """
+            <script>
+            (function() {
+              var GAP = 44;
+              window.__readerPage = 1;
+              function metrics() {
+                var body = document.body;
+                var cs = getComputedStyle(body);
+                var colW = parseFloat(cs.columnWidth) || parseFloat(cs.webkitColumnWidth) || body.clientWidth;
+                var extent = Math.max(body.scrollWidth, document.documentElement.scrollWidth);
+                var total = Math.max(1, Math.round((extent + GAP) / (colW + GAP)));
+                return { colW: colW, total: total };
+              }
+              function report() {
+                var m = metrics();
+                window.webkit.messageHandlers.epubPageChanged.postMessage({ page: window.__readerPage, total: m.total });
+              }
+              window.__readerTurn = function(delta) {
+                var m = metrics();
+                var next = Math.min(Math.max(window.__readerPage + delta, 1), m.total);
+                window.__readerPage = next;
+                var offset = (next - 1) * (m.colW + GAP);
+                document.body.style.transform = 'translateX(-' + offset + 'px)';
+                report();
+              };
+              document.addEventListener('click', function(event) {
+                var x = event.clientX;
+                var w = window.innerWidth;
+                if (x < w * 0.28) { window.__readerTurn(-1); }
+                else if (x > w * 0.72) { window.__readerTurn(1); }
+              });
+              // Column layout settles asynchronously (fonts, images, webview
+              // sizing); re-report until the page count stops changing.
+              var lastTotal = 0;
+              function settleReport() {
+                var m = metrics();
+                if (m.total !== lastTotal) {
+                  lastTotal = m.total;
+                  report();
+                }
+              }
+              [80, 300, 800, 1600, 3000].forEach(function(delay) {
+                setTimeout(settleReport, delay);
+              });
+              window.addEventListener('load', function() { setTimeout(settleReport, 120); });
+              if (typeof ResizeObserver !== 'undefined') {
+                new ResizeObserver(settleReport).observe(document.documentElement);
+              }
+            })();
+            </script>
+            """
+            : ""
         let css = """
         <style>
         :root { color-scheme: \(theme.scheme); }
@@ -1319,6 +1517,7 @@ struct EpubChapterWebView: UIViewRepresentable {
           overflow-wrap: break-word !important;
           -webkit-text-size-adjust: 100%;
         }
+        \(paginationCSS)
         body * { max-width: 100% !important; }
         p, li, blockquote { color: \(theme.textHex) !important; }
         h1, h2, h3, h4, h5, h6 {
@@ -1334,6 +1533,7 @@ struct EpubChapterWebView: UIViewRepresentable {
         table { display: block !important; overflow-x: auto !important; width: 100% !important; }
         hr { border: 0; border-top: 1px solid rgba(255,255,255,0.16); margin: 2em 0; }
         </style>
+        \(paginationScript)
         """
 
         if let range = html.range(of: "</head>", options: [.caseInsensitive]) {
@@ -1355,6 +1555,10 @@ struct EpubChapterWebView: UIViewRepresentable {
         var loadedChapterURL: URL?
         var loadedFontSize: Double?
         var loadedTheme: ReaderTheme?
+        var loadedIsPaginated: Bool?
+        var lastTurnRequestID: Int?
+        var onPageInfo: ((_ page: Int, _ total: Int) -> Void)?
+        weak var webView: WKWebView?
         private var selectedText: Binding<String>
 
         init(selectedText: Binding<String>) {
@@ -1363,11 +1567,18 @@ struct EpubChapterWebView: UIViewRepresentable {
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            guard message.name == "selectedReaderText",
-                  let text = message.body as? String else {
-                return
+            switch message.name {
+            case "selectedReaderText":
+                guard let text = message.body as? String else { return }
+                selectedText.wrappedValue = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            case "epubPageChanged":
+                guard let info = message.body as? [String: Any],
+                      let page = info["page"] as? Int,
+                      let total = info["total"] as? Int else { return }
+                onPageInfo?(page, total)
+            default:
+                break
             }
-            selectedText.wrappedValue = text.trimmingCharacters(in: .whitespacesAndNewlines)
         }
     }
 }
