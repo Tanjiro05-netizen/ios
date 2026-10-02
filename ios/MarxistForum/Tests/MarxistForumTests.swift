@@ -69,6 +69,39 @@ final class MarxistForumTests: XCTestCase {
         XCTAssertEqual(edition.sections[1].md, "The party is not a…")
     }
 
+    @MainActor
+    func testOfflineEditionDiskCacheRoundTrip() throws {
+        let client = LibraryClient()
+        let book = Book(
+            id: "offline-roundtrip-test",
+            title: "Offline Cache Test",
+            author: "Test Author",
+            year: 1934,
+            pdfFilename: "test.pdf",
+            textEdition: TextEdition(
+                sections: [
+                    TextEditionSection(id: "s0", title: "Front matter", level: 1, md: "Source: offline"),
+                    TextEditionSection(id: "s1", title: "Chapter One", level: 1, md: "The text survives the disk.")
+                ],
+                readingMinutes: 7,
+                source: "txt",
+                generatedAt: "2026-09-22T00:00:00Z"
+            )
+        )
+
+        client.storeOfflineEdition(book)
+        let loaded = try XCTUnwrap(client.offlineEdition(bookId: book.id))
+
+        XCTAssertEqual(loaded.title, book.title)
+        XCTAssertEqual(loaded.author, book.author)
+        XCTAssertEqual(loaded.pdfFilename, "test.pdf")
+        let edition = try XCTUnwrap(loaded.textEdition)
+        XCTAssertEqual(edition.readingMinutes, 7)
+        XCTAssertEqual(edition.sections.count, 2)
+        XCTAssertEqual(edition.sections[1].title, "Chapter One")
+        XCTAssertEqual(edition.sections[1].md, "The text survives the disk.")
+    }
+
     func testBookWithoutTextEditionDecodesToNil() throws {
         let json = """
         {

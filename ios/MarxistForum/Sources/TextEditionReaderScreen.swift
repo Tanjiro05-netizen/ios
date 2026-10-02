@@ -310,8 +310,12 @@ struct TextEditionReaderScreen: View {
                 TextEditionPDFPageView(
                     document: pdfDocument,
                     readerTheme: readerTheme,
+                    initialPageIndex: readerDefaults.integer(forKey: pdfPageKey),
                     progress: $progress,
-                    pageCount: $pdfPageCount
+                    pageCount: $pdfPageCount,
+                    onPageChange: { pageIndex in
+                        readerDefaults.set(pageIndex, forKey: pdfPageKey)
+                    }
                 )
                 .ignoresSafeArea(edges: .bottom)
             } else if let pdfErrorMessage {
@@ -683,6 +687,10 @@ struct TextEditionReaderScreen: View {
     private var readerProgressKey: String {
         "ios.reader.textSection.\(book.id)"
     }
+
+    private var pdfPageKey: String {
+        "ios.reader.pdfPage.\(book.id)"
+    }
 }
 
 /// Reports a section's vertical origin inside the scroll coordinate space so
@@ -712,12 +720,15 @@ private struct SectionOriginPreferenceKey: PreferenceKey {
 
 /// Continuous PDFKit surface for the print facsimile: auto-scaled pages,
 /// vertical flow, theme-matched backdrop, and page-changed reporting so the
-/// crimson header rule tracks reading position like the text modes.
+/// crimson header rule tracks reading position like the text modes. The
+/// last read page is restored on open and reported back on every change.
 private struct TextEditionPDFPageView: UIViewRepresentable {
     let document: PDFDocument
     let readerTheme: ReaderTheme
+    let initialPageIndex: Int
     @Binding var progress: Double
     @Binding var pageCount: Int
+    var onPageChange: ((Int) -> Void)?
 
     func makeUIView(context: Context) -> PDFView {
         let view = PDFView()
@@ -729,12 +740,18 @@ private struct TextEditionPDFPageView: UIViewRepresentable {
         view.backgroundColor = UIColor(Color(hex: readerTheme.backgroundHex))
         view.document = document
         pageCount = document.pageCount
-        context.coordinator.attach(view: view, progress: $progress)
+        context.coordinator.attach(
+            view: view,
+            progress: $progress,
+            onPageChange: onPageChange
+        )
+        context.coordinator.restoreInitialPage(initialPageIndex)
         return view
     }
 
     func updateUIView(_ view: PDFView, context: Context) {
         view.backgroundColor = UIColor(Color(hex: readerTheme.backgroundHex))
+        context.coordinator.onPageChange = onPageChange
     }
 
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -744,12 +761,19 @@ private struct TextEditionPDFPageView: UIViewRepresentable {
         private weak var view: PDFView?
         private var document: PDFDocument?
         private var progress: Binding<Double>?
+        var onPageChange: ((Int) -> Void)?
+        private var didRestorePage = false
 
-        func attach(view: PDFView, progress: Binding<Double>) {
+        func attach(
+            view: PDFView,
+            progress: Binding<Double>,
+            onPageChange: ((Int) -> Void)?
+        ) {
             guard observer == nil else { return }
             self.view = view
             self.document = view.document
             self.progress = progress
+            self.onPageChange = onPageChange
             observer = NotificationCenter.default.addObserver(
                 forName: .PDFViewPageChanged,
                 object: view,
@@ -759,12 +783,27 @@ private struct TextEditionPDFPageView: UIViewRepresentable {
             }
         }
 
+        /// PDFKit needs a laid-out document view before `go(to:)` can jump;
+        /// restore once, shortly after the first layout pass.
+        @MainActor
+        func restoreInitialPage(_ index: Int) {
+            guard !didRestorePage, index > 0 else { return }
+            didRestorePage = true
+            Task { [weak self] in
+                try? await Task.sleep(for: .milliseconds(350))
+                guard let self, let view = self.view,
+                      let page = self.document?.page(at: index) else { return }
+                view.go(to: page)
+            }
+        }
+
         private func reportProgress() {
             guard let view, let document, let progress else { return }
             guard let page = view.currentPage else { return }
             let index = document.index(for: page)
             guard index >= 0, document.pageCount > 0 else { return }
             progress.wrappedValue = Double(index + 1) / Double(document.pageCount)
+            onPageChange?(index)
         }
 
         deinit {

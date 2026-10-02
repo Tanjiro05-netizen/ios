@@ -1169,8 +1169,21 @@ struct ReaderScreen: View {
                 Task { await prepareEpub(fetchedBook) }
             }
         } catch {
-            errorMessage = error.localizedDescription
-            isLoading = false
+            // Offline: fall back to the book's last on-disk copy, the same
+            // way saved EPUBs and audiobooks keep working without a network.
+            if let offlineBook = client.offlineEdition(bookId: bookId) {
+                book = offlineBook
+                errorMessage = nil
+                isLoading = false
+                let usesTextEdition = offlineBook.epubFilename == nil
+                    && !(offlineBook.textEdition?.sections.isEmpty ?? true)
+                if !usesTextEdition {
+                    Task { await prepareEpub(offlineBook) }
+                }
+            } else {
+                errorMessage = error.localizedDescription
+                isLoading = false
+            }
         }
     }
 
