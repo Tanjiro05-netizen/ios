@@ -436,8 +436,40 @@ final class LibraryClient {
         )
         if let book = books.first {
             cache.bookDetails[id] = .init(value: book, date: Date())
+            storeOfflineEdition(book)
+            return book
         }
         return books.first
+    }
+
+    // MARK: - Offline editions
+    //
+    // Text editions are fetched per open and normally live only in the
+    // in-memory cache; a disk copy keeps books readable with no connection
+    // (EPUBs and audiobooks already have their own download stores).
+
+    /// Stores the book row — including its text edition — on disk for
+    /// offline reading. Failures are ignored: the cache is best-effort.
+    func storeOfflineEdition(_ book: Book) {
+        guard let url = Self.offlineEditionURL(bookId: book.id),
+              let data = try? JSONEncoder.supabase.encode(book) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+
+    /// Returns the last on-disk copy of a book, or nil when it was never
+    /// opened online (or the cache was purged by the system).
+    func offlineEdition(bookId: String) -> Book? {
+        guard let url = Self.offlineEditionURL(bookId: bookId),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder.supabase.decode(Book.self, from: data)
+    }
+
+    private static func offlineEditionURL(bookId: String) -> URL? {
+        let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("offline-editions", isDirectory: true)
+        guard let directory else { return nil }
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory.appendingPathComponent("\(bookId).json")
     }
 
     func fetchCategories(forceRefresh: Bool = false) async throws -> [String] {
