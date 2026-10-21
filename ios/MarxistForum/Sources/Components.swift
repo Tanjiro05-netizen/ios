@@ -60,6 +60,64 @@ extension View {
     }
 }
 
+/// Timings for the one change of place worth marking: signing in to the
+/// library. They mirror the web app's `--dur-place` scale (860ms), with the
+/// outgoing page fading over 70% of it and the incoming page rising over the
+/// last 51%, so the two overlap for a beat and dip through the background.
+enum PlaceMotion {
+    static let duration: Double = 0.86
+    static let out: Double = duration * 0.7
+    static let `in`: Double = duration * 0.51
+    static let inDelay: Double = duration * 0.49
+    static let wordmarkScale: CGFloat = 0.6
+
+    static let travel = Animation.timingCurve(0.4, 0, 0.2, 1, duration: duration)
+
+    /// Login leaves quickly; the library arrives late and gently.
+    static func transition(reduceMotion: Bool) -> AnyTransition {
+        if reduceMotion { return .opacity }
+        return .asymmetric(
+            insertion: .opacity.animation(.easeOut(duration: `in`).delay(inDelay)),
+            removal: .opacity.animation(.easeIn(duration: out))
+        )
+    }
+}
+
+/// The serif wordmark shared by the login header and the arrival overlay.
+/// Both ends of the travel carry the same matched-geometry id, so there is one
+/// thing to hold on to while everything behind it changes.
+struct BrandWordmark: View {
+    var body: some View {
+        Text("MarxistInfo")
+            .font(.system(size: 34, weight: .semibold, design: .serif))
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+            .fixedSize()
+    }
+}
+
+private struct WordmarkNamespaceKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+extension EnvironmentValues {
+    var wordmarkNamespace: Namespace.ID? {
+        get { self[WordmarkNamespaceKey.self] }
+        set { self[WordmarkNamespaceKey.self] = newValue }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func wordmarkMatch(in namespace: Namespace.ID?, isSource: Bool) -> some View {
+        if let namespace {
+            matchedGeometryEffect(id: "site-wordmark", in: namespace, isSource: isSource)
+        } else {
+            self
+        }
+    }
+}
+
 struct PressableScaleButtonStyle: ButtonStyle {
     var scale: CGFloat = 0.97
     @Environment(\.accessibilityReduceMotion) private var reduceMotion

@@ -226,6 +226,8 @@ struct LoginScreen: View {
 }
 
 private struct LoginHeader: View {
+    @Environment(\.wordmarkNamespace) private var wordmarkNamespace
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Image(systemName: "books.vertical.fill")
@@ -235,11 +237,8 @@ private struct LoginHeader: View {
                 .background(Brand.red.opacity(0.1), in: Circle())
                 .accessibilityHidden(true)
 
-            Text("MarxistInfo")
-                .font(.system(size: 34, weight: .semibold, design: .serif))
-                .foregroundStyle(.primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
+            BrandWordmark()
+                .wordmarkMatch(in: wordmarkNamespace, isSource: true)
                 .padding(.top, 10)
 
             Text("Library & Study Center")

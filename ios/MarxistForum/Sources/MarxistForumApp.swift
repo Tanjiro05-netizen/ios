@@ -155,6 +155,18 @@ struct MarxistForumApp: App {
 struct RootView: View {
     @Environment(AuthStore.self) private var auth
     @Environment(ReadingActivityStore.self) private var readingActivity
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Namespace private var wordmarkNamespace
+
+    // The wordmark only travels on the way out of the login screen. A cold
+    // launch with a restored session, or signing out, lands plainly.
+    @State private var cameFromLogin = false
+    @State private var wordmarkShrunk = false
+    @State private var arrivalDone = false
+
+    private var showsArrivalWordmark: Bool {
+        auth.isAuthenticated && cameFromLogin && !arrivalDone && !reduceMotion
+    }
 
     var body: some View {
         ZStack {
@@ -165,9 +177,41 @@ struct RootView: View {
                     .glassSurface()
             } else if auth.isAuthenticated {
                 AppView()
+                    .transition(PlaceMotion.transition(reduceMotion: reduceMotion))
             } else {
                 LoginScreen()
+                    .environment(\.wordmarkNamespace, wordmarkNamespace)
+                    .transition(PlaceMotion.transition(reduceMotion: reduceMotion))
+                    .onAppear {
+                        cameFromLogin = true
+                        wordmarkShrunk = false
+                        arrivalDone = false
+                    }
             }
+        }
+        .overlay(alignment: .top) {
+            if showsArrivalWordmark {
+                BrandWordmark()
+                    .wordmarkMatch(in: wordmarkNamespace, isSource: false)
+                    .scaleEffect(wordmarkShrunk ? PlaceMotion.wordmarkScale : 1)
+                    .padding(.top, 8)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
+        .animation(
+            reduceMotion ? .easeInOut(duration: 0.2) : PlaceMotion.travel,
+            value: auth.isAuthenticated
+        )
+        .task(id: auth.isAuthenticated) {
+            guard auth.isAuthenticated, cameFromLogin, !reduceMotion else { return }
+            try? await Task.sleep(for: .milliseconds(80))
+            withAnimation(PlaceMotion.travel) { wordmarkShrunk = true }
+            try? await Task.sleep(for: .milliseconds(Int(PlaceMotion.duration * 1000)))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.3)) { arrivalDone = true }
+            cameFromLogin = false
         }
         .task(id: auth.userId) {
             guard let userId = auth.userId, let accessToken = auth.accessToken else { return }
